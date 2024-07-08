@@ -240,7 +240,7 @@ config.include FactoryBot::Syntax::Methods
 ```
 - in `~/app/backend/config/initializers/cors.rb` uncomment lines 10-18
 
-## Auth Specs
+### Auth Specs
 - `mkdir spec/requests`
 - `touch spec/requests/auth_spec.rb`
 - `make spec/requests/auth_spec.rb` look like this:
@@ -331,7 +331,7 @@ end
 - `npm run lint` 
 - `npm run lint:fix` 
 
-## Sass
+### Sass
 - `cd ~/app/frontend`
 - `npm install --save-dev sass`
 - `mkdir -p assets/scss`
@@ -343,7 +343,7 @@ css: ['~/assets/scss/main.scss'],
 - `npm run dev`
 - `^ + c`
 
-## Picocss
+### Picocss
 - `cd ~/app/frontend`
 - `npm install @picocss/pico`
 - add to `~/app/frontend/assets/scss/main.scss`:
@@ -371,7 +371,7 @@ css: ['~/assets/scss/main.scss'],
 - `npm run dev` -> "Hello World" has left & top margin
 - `^ + c`
 
-## Pages
+### Pages
 - `mkdir pages`
 - `touch pages/index.vue`
 - make `~/app/frontend/pages/index.vue` look like:
@@ -382,7 +382,7 @@ css: ['~/assets/scss/main.scss'],
 ```
 - `rm ~/app/frontend/app.vue`
 
-## Layouts
+### Layouts
 - `mkdir ~/app/frontend/layouts`
 - `touch ~/app/frontend/layouts/default.vue`
 - add this to `~/app/frontend/layouts/default.vue`:
@@ -394,7 +394,7 @@ css: ['~/assets/scss/main.scss'],
 </template>
 ```
 
-## Body
+### Body
 - copy the everything inside the `<main>...</main>` section from the Picocss Classless Example here https://x4qtf8.csb.app and paste it in `~/app/frontend/pages/index.vue` so it replaces the current `<h1>Hello World</h1>`
 - remove the blockquote and list sections within the `main` so `~/app/frontend/pages/index.vue` looks like this:
 ```
@@ -410,7 +410,7 @@ css: ['~/assets/scss/main.scss'],
 </template>
 ```
 
-## Header
+### Header
 - in `~/app/frontend/layouts/default.vue` repleace the current `<header>header</header>` with the whole header section from the Classless Picocss Example page: 
 ```
 <header>
@@ -428,7 +428,7 @@ css: ['~/assets/scss/main.scss'],
 </header>
 ```
 
-## Footer
+### Footer
 - in `~/app/frontend/layouts/default.vue` repleace the current `<footer>footer</footer>` with the whole footer section from the Classless Picocss Example page: 
 ```
 <footer>
@@ -444,7 +444,7 @@ css: ['~/assets/scss/main.scss'],
 - `npm run dev` -> header, body & footer all show
 - `^ + c`
 
-## Content
+### Content
 - change `~/app/frontend/layouts/default.vue` so it looks like this:
 ```
 <template>
@@ -481,7 +481,7 @@ css: ['~/assets/scss/main.scss'],
 - `npm run dev` -> new content shows
 - `^ + c`
 
-## NuxtLinks
+### NuxtLinks
 - make `~/app/frontend/layouts/default.vue` look like this:
 ```
 <template>
@@ -508,7 +508,7 @@ css: ['~/assets/scss/main.scss'],
 ```
 - (subpages not yet built out yet, will link to 404 right now)
 
-## Components
+### Components
 - `cd ~/app/frontend`
 - `mkdir components`
 - `cd components`
@@ -550,7 +550,7 @@ css: ['~/assets/scss/main.scss'],
 - `npm run dev` -> header, body & footer all show
 - `^ + c`
 
-## Subpages
+### Subpages
 - `cd ~/app/frontend/pages`
 - `touch public.vue private.vue`
 - make `~/app/frontend/pages/public.vue` look like this:
@@ -571,7 +571,7 @@ css: ['~/assets/scss/main.scss'],
 - `npm run dev` -> home, public & private links work (private page is not yet locked)
 - `^ + c`
 
-## Icon 
+### Icon 
 - install the VSCode Iconify IntelliSense extention
 - in `~/app/frontend/components/Header.vue` add this inside the `<h1>`:
 ```
@@ -593,7 +593,7 @@ h1 {
 - `npm run dev`
 - `^ + c`
 
-## Mock API
+### Mock API
 - `mkdir -p ~/app/frontend/server/api/auth`
 - `cd ~/app/frontend/server/api/auth`
 - `touch login.post.ts logout.post.ts session.get.ts`
@@ -628,7 +628,7 @@ export default eventHandler(() => {
 })
 ```
 
-## Auth
+### Auth
 - `cd ~/app/frontend`
 - `npx nuxi@latest module add @sidebase/nuxt-auth`
 - `npm install`
@@ -653,7 +653,7 @@ auth: {
 - `npm run dev` -> Private page redirects to homepage
 - `^ + c`
 
-## Login Form
+### Login Form
 - change `~/app/frontend/pages/index.vue` to look like this:
 ```
 <script setup>
@@ -681,7 +681,7 @@ async function login() {
 </template>
 ```
 
-## Logout Button
+### Logout Button
 - make `~/app/frontend/components/Header.vue` look like this:
 ```
 <script setup>
@@ -743,7 +743,7 @@ h1 {
 - `npm run dev` -> Login/logout & private page works
 - `^ + c`
 
-## Nuxt Port 3001
+### Nuxt Port 3001
 - to `~/app/frontend/nuxt.config.ts` add:
 ```
 devServer: {
