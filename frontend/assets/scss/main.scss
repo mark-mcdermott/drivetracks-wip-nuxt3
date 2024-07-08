@@ -1,0 +1,5 @@
+@use '@picocss/pico/scss/pico' with (
+  $semantic-root-element: '#__nuxt',
+  $enable-semantic-container: true,
+  $enable-classes: false
+)
