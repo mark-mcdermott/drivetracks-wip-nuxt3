@@ -26,7 +26,6 @@
 - make `eslint.config.mjs` look like this:
 ```
 import antfu from '@antfu/eslint-config'
-
 export default antfu({
   vue: true
 })
@@ -39,7 +38,7 @@ export default antfu({
 - `npm run lint` 
 - `npm run lint:fix` 
 
-### Install Vitest
+### Vitest
 - install VSCode `Vitest` extension
 - `cd ~/app/frontend`
 - `npm install --save-dev @nuxt/test-utils vitest @vue/test-utils happy-dom eslint-plugin-vitest`
@@ -236,8 +235,12 @@ describe('Private page has correct copy', () => {
 - `cd ~/app`
 - `rails new backend --api --database=postgresql`
 - `cd backend`
-- `bundle add rspec-rails factory_bot_rails --group "development, test"`
-- `bundle add rubocop-rails rack-cors`
+- `bundle add rack-cors`
+- `bundle install`
+- in `~/app/backend/config/initializers/cors.rb` uncomment lines 10-18 and change the `origins` line to `origins "*"`
+
+### Rubocop
+- `bundle add rubocop-rails`
 - `bundle install`
 - `touch .rubocop.yml`
 - to `.rubocop.yml` add:
@@ -247,6 +250,10 @@ Style/Documentation:
   Enabled: false
 ```
 - `rubocop -A`
+
+### RSpec
+- `bundle add rspec-rails factory_bot_rails --group "development, test"`
+- `bundle install`
 - `rails generate rspec:install`
 - `mkdir spec/factories`
 - `touch spec/factories/user.rb`
@@ -263,8 +270,6 @@ end
 ```
 config.include FactoryBot::Syntax::Methods
 ```
-- in `~/app/backend/config/initializers/cors.rb` uncomment lines 10-18 and change the `origins` line to `origins "*"`
-
 
 ### Auth Specs
 - `mkdir spec/requests`
