@@ -736,7 +736,7 @@ h1 {
 - `cd ~/app/frontend`
 - `npx nuxi@latest module add @sidebase/nuxt-auth`
 - `npm install`
-- to the top of `~/app/frontend/pages/index.vue` and `~/app/frontend/pages/public.vue` add:
+- to the top of `~/app/frontend/pages/public.vue` add:
 ```
 <script>
 definePageMeta({ auth: false })
