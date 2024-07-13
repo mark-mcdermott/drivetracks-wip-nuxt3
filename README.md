@@ -79,7 +79,7 @@ export default antfu({
 - `cd ..`
 - `mkdir pages`
 - `cd pages`
-- `touch index.spec.js public.spec.js private.spec.js`
+- `touch home.spec.js public.spec.js private.spec.js`
 
 ### Mocks
 - `cd ~/app/frontend`
