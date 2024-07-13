@@ -21,12 +21,13 @@
 ### ESLint
 - install VSCode `ESLint` extention
 - `cd ~/app/frontend`
-- `npx @antfu/eslint-config@latest`
-  - uncommited changes - continue: `yes`
-  - framework: `Vue`
-  - extra utils: `none`
-  - update .vscode/settings.json: `yes`
-- `npm install`
+- `npm i -D @antfu/eslint-config@2.21.0`
+- `touch eslint.config.mjs`
+- make `eslint.config.mjs` look like this:
+```
+import antfu from '@antfu/eslint-config'
+export default antfu()
+```
 - in `~/app/frontend/package.json` in the `scripts` section add:
 ```
 "lint": "npx eslint",
