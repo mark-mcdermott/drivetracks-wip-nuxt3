@@ -274,7 +274,7 @@ config.include FactoryBot::Syntax::Methods
 ### Auth Specs
 - `mkdir spec/requests`
 - `touch spec/requests/auth_spec.rb`
-- `make spec/requests/auth_spec.rb` look like this:
+- make `spec/requests/auth_spec.rb` look like this:
 ```
 require "rails_helper"
 
