@@ -1017,7 +1017,7 @@ end
   - run frontend
     - `cd frontend`
     - `npm run dev`
-  - now clicking login and then logout should work
+  - now clicking login and then logout should work (first login may take ~5 seconds)
   - private page should only show when logged in
 
 
