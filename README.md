@@ -71,7 +71,7 @@ export default antfu({
 
 ### Stub Specs
 - `cd ~/app/frontend`
-- `mkdir specs`
+- `mkdir tests`
 - `cd tests`
 - `mkdir components layouts pages`
 - `cd components`
