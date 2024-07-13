@@ -607,7 +607,7 @@ h1 {
 ```
 - `cd ~/app/frontend`
 - `npm run dev`
-- `^ + c`
+- `^ + c` -> Icon should show in h1
 
 ### Mock API
 - `mkdir -p ~/app/frontend/server/api/auth`
@@ -627,7 +627,7 @@ export default eventHandler(() => {
 })
 ```
 - make 
-`~/app/frontend/server/api/auth/logout.post.ts` look like this:
+`~/app/frontend/server/api/auth/login.post.ts` look like this:
 ```
   export default eventHandler(() => {
   const validEmail = 'email'
