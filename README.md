@@ -421,6 +421,7 @@ css: ['~/assets/scss/main.scss'],
       efficitur feugiat. Vivamus porta nunc a erat mattis, mattis feugiat
       turpis pretium. Quisque sed tristique felis.
     </p>
+  </section>
 </template>
 ```
 
