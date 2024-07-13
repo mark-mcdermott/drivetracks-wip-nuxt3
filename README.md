@@ -736,7 +736,6 @@ h1 {
 
 ### Auth
 - `cd ~/app/frontend`
-- `rm -rf server`
 - `npx nuxi@latest module add @sidebase/nuxt-auth`
 - `npm install`
 - to the top of `~/app/frontend/pages/index.vue` and `~/app/frontend/pages/public.vue` add:
@@ -773,7 +772,9 @@ export default defineNuxtConfig({
 - `npm run dev` -> Private page redirects to homepage
 - `^ + c`
 
-### Nuxt Port 3001
+### Prep Frontend For Backend
+- `cd ~/app/frontend`
+- `rm -rf server`
 - to `~/app/frontend/nuxt.config.ts` add:
 ```
 devServer: {
