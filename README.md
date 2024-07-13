@@ -26,7 +26,10 @@
 - make `eslint.config.mjs` look like this:
 ```
 import antfu from '@antfu/eslint-config'
-export default antfu()
+
+export default antfu({
+  vue: true
+})
 ```
 - in `~/app/frontend/package.json` in the `scripts` section add:
 ```
