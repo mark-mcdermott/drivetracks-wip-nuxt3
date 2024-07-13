@@ -460,6 +460,7 @@ css: ['~/assets/scss/main.scss'],
 - `^ + c`
 
 ### Content
+- `cd ~/app/frontend`
 - change `~/app/frontend/layouts/default.vue` so it looks like this:
 ```
 <template>
@@ -492,7 +493,6 @@ css: ['~/assets/scss/main.scss'],
 </template>
 ```
 - (placeholder `<p>` text generated with VSCode extension Ya Like Jazz)
-- `cd ~/app/frontend`
 - `npm run dev` -> new content shows
 - `^ + c`
 
