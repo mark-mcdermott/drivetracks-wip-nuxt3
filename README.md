@@ -238,7 +238,8 @@ end
 ```
 config.include FactoryBot::Syntax::Methods
 ```
-- in `~/app/backend/config/initializers/cors.rb` uncomment lines 10-18
+- in `~/app/backend/config/initializers/cors.rb` uncomment lines 10-18 and change the `origins` line to `origins "*"`
+
 
 ### Auth Specs
 - `mkdir spec/requests`
@@ -630,6 +631,7 @@ export default eventHandler(() => {
 
 ### Auth
 - `cd ~/app/frontend`
+- `rm -rf server`
 - `npx nuxi@latest module add @sidebase/nuxt-auth`
 - `npm install`
 - to the top of `~/app/frontend/pages/index.vue` and `~/app/frontend/pages/public.vue` add:
@@ -638,17 +640,30 @@ export default eventHandler(() => {
 definePageMeta({ auth: false })
 </script>
 ```
-- add this `auth` section to `~/app/frontend/nuxt.config.js`:
+- make `~/app/frontend/nuxt.config.js` look like this:
 ```
-auth: {
-  globalAppMiddleware: true,
-  provider: {
-    type: 'local',
-    pages: {
-      login: '/',
+export default defineNuxtConfig({
+  devtools: { enabled: true },
+  css: ['~/assets/scss/main.scss'],
+  modules: ['@nuxt/icon', '@sidebase/nuxt-auth'],
+  devServer: { port: 3001 },
+  auth: {
+    computed: { "pathname": "http://localhost:3000/api/auth/" },
+    isEnabled: true,
+    globalAppMiddleware: { isEnabled: true },
+    provider: {
+      type: 'local',
+      pages: { login: '/' },
+      token: { signInResponseTokenPointer: '/token' },
+      endpoints: {
+        signIn: { path: '/login', method: 'post' },
+        signOut: { path: '/logout', method: 'post' },
+        signUp: { path: '/register', method: 'post' },
+        getSession: { path: '/session', method: 'get' }
+      },
     },
   },
-},
+})
 ```
 - `npm run dev` -> Private page redirects to homepage
 - `^ + c`
@@ -832,6 +847,15 @@ t.string :password, null: false
 ### Tokens
 - `cd ~/app/backend`
 - `rails db:encryption:init`
+- that should output something like:
+```
+active_record_encryption:
+  primary_key: one_primary_key
+  deterministic_key: one_deterministic_key
+  key_derivation_salt: one_key_derivation_salt
+```
+- copy that and then run `EDITOR="code --wait" rails credentials:edit`
+- then paste what you copied at the end of the credentials file and save and then close the file
 - make `~/app/backend/app/models/user.rb` look like this:
 ```
 class User < ApplicationRecord
@@ -869,8 +893,10 @@ end
 
 ### Auth
 - `cd ~/app/backend`
-- `touch app/controllers/auth_controller.rb`
-- make `~/app/backend/app/controllers/auth_controller.rb` look like this:
+- `rm -rf server`
+- `mkdir -p app/controllers/api/auth`
+- `touch app/controllers/api/auth/auth_controller.rb`
+- make `~/app/backend/app/controllers/api/auth/auth_controller.rb` look like this:
 ```
 class Api::Auth::AuthController < ActionController::API
 
@@ -938,7 +964,7 @@ class Api::Auth::AuthController < ActionController::API
   end
 
   def token_obj_from_token_str token_str
-    tokenObj = Token.find_by(token: token_str)
+    tokenObj = Token.find_by(token_str: token_str)
     if !tokenObj.present?
       handle_auth_error "User token not found", 404
     end

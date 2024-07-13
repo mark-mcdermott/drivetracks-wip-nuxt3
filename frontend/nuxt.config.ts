@@ -2,15 +2,20 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   css: ['~/assets/scss/main.scss'],
   modules: ['@nuxt/icon', '@sidebase/nuxt-auth'],
-  devServer: {
-    port: 3001,
-  },
+  devServer: { port: 3001 },
   auth: {
-    globalAppMiddleware: true,
+    computed: { "pathname": "http://localhost:3000/api/auth/" },
+    isEnabled: true,
+    globalAppMiddleware: { isEnabled: true },
     provider: {
       type: 'local',
-      pages: {
-        login: '/',
+      pages: { login: '/' },
+      token: { signInResponseTokenPointer: '/token' },
+      endpoints: {
+        signIn: { path: '/login', method: 'post' },
+        signOut: { path: '/logout', method: 'post' },
+        signUp: { path: '/register', method: 'post' },
+        getSession: { path: '/session', method: 'get' }
       },
     },
   },

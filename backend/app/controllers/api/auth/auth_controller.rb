@@ -7,7 +7,7 @@ class Api::Auth::AuthController < ActionController::API
     if @no_auth_errors then token = token_from_user(user) end
     if @no_auth_errors
       token.active = true
-      render json: { token: token.token }
+      render json: { token: token.token_str }
     end
   end
 
@@ -15,6 +15,7 @@ class Api::Auth::AuthController < ActionController::API
   end
 
   def session
+    puts request.headers['Authorization']
     @no_auth_errors = true
     token = token_from_headers
     if @no_auth_errors then user = user_from_token(token) end
@@ -26,6 +27,7 @@ class Api::Auth::AuthController < ActionController::API
   private
 
   def creds_from_params
+    puts params
     unless params.has_key?(:email) && params.has_key?(:password)
       handle_auth_error "Missing email and/or password", 401
     end
@@ -64,7 +66,7 @@ class Api::Auth::AuthController < ActionController::API
   end
 
   def token_obj_from_token_str token_str
-    tokenObj = Token.find_by(token: token_str)
+    tokenObj = Token.find_by(token_str: token_str)
     if !tokenObj.present?
       handle_auth_error "User token not found", 404
     end
