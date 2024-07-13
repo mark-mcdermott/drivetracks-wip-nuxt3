@@ -731,8 +731,6 @@ h1 {
 }
 </style>
 ```
-- `npm run dev` -> Login/logout & private page works
-- `^ + c`
 
 ### Auth
 - `cd ~/app/frontend`
@@ -769,7 +767,7 @@ export default defineNuxtConfig({
   },
 })
 ```
-- `npm run dev` -> Private page redirects to homepage
+- `npm run dev` -> Login/logout work & private page redirects to homepage when logged out
 - `^ + c`
 
 ### Prep Frontend For Backend
