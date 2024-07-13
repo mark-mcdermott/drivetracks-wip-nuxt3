@@ -857,14 +857,14 @@ t.string :password, null: false
 ### Tokens
 - `cd ~/app/backend`
 - `rails db:encryption:init`
-- that should output something like:
+- ^ that should output something like:
 ```
 active_record_encryption:
   primary_key: one_primary_key
   deterministic_key: one_deterministic_key
   key_derivation_salt: one_key_derivation_salt
 ```
-- copy that and then run `EDITOR="code --wait" rails credentials:edit`
+- copy all that output (not the block above) and then run `EDITOR="code --wait" rails credentials:edit`
 - then paste what you copied at the end of the credentials file and save and then close the file
 - make `~/app/backend/app/models/user.rb` look like this:
 ```
@@ -898,12 +898,12 @@ end
 ```
 - `rails generate migration CreateToken token_str:index active:boolean user:references`
 - `rails db:migrate`
-- `rails c`
-- `User.create(email:"email",password:"password")`
+- `rails console`
+  - in the console run `User.create(email:"email",password:"password")`
+  - type `exit` to exit the console
 
 ### Auth
 - `cd ~/app/backend`
-- `rm -rf server`
 - `mkdir -p app/controllers/api/auth`
 - `touch app/controllers/api/auth/auth_controller.rb`
 - make `~/app/backend/app/controllers/api/auth/auth_controller.rb` look like this:
@@ -917,7 +917,7 @@ class Api::Auth::AuthController < ActionController::API
     if @no_auth_errors then token = token_from_user(user) end
     if @no_auth_errors
       token.active = true
-      render json: { token: token.token }
+      render json: { token: token.token_str }
     end
   end
 
