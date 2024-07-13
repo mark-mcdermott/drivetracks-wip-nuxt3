@@ -588,7 +588,10 @@ css: ['~/assets/scss/main.scss'],
 
 ### Icon 
 - install the VSCode Iconify IntelliSense extention
-- in `~/app/frontend/components/Header.vue` add this inside the `<h1>`:
+- in `~/app/frontend/components/Header.vue` make the `h1` look like this:
+```
+<h1><Icon name="fa-solid:lock" mode="svg" size="0.8em" /> Auth Test App</h1>
+```
 ```
 <Icon name="fa-solid:lock" mode="svg" size="0.8em" />
 ```
