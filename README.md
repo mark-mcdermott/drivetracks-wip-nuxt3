@@ -71,8 +71,8 @@ export default antfu({
 
 ### Stub Specs
 - `cd ~/app/frontend`
-- `mkdir tests`
-- `cd tests`
+- `mkdir specs`
+- `cd specs`
 - `mkdir components layouts pages`
 - `cd components`
 - `touch Header.spec.js Footer.spec.js`
