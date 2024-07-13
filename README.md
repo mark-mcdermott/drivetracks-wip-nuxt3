@@ -791,7 +791,6 @@ class User < ApplicationRecord
   
 end
 ```
-- 
 - `touch app/controllers/users_controller.rb`
 - make `~/app/backend/app/controllers/users_controller.rb` look like this:
 ```
