@@ -644,45 +644,6 @@ export default eventHandler(() => {
 })
 ```
 
-### Auth
-- `cd ~/app/frontend`
-- `rm -rf server`
-- `npx nuxi@latest module add @sidebase/nuxt-auth`
-- `npm install`
-- to the top of `~/app/frontend/pages/index.vue` and `~/app/frontend/pages/public.vue` add:
-```
-<script>
-definePageMeta({ auth: false })
-</script>
-```
-- make `~/app/frontend/nuxt.config.js` look like this:
-```
-export default defineNuxtConfig({
-  devtools: { enabled: true },
-  css: ['~/assets/scss/main.scss'],
-  modules: ['@nuxt/icon', '@sidebase/nuxt-auth'],
-  devServer: { port: 3001 },
-  auth: {
-    computed: { "pathname": "http://localhost:3000/api/auth/" },
-    isEnabled: true,
-    globalAppMiddleware: { isEnabled: true },
-    provider: {
-      type: 'local',
-      pages: { login: '/' },
-      token: { signInResponseTokenPointer: '/token' },
-      endpoints: {
-        signIn: { path: '/login', method: 'post' },
-        signOut: { path: '/logout', method: 'post' },
-        signUp: { path: '/register', method: 'post' },
-        getSession: { path: '/session', method: 'get' }
-      },
-    },
-  },
-})
-```
-- `npm run dev` -> Private page redirects to homepage
-- `^ + c`
-
 ### Login Form
 - change `~/app/frontend/pages/index.vue` to look like this:
 ```
@@ -771,6 +732,45 @@ h1 {
 </style>
 ```
 - `npm run dev` -> Login/logout & private page works
+- `^ + c`
+
+### Auth
+- `cd ~/app/frontend`
+- `rm -rf server`
+- `npx nuxi@latest module add @sidebase/nuxt-auth`
+- `npm install`
+- to the top of `~/app/frontend/pages/index.vue` and `~/app/frontend/pages/public.vue` add:
+```
+<script>
+definePageMeta({ auth: false })
+</script>
+```
+- make `~/app/frontend/nuxt.config.js` look like this:
+```
+export default defineNuxtConfig({
+  devtools: { enabled: true },
+  css: ['~/assets/scss/main.scss'],
+  modules: ['@nuxt/icon', '@sidebase/nuxt-auth'],
+  devServer: { port: 3001 },
+  auth: {
+    computed: { "pathname": "http://localhost:3000/api/auth/" },
+    isEnabled: true,
+    globalAppMiddleware: { isEnabled: true },
+    provider: {
+      type: 'local',
+      pages: { login: '/' },
+      token: { signInResponseTokenPointer: '/token' },
+      endpoints: {
+        signIn: { path: '/login', method: 'post' },
+        signOut: { path: '/logout', method: 'post' },
+        signUp: { path: '/register', method: 'post' },
+        getSession: { path: '/session', method: 'get' }
+      },
+    },
+  },
+})
+```
+- `npm run dev` -> Private page redirects to homepage
 - `^ + c`
 
 ### Nuxt Port 3001
