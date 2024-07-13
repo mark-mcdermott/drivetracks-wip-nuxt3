@@ -593,9 +593,6 @@ css: ['~/assets/scss/main.scss'],
 ```
 <h1><Icon name="fa-solid:lock" mode="svg" size="0.8em" /> Auth Test App</h1>
 ```
-```
-<Icon name="fa-solid:lock" mode="svg" size="0.8em" />
-```
 - and add this at the bottom of `~/app/frontend/components/Header.vue`:
 ```
 <style scoped>
