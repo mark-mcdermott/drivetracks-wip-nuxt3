@@ -21,6 +21,14 @@
 ### ESLint
 - install VSCode `ESLint` extention
 - `cd ~/app/frontend`
+- `mkdir .vscode`
+- `touch .vscode/settings.json`
+- make `~/app/frontend/.vscode/settings.json` look like this:
+```
+{
+  "eslint.experimental.useFlatConfig": true
+}
+```
 - `npm i -D @antfu/eslint-config@2.21.0`
 - `touch eslint.config.mjs`
 - make `eslint.config.mjs` look like this:
@@ -778,6 +786,8 @@ devServer: { port: 3001 },
 ```
 - `npm run dev` -> http://localhost:3001 works (login/logout will not work right now)
 - `^ + c`
+- `npm run test` -> all 14 tests should pass
+- `npm run lint`
 
 ## Build Out Backend
 
