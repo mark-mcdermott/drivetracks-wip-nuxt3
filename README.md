@@ -1,18 +1,39 @@
 # Rails API & Nuxt 3 App
 
+## Init App
+- `cd ~`
+- `mkdir app`
+- `cd app`
+- `wget https://raw.githubusercontent.com/mark-mcdermott/drivetracks-wip-nuxt3/main/README.md`
+
 ## Frontend Specs
 
 ### Nuxt Starter App
 - install VSCode `Vue - Official` extension
-- `cd ~`
-- `mkdir app`
-- `cd app`
+- `cd ~/app`
 - `npx nuxi@latest init frontend`
   - package manager: `npm`
   - init git repo: `no`
 - `cd frontend`
 - `npm run dev`
 - `^ + c`
+
+### ESLint
+- install VSCode `ESLint` extention
+- `cd ~/app/frontend`
+- `npx @antfu/eslint-config@latest`
+  - uncommited changes - continue: `yes`
+  - framework: `Vue`
+  - extra utils: `none`
+  - update .vscode/settings.json: `yes`
+- `npm install`
+- in `~/app/frontend/package.json` in the `scripts` section add:
+```
+"lint": "npx eslint",
+"lint:fix": "npx eslint --fix"
+```
+- `npm run lint` 
+- `npm run lint:fix` 
 
 ### Install Vitest
 - install VSCode `Vitest` extension
@@ -314,23 +335,6 @@ end
 - `cd ~/app/frontend`
 - `npm run dev` -> "Hello World" in Times New Roman
 - `^ + c`
-
-### ESLint
-- install VSCode `ESLint` extention
-- `cd ~/app/frontend`
-- `npx @antfu/eslint-config@latest`
-  - uncommited changes - continue: `yes`
-  - framework: `Vue`
-  - extra utils: `none`
-  - update .vscode/settings.json: `yes`
-- `npm install`
-- in `~/app/frontend/package.json` in the `scripts` section add:
-```
-"lint": "npx eslint",
-"lint:fix": "npx eslint --fix"
-```
-- `npm run lint` 
-- `npm run lint:fix` 
 
 ### Sass
 - `cd ~/app/frontend`
