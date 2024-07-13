@@ -748,7 +748,6 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   css: ['~/assets/scss/main.scss'],
   modules: ['@nuxt/icon', '@sidebase/nuxt-auth'],
-  devServer: { port: 3001 },
   auth: {
     computed: { "pathname": "http://localhost:3000/api/auth/" },
     isEnabled: true,
@@ -773,11 +772,9 @@ export default defineNuxtConfig({
 ### Prep Frontend For Backend
 - `cd ~/app/frontend`
 - `rm -rf server`
-- to `~/app/frontend/nuxt.config.ts` add:
+- to `~/app/frontend/nuxt.config.ts` add this after `modules` and before `auth`:
 ```
-devServer: {
-  port: 3001,
-},
+devServer: { port: 3001 },
 ```
 - `npm run dev` -> http://localhost:3001 works
 - `^ + c`
