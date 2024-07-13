@@ -19,6 +19,7 @@
 - `^ + c`
 
 ### ESLint
+- (I prefer antfu eslint-config install command to this manual install, but antfu's eslint-config has an install dependency issue as of this writing on 7/13/24)
 - install VSCode `ESLint` extention
 - `cd ~/app/frontend`
 - `mkdir .vscode`
