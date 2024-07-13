@@ -776,7 +776,7 @@ export default defineNuxtConfig({
 ```
 devServer: { port: 3001 },
 ```
-- `npm run dev` -> http://localhost:3001 works
+- `npm run dev` -> http://localhost:3001 works (login/logout will not work right now)
 - `^ + c`
 
 ## Build Out Backend
