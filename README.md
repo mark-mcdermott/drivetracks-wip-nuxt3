@@ -783,7 +783,7 @@ devServer: { port: 3001 },
 
 ### Users
 - `cd ~/app/backend`
-- `rails db:drop db:create`
+- `rails db:create` (or `rails db:drop db:create` if you already have a database called `backend`)
 - `touch app/models/user.rb`
 - make `~/app/backend/app/models/user.rb` look like this:
 ```
