@@ -41,8 +41,8 @@ export default antfu({
 ```
 - in `~/app/frontend/package.json` in the `scripts` section add:
 ```
-"lint": "npx eslint",
-"lint:fix": "npx eslint --fix"
+"lint": "npx eslint .",
+"lint:fix": "npx eslint . --fix"
 ```
 - `npm run lint` 
 - `npm run lint:fix` 
