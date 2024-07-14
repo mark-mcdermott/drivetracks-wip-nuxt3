@@ -1075,6 +1075,7 @@ Rails.application.routes.draw do
 end
 ```
 - `cd ~/app`
+- `rspec` -> all backend specs should pass
 - in a split terminal:
   - run backend
     - `cd backend`
@@ -1084,8 +1085,6 @@ end
     - `npm run dev`
   - now clicking login and then logout should work (first login may take ~5 seconds)
   - private page should only show when logged in
-
-- 
 
 ## Sources
 - Nuxt https://nuxt.com (visited 7/4/24)
