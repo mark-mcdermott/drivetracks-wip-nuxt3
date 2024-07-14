@@ -84,8 +84,7 @@ export default antfu({
 - `mkdir components layouts pages`
 - `cd components`
 - `touch Header.spec.js Footer.spec.js`
-- `cd ..`
-- `mkdir pages`
+- `cd ../pages`
 - `cd pages`
 - `touch home.spec.js public.spec.js private.spec.js`
 
