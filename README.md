@@ -418,7 +418,7 @@ end
 css: ['~/assets/scss/main.scss'],
 ```
 - `npm run dev`
-- `^ + c`
+- `^ + c` -> it will look the same as above still
 
 ### Picocss
 - `cd ~/app/frontend`
