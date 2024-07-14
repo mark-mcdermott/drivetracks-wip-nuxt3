@@ -519,7 +519,7 @@ css: ['~/assets/scss/main.scss'],
   >
 </footer>
 ```
-- `npm run dev` -> header, body & footer all show
+- `npm run dev` -> header, body & footer all show (will look the same as above)
 - `^ + c`
 
 ### Content
