@@ -259,6 +259,11 @@ Style/Documentation:
 ```
 - `rubocop -A`
 
+### RSpec
+- `bundle add rspec-rails --group "development, test"`
+- `bundle install`
+- `rails generate rspec:install`
+
 ### Database Cleaner
 - `bundle add database_cleaner-active_record`
 - `bundle install`
@@ -327,10 +332,8 @@ end
 config.include FactoryBot::Syntax::Methods
 ```
 
-### RSpec
-- `bundle add rspec-rails --group "development, test"`
-- `bundle install`
-- `rails generate rspec:install`
+### Auth Spec
+- `cd ~/app/backend`
 - `mkdir spec/requests`
 - `touch spec/requests/auth_spec.rb`
 - make `spec/requests/auth_spec.rb` look like this:
