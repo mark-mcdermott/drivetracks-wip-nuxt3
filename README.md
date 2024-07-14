@@ -260,18 +260,66 @@ Style/Documentation:
 ```
 - `rubocop -A`
 
-### RSpec
-- `bundle add rspec-rails factory_bot_rails --group "development, test"`
+### Database Cleaner
+- `bundle add database_cleaner-active_record`
 - `bundle install`
-- `rails generate rspec:install`
+- make `~/app/backend/spec/rails_helper.rb` look like this:
+```
+require 'spec_helper'
+ENV['RAILS_ENV'] ||= 'test'
+require_relative '../config/environment'
+abort("The Rails environment is running in production mode!") if Rails.env.production?
+require 'rspec/rails'
+require 'database_cleaner/active_record'
+
+begin
+  ActiveRecord::Migration.maintain_test_schema!
+rescue ActiveRecord::PendingMigrationError => e
+  abort e.to_s.strip
+end
+
+RSpec.configure do |config|
+  config.use_transactional_fixtures = false
+
+  config.before(:suite) do
+    DatabaseCleaner.clean_with(:truncation)
+  end
+
+  config.before(:each) do
+    DatabaseCleaner.strategy = :transaction
+    DatabaseCleaner.start
+  end
+
+  config.after(:each) do
+    DatabaseCleaner.clean
+  end
+
+  config.infer_spec_type_from_file_location!
+  config.filter_rails_from_backtrace!
+end
+```
+
+### Factory Bot
+- `bundle add factory_bot_rails --group "development, test"`
+- `bundle install`
 - `mkdir spec/factories`
-- `touch spec/factories/user.rb`
+- `touch spec/factories/user.rb spec/factories/token.rb`
 - make `~/app/backend/spec/factories/user.rb` look like this:
 ```
 FactoryBot.define do
   factory :user do
-    email { "MyString" }
-    password { "MyString" }
+    sequence(:email) { |n| "user#{n}@example.com" }
+    password { "password" }
+  end
+end
+```
+- make `~/app/backend/spec/factories/token.rb` look like this:
+```
+FactoryBot.define do
+  factory :token do
+    association :user
+    token_str { Digest::MD5.hexdigest(SecureRandom.hex) }
+    active { false }
   end
 end
 ```
@@ -280,62 +328,66 @@ end
 config.include FactoryBot::Syntax::Methods
 ```
 
-### Auth Specs
+### RSpec
+- `bundle add rspec-rails --group "development, test"`
+- `bundle install`
+- `rails generate rspec:install`
 - `mkdir spec/requests`
 - `touch spec/requests/auth_spec.rb`
 - make `spec/requests/auth_spec.rb` look like this:
 ```
 require "rails_helper"
 
-RSpec.describe "Login requests" do
+RSpec.describe "Auth requests" do
 
-  let(:user) { build :user, email: "email", password: "password" }
+  let(:user) { create(:user, email: "MyString", password: "MyString") }
   let(:valid_creds) {{ :email => user.email, :password => user.password }}
   let(:invalid_creds) {{ :email => user.email, :password => "wrong" }}
-  let(:headers) {{ authorization: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJtaWNoYWVsdyIsImVtYWlsIjoibWljaGFlbC53aWxsaWFtc0B4LmR1bW15anNvbi5jb20iLCJmaXJzdE5hbWUiOiJNaWNoYWVsIiwibGFzdE5hbWUiOiJXaWxsaWFtcyIsImdlbmRlciI6Im1hbGUiLCJpbWFnZSI6Imh0dHBzOi8vZHVtbXlqc29uLmNvbS9pY29uL21pY2hhZWx3LzEyOCIsImlhdCI6MTcxNzYxMTc0MCwiZXhwIjoxNzE3NjE1MzQwfQ.eQnhQSnS4o0sXZWARh2HsWrEr6XfDT4ngh0ejiykfH8" }}
+  let!(:token) { create(:token, user: user, token_str: Digest::MD5.hexdigest(SecureRandom.hex), active: true) }
 
-  it "responds with error" do
-    post "/api/auth/login", params: { email: "email", password: "password" }
-    expect(response).to be_error
-  end
-end
-
-RSpec.describe "Login requests", type: :request do
-  context "with invalid credentials" do
-    it "responds with error" do
-      post "/api/auth/login" :params => { :email => user.email, :password => "wrong" }
-      expect(response).to be_error
+  context "POST /api/auth/login with valid credentials" do
+    it "responds with 200 status" do
+      post "/api/auth/login", params: valid_creds
+      puts response.body
+      expect(response.status).to eq 200
     end
-  end
-
-  context "with valid credentials" do
-    it "responds with success" do
-      post "/api/auth/login" :params => { :email => user.email, :password => user.password }
-      expect(response).to be_success
-    end
-
     it "responds with token " do
-      post "/api/auth/login" :params => { :email => user.email, :password => user.password }
-      expect(response.body).to tokenregex
+      post "/api/auth/login", params: valid_creds
+      json_response = JSON.parse(response.body)
+      expect(json_response).to have_key("token")
+      user.reload
+      latest_token = user.token.token_str
+      expect(json_response["token"]).to eq latest_token
+    end
+  end
+  context "POST /api/auth/login invalid credentials" do
+    it "responds with 401 status" do
+      post "/api/auth/login", params: invalid_creds
+      puts response.body
+      expect(response.status).to eq 401
     end
   end
 
-end
-
-RSpec.describe "Session requests", type: :request do
-  context "without auth header" do
+  context "GET /api/auth/session without a token header" do
     it "responds with error" do
-      post "/api/auth/login" :params => { :email => "email", :password => "wrong" }
-      expect(response).to be_error
+      get "/api/auth/session"
+      expect(response).to have_http_status(:not_found)
+      json_response = JSON.parse(response.body)
+      expect(json_response).to have_key("error")
+      expect(json_response["error"]).to eq "User token not found"
     end
   end
 
-  context "with auth header" do
-    it "responds with user" do
-      post "/api/auth/login", :headers => headers, :params => { :email => "email", :password => "wrong" }
-      expect(response).to user
+  context "GET /api/auth/session with correct token header" do
+    it "responds with the user" do
+      get "/api/auth/session", headers: { 'Authorization' => "Bearer #{token.token_str}" }
+      expect(response).to have_http_status(:ok)
+      json_response = JSON.parse(response.body)
+      expect(json_response).to have_key("user")
+      expect(json_response["user"]["email"]).to eq user.email
     end
   end
+
 end
 ```
 
@@ -866,6 +918,7 @@ t.string :password, null: false
 - `rails db:migrate`
 
 ### Tokens
+- (this and the next section are hand-rolled auth, for learning. the hand-rolled auth is replaced by devise afterwards)
 - `cd ~/app/backend`
 - `rails db:encryption:init`
 - ^ that should output something like:
@@ -913,7 +966,8 @@ end
   - in the console run `User.create(email:"email",password:"password")`
   - type `exit` to exit the console
 
-### Auth
+### Auth Controller/Routes
+- (this and the previous section are hand-rolled auth, for learning. the hand-rolled auth is replaced by devise afterwards)
 - `cd ~/app/backend`
 - `mkdir -p app/controllers/api/auth`
 - `touch app/controllers/api/auth/auth_controller.rb`
@@ -1031,6 +1085,7 @@ end
   - now clicking login and then logout should work (first login may take ~5 seconds)
   - private page should only show when logged in
 
+- 
 
 ## Sources
 - Nuxt https://nuxt.com (visited 7/4/24)
