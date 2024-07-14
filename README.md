@@ -75,7 +75,7 @@ export default antfu({
 ```
 "test": "npx vitest"
 ```
-- `npm run test` -> vitest should run
+- `npm run test` -> vitest should run (it will try to run, but there are no tests yet)
 
 ### Stub Specs
 - `cd ~/app/frontend`
