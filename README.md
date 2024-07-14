@@ -350,7 +350,6 @@ RSpec.describe "Auth requests" do
   context "POST /api/auth/login with valid credentials" do
     it "responds with 200 status" do
       post "/api/auth/login", params: valid_creds
-      puts response.body
       expect(response.status).to eq 200
     end
     it "responds with token " do
@@ -365,7 +364,6 @@ RSpec.describe "Auth requests" do
   context "POST /api/auth/login invalid credentials" do
     it "responds with 401 status" do
       post "/api/auth/login", params: invalid_creds
-      puts response.body
       expect(response.status).to eq 401
     end
   end
