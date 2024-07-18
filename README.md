@@ -1,51 +1,76 @@
 # Rails API & Nuxt 3 App
+- Rails 7 postgres backend, Nuxt 3 frontend using tailwindcss.
+- Hosted on fly.io
+
+# To Run Locally
+- clone this repo (`git clone <reponame>`)
+- `cd` into repo
+- `cd frontend`
+- `npm install`
+- `npm run dev`
+- split your terminal and in the new terminal pane do:
+  - `cd ../backend`
+  - `bundle install`
+  - `rails server`
+- in a browser, go to `http://localhost:3001`
+
+# To Create This Project From Scratch
 
 ## Init App
 - `cd ~`
 - `mkdir app`
 - `cd app`
 - `wget https://raw.githubusercontent.com/mark-mcdermott/drivetracks-wip-nuxt3/main/README.md`
-
-## Frontend Specs
-
-### Nuxt Starter App
-- install VSCode `Vue - Official` extension
-- `cd ~/app`
 - `npx nuxi@latest init frontend`
   - package manager: `npm`
   - init git repo: `no`
-- `cd frontend`
-- `npm run dev`
-- `^ + c`
+- `rails new backend --api --database=postgresql --skip-git`
 
-### ESLint
-- (I prefer antfu eslint-config install command to this manual install, but antfu's eslint-config has an install dependency issue as of this writing on 7/13/24)
-- install VSCode `ESLint` extention
+## Frontend 
+
+### ESLint AutoSave
+- install VSCode extension `ESLint`
+- `cd ~/app`
+- `npm init` (hit enter for all prompts)
+- `pnpm dlx @antfu/eslint-config@latest`
+  - uncommitted changes, continue? `yes`
+  - framework: `Vue`
+  - extra utils: `none`
+  - update `.vscode/settings.json`: `yes`
+- `npm install`
+- in `~/app/.vscode/settings.json`, change the `codeActionsOnSave` section (lines 7-10) to:
+```
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "always",
+    "source.organizeImports": "always"
+  },
+```
+- `touch .gitignore`
+- make `~/app/.gitignore` look like this:
+```
+.DS_Store
+node_modules
+```
+- open `package.json`
+  - you should see some red underlines for ESLint violations
+  - hit `command + s` to save and you should see ESLint automatically fix the issues
+
+### ESLint Commands
 - `cd ~/app/frontend`
-- `mkdir .vscode`
-- `touch .vscode/settings.json`
-- make `~/app/frontend/.vscode/settings.json` look like this:
-```
-{
-  "eslint.experimental.useFlatConfig": true
-}
-```
-- `npm i -D @antfu/eslint-config@2.21.0`
-- `touch eslint.config.mjs`
-- make `eslint.config.mjs` look like this:
-```
-import antfu from '@antfu/eslint-config'
-export default antfu({
-  vue: true
-})
-```
+- `pnpm dlx @antfu/eslint-config@latest`
+  - uncommitted changes, continue? `yes`
+  - framework: `Vue`
+  - extra utils: `none`
+  - update `.vscode/settings.json`: `no`
+- `npm install`
 - in `~/app/frontend/package.json` in the `scripts` section add:
 ```
 "lint": "npx eslint .",
 "lint:fix": "npx eslint . --fix"
 ```
-- `npm run lint` 
-- `npm run lint:fix` 
+- `npm run lint` -> it will flag a trailing comma issue on `nuxt.config.ts`
+- open `~/app/frontend/nuxt.config.ts`
+- `npm run lint:fix` -> you will see it add a trailing comma to fix the ESLint violation
 
 ### Vitest
 - install VSCode `Vitest` extension
@@ -62,7 +87,7 @@ export default defineConfig({
   test: { environment: 'happy-dom', setupFiles: ["./specs/mocks/mocks.js"] },
 })
 ```
-- add `plugins: ['vitest'],` to `~/app/frontend/eslint.config.js` so it looks like this:
+- add `plugins: ['vitest'],` to `~/app/frontend/eslint.config.mjs` so it looks like this:
 ```
 import antfu from '@antfu/eslint-config'
 
@@ -79,20 +104,19 @@ export default antfu({
 
 ### Stub Specs
 - `cd ~/app/frontend`
-- `mkdir specs`
-- `cd specs`
+- `mkdir spec`
+- `cd spec`
 - `mkdir components layouts pages`
 - `cd components`
 - `touch Header.spec.js Footer.spec.js`
 - `cd ../pages`
-- `cd pages`
 - `touch home.spec.js public.spec.js private.spec.js`
 
 ### Mocks
 - `cd ~/app/frontend`
-- `mkdir specs/mocks`
-- `touch specs/mocks/mocks.js`
-- make `~/app/frontend/specs/mocks/mocks.js` look like this:
+- `mkdir spec/mocks`
+- `touch spec/mocks/mocks.js`
+- make `~/app/frontend/spec/mocks/mocks.js` look like this:
 ```
 import { vi } from 'vitest';
 
@@ -236,164 +260,10 @@ describe('Private page has correct copy', () => {
 })
 ```
 
-## Backend Specs
-
-### Rails Starter API
-- install VSCode extentions RubyLSP and Rubocop
-- `cd ~/app`
-- `rails new backend --api --database=postgresql`
-- `cd backend`
-- `bundle add rack-cors`
-- `bundle install`
-- in `~/app/backend/config/initializers/cors.rb` uncomment lines 10-18 and change the `origins` line to `origins "*"`
-
-### Rubocop
-- `bundle add rubocop-rails`
-- `bundle install`
-- `touch .rubocop.yml`
-- to `.rubocop.yml` add:
-```
-require: rubocop-rails
-Style/Documentation:
-  Enabled: false
-```
-- `rubocop -A`
-
-### RSpec
-- `bundle add rspec-rails --group "development, test"`
-- `bundle install`
-- `rails generate rspec:install`
-
-### Database Cleaner
-- `bundle add database_cleaner-active_record`
-- `bundle install`
-- make `~/app/backend/spec/rails_helper.rb` look like this:
-```
-require 'spec_helper'
-ENV['RAILS_ENV'] ||= 'test'
-require_relative '../config/environment'
-abort("The Rails environment is running in production mode!") if Rails.env.production?
-require 'rspec/rails'
-require 'database_cleaner/active_record'
-
-begin
-  ActiveRecord::Migration.maintain_test_schema!
-rescue ActiveRecord::PendingMigrationError => e
-  abort e.to_s.strip
-end
-
-RSpec.configure do |config|
-  config.use_transactional_fixtures = false
-
-  config.before(:suite) do
-    DatabaseCleaner.clean_with(:truncation)
-  end
-
-  config.before(:each) do
-    DatabaseCleaner.strategy = :transaction
-    DatabaseCleaner.start
-  end
-
-  config.after(:each) do
-    DatabaseCleaner.clean
-  end
-
-  config.infer_spec_type_from_file_location!
-  config.filter_rails_from_backtrace!
-end
-```
-
-### Factory Bot
-- `bundle add factory_bot_rails --group "development, test"`
-- `bundle install`
-- `mkdir spec/factories`
-- `touch spec/factories/user.rb spec/factories/token.rb`
-- make `~/app/backend/spec/factories/user.rb` look like this:
-```
-FactoryBot.define do
-  factory :user do
-    sequence(:email) { |n| "user#{n}@example.com" }
-    password { "password" }
-  end
-end
-```
-- make `~/app/backend/spec/factories/token.rb` look like this:
-```
-FactoryBot.define do
-  factory :token do
-    association :user
-    token_str { Digest::MD5.hexdigest(SecureRandom.hex) }
-    active { false }
-  end
-end
-```
-- in `~/app/backend/spec/rails_helper.rb`, in the line after `RSpec.configure do |config|` add a blank line and put this there: 
-```
-config.include FactoryBot::Syntax::Methods
-```
-
-### Auth Spec
-- `cd ~/app/backend`
-- `mkdir spec/requests`
-- `touch spec/requests/auth_spec.rb`
-- make `spec/requests/auth_spec.rb` look like this:
-```
-require "rails_helper"
-
-RSpec.describe "Auth requests" do
-
-  let(:user) { create(:user, email: "MyString", password: "MyString") }
-  let(:valid_creds) {{ :email => user.email, :password => user.password }}
-  let(:invalid_creds) {{ :email => user.email, :password => "wrong" }}
-  let!(:token) { create(:token, user: user, token_str: Digest::MD5.hexdigest(SecureRandom.hex), active: true) }
-
-  context "POST /api/auth/login with valid credentials" do
-    it "responds with 200 status" do
-      post "/api/auth/login", params: valid_creds
-      expect(response.status).to eq 200
-    end
-    it "responds with token " do
-      post "/api/auth/login", params: valid_creds
-      json_response = JSON.parse(response.body)
-      expect(json_response).to have_key("token")
-      user.reload
-      latest_token = user.token.token_str
-      expect(json_response["token"]).to eq latest_token
-    end
-  end
-  context "POST /api/auth/login invalid credentials" do
-    it "responds with 401 status" do
-      post "/api/auth/login", params: invalid_creds
-      expect(response.status).to eq 401
-    end
-  end
-
-  context "GET /api/auth/session without a token header" do
-    it "responds with error" do
-      get "/api/auth/session"
-      expect(response).to have_http_status(:not_found)
-      json_response = JSON.parse(response.body)
-      expect(json_response).to have_key("error")
-      expect(json_response["error"]).to eq "User token not found"
-    end
-  end
-
-  context "GET /api/auth/session with correct token header" do
-    it "responds with the user" do
-      get "/api/auth/session", headers: { 'Authorization' => "Bearer #{token.token_str}" }
-      expect(response).to have_http_status(:ok)
-      json_response = JSON.parse(response.body)
-      expect(json_response).to have_key("user")
-      expect(json_response["user"]["email"]).to eq user.email
-    end
-  end
-
-end
-```
-
-## Build Out Frontend
-
 ### Barebones Hello World
+- `cd ~/app/frontend`
+- `npm run dev` -> should see Nuxt starter app
+- `^ + c`
 - change `~/app/frontend/app.vue` to:
 ```
 <template>
@@ -402,7 +272,6 @@ end
   </div>
 </template>
 ```
-- `cd ~/app/frontend`
 - `npm run dev` -> "Hello World" in Times New Roman
 - `^ + c`
 
@@ -842,6 +711,158 @@ devServer: { port: 3001 },
 
 ## Build Out Backend
 
+### Rails Starter API
+- install VSCode extentions RubyLSP and Rubocop
+- `cd ~/app/backend`
+- `bundle add rack-cors`
+- `bundle install`
+- check if there's a `~/app/backend/config/initializers/cors.rb` file and if not, run `touch config/initializers/cors.rb`
+- in `~/app/backend/config/initializers/cors.rb` uncomment lines 10-18 and change the `origins` line to `origins "*"`
+
+### Rubocop
+- `bundle add rubocop-rails`
+- `bundle install`
+- `touch .rubocop.yml`
+- to `.rubocop.yml` add:
+```
+require: rubocop-rails
+Style/Documentation:
+  Enabled: false
+```
+- `rubocop -A`
+
+### RSpec
+- `bundle add rspec-rails --group "development, test"`
+- `bundle install`
+- `rails generate rspec:install`
+
+### Database Cleaner
+- `bundle add database_cleaner-active_record`
+- `bundle install`
+- make `~/app/backend/spec/rails_helper.rb` look like this:
+```
+require 'spec_helper'
+ENV['RAILS_ENV'] ||= 'test'
+require_relative '../config/environment'
+abort("The Rails environment is running in production mode!") if Rails.env.production?
+require 'rspec/rails'
+require 'database_cleaner/active_record'
+
+begin
+  ActiveRecord::Migration.maintain_test_schema!
+rescue ActiveRecord::PendingMigrationError => e
+  abort e.to_s.strip
+end
+
+RSpec.configure do |config|
+  config.use_transactional_fixtures = false
+
+  config.before(:suite) do
+    DatabaseCleaner.clean_with(:truncation)
+  end
+
+  config.before(:each) do
+    DatabaseCleaner.strategy = :transaction
+    DatabaseCleaner.start
+  end
+
+  config.after(:each) do
+    DatabaseCleaner.clean
+  end
+
+  config.infer_spec_type_from_file_location!
+  config.filter_rails_from_backtrace!
+end
+```
+
+### Factory Bot
+- `bundle add factory_bot_rails --group "development, test"`
+- `bundle install`
+- `mkdir spec/factories`
+- `touch spec/factories/user.rb spec/factories/token.rb`
+- make `~/app/backend/spec/factories/user.rb` look like this:
+```
+FactoryBot.define do
+  factory :user do
+    sequence(:email) { |n| "user#{n}@example.com" }
+    password { "password" }
+  end
+end
+```
+- make `~/app/backend/spec/factories/token.rb` look like this:
+```
+FactoryBot.define do
+  factory :token do
+    association :user
+    token_str { Digest::MD5.hexdigest(SecureRandom.hex) }
+    active { false }
+  end
+end
+```
+- in `~/app/backend/spec/rails_helper.rb`, in the line after `RSpec.configure do |config|` add a blank line and put this there: 
+```
+config.include FactoryBot::Syntax::Methods
+```
+
+### Auth Spec
+- `cd ~/app/backend`
+- `mkdir spec/requests`
+- `touch spec/requests/auth_spec.rb`
+- make `spec/requests/auth_spec.rb` look like this:
+```
+require "rails_helper"
+
+RSpec.describe "Auth requests" do
+
+  let(:user) { create(:user, email: "MyString", password: "MyString") }
+  let(:valid_creds) {{ :email => user.email, :password => user.password }}
+  let(:invalid_creds) {{ :email => user.email, :password => "wrong" }}
+  let!(:token) { create(:token, user: user, token_str: Digest::MD5.hexdigest(SecureRandom.hex), active: true) }
+
+  context "POST /api/auth/login with valid credentials" do
+    it "responds with 200 status" do
+      post "/api/auth/login", params: valid_creds
+      expect(response.status).to eq 200
+    end
+    it "responds with token " do
+      post "/api/auth/login", params: valid_creds
+      json_response = JSON.parse(response.body)
+      expect(json_response).to have_key("token")
+      user.reload
+      latest_token = user.token.token_str
+      expect(json_response["token"]).to eq latest_token
+    end
+  end
+  context "POST /api/auth/login invalid credentials" do
+    it "responds with 401 status" do
+      post "/api/auth/login", params: invalid_creds
+      expect(response.status).to eq 401
+    end
+  end
+
+  context "GET /api/auth/session without a token header" do
+    it "responds with error" do
+      get "/api/auth/session"
+      expect(response).to have_http_status(:not_found)
+      json_response = JSON.parse(response.body)
+      expect(json_response).to have_key("error")
+      expect(json_response["error"]).to eq "User token not found"
+    end
+  end
+
+  context "GET /api/auth/session with correct token header" do
+    it "responds with the user" do
+      get "/api/auth/session", headers: { 'Authorization' => "Bearer #{token.token_str}" }
+      expect(response).to have_http_status(:ok)
+      json_response = JSON.parse(response.body)
+      expect(json_response).to have_key("user")
+      expect(json_response["user"]["email"]).to eq user.email
+    end
+  end
+
+end
+```
+
 ### Users
 - `cd ~/app/backend`
 - `rails db:create` (or `rails db:drop db:create` if you already have a database called `backend`)
@@ -1084,9 +1105,36 @@ end
   - now clicking login and then logout should work (first login may take ~5 seconds)
   - private page should only show when logged in
 
+### Devise
+- `cd ~/app/backend`
+- `rails generate migration DropUsersTable`
+- make `~/app/backend/db/migrate/<datetime>_drop_users_table.rb` look like this:
+```
+class DropProductsTable < ActiveRecord::Migration
+  def up
+    drop_table :users
+  end
+  def down
+    raise ActiveRecord::IrreversibleMigration
+  end
+end
+```
+- `rails db:migrate`
+- `bundle add gem 'devise devise-jwt jsonapi-serializer`
+- `bundle install`
+- `rails generate devise:install`
+- uncomment the `config.navigational_formats` line in `~/app/backend/config/initializers/devise.rb` and make it `config.navigational_formats = []`
+- in `~/app/backend/config/environments/development.rb`, add this near the end of the file right before the last `end`:
+```
+config.action_mailer.default_url_options = { host: 'localhost', port: 3000 }
+```
+- `rails g devise User`
+- `rails db:migrate`
+
 ## Sources
 - Nuxt https://nuxt.com (visited 7/4/24)
 - Antfu ESLint Config https://github.com/antfu/eslint-config (visited 7/4/24)
 - Picocss https://picocss.com (visited 7/4/24)
 - Picocss Examples https://picocss.com/examples (visited 7/4/24)
 - Picocss Classless Example https://x4qtf8.csb.app (visited 7/4/24)
+- Devise For API-Only Rails https://sdrmike.medium.com/rails-7-api-only-app-with-devise-and-jwt-for-authentication-1397211fb97c (visited 7/14/24)
