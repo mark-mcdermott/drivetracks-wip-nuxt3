@@ -1,5 +1,5 @@
 # Rails API & Nuxt 3 App
-- Rails 7 postgres backend, Nuxt 3 frontend using tailwindcss.
+- Rails 7 postgres backend, Nuxt 3 frontend using tailwindcss
 - Hosted on fly.io
 
 # To Run Locally
@@ -262,8 +262,15 @@ describe('Private page has correct copy', () => {
 
 ### Barebones Hello World
 - `cd ~/app/frontend`
-- `npm run dev` -> should see Nuxt starter app
-- `^ + c`
+- make `~/app/frontend/nuxt.config.ts` look like this:
+```
+export default defineNuxtConfig({
+  devServer: { port: 3001 },
+  devtools: { enabled: true },
+})
+```
+- `npm run dev` -> should see Nuxt starter app at http://localhost:3001
+- `^ + c` -> to kill the server
 - change `~/app/frontend/app.vue` to:
 ```
 <template>
@@ -275,45 +282,38 @@ describe('Private page has correct copy', () => {
 - `npm run dev` -> "Hello World" in Times New Roman
 - `^ + c`
 
-### Sass
+### Tailwind
+- install the VSCode extension `vscode-tailwind-magic`
 - `cd ~/app/frontend`
-- `npm install --save-dev sass`
-- `mkdir -p assets/scss`
-- `touch assets/scss/main.scss`
-- add to nuxt.config.ts: 
+- `npx nuxi@latest module add tailwindcss`
+- add these to your `~/app/.vscode/settings.json`:
 ```
-css: ['~/assets/scss/main.scss'],
+"files.associations": {
+    "*.css": "tailwindcss"
+},
+"editor.quickSuggestions": {
+    "strings": true
+}
 ```
-- `npm run dev`
-- `^ + c` -> it will look the same as above still
 
-### Picocss
-- `cd ~/app/frontend`
-- `npm install @picocss/pico`
-- add to `~/app/frontend/assets/scss/main.scss`:
-```
-@use '@picocss/pico';
-```
-- `npm run dev` -> "Hello World" in nice sans-serif font
-- `^ + c`
-- change `~/app/frontend/assets/scss/main.scss` to:
-```
-@use '@picocss/pico/scss/pico' with (
-  $semantic-root-element: '#__nuxt',
-  $enable-semantic-container: true,
-  $enable-classes: false
-)
-```
-- change `~/app/frontend/app.vue` to: 
+### Layout
+- `mkdir ~/app/frontend/layouts`
+- `touch ~/app/frontend/layouts/default.vue`
+- add this to `~/app/frontend/layouts/default.vue`:
 ```
 <template>
-  <main>
-    <h1>Hello World</h1>
+  <Header />
+  <main class="flex flex-col xl:flex-row h-screen">
+    <div class="w-full xl:w-1/2 my-4 h-screen flex items-center justify-center">
+      <NuxtPage />
+    </div>
+    <div class="hidden xl:block w-full xl:w-1/2 h-screen">
+      <img class="object-cover w-full h-screen" src="/img/digital.png" alt="Robot Group">
+    </div>
   </main>
 </template>
+
 ```
-- `npm run dev` -> "Hello World" has left & top margin
-- `^ + c`
 
 ### Pages
 - `mkdir pages`
@@ -321,179 +321,54 @@ css: ['~/assets/scss/main.scss'],
 - make `~/app/frontend/pages/index.vue` look like:
 ```
 <template>
-  <h1>Hello World</h1>
+  <div class="w-4/6">
+    <span class="tracking-tight font-light text-gray-500 text-4xl">
+      <h3 class="text-base">Welcome</h3>
+      <h4 class="text-7xl md:text-8 tracking-tight leading-none font-extrabold text-cyan-500 mt-1">
+        QA Applicant
+      </h4>
+      <p class="text-lg text-gray-500 mt-2">
+        Here you can read the assigment and upload your work.
+      </p>
+      <NuxtLink to="/login" class="inline-block bg-cyan-500 hover:bg-cyan-600 mt-3 px-6 py-3 rounded-md text-white text-lg">Log In</NuxtLink>
+    </span>
+  </div>
 </template>
 ```
 - `rm ~/app/frontend/app.vue`
-
-### Layouts
-- `mkdir ~/app/frontend/layouts`
-- `touch ~/app/frontend/layouts/default.vue`
-- add this to `~/app/frontend/layouts/default.vue`:
-```
-<template>
-  <header>header</header>
-  <main><NuxtPage /></main>
-  <footer>footer</footer>
-</template>
-```
-
-### Body
-- copy the everything inside the `<main>...</main>` section from the Picocss Classless Example here https://x4qtf8.csb.app and paste it in `~/app/frontend/pages/index.vue` so it replaces the current `<h1>Hello World</h1>`
-- remove the blockquote and list sections within the `main` so `~/app/frontend/pages/index.vue` looks like this:
-```
-<template>
-  <!-- Typography-->
-  <section id="typography">
-    <h2>Typography</h2>
-    <p>
-      Aliquam lobortis vitae nibh nec rhoncus. Morbi mattis neque eget
-      efficitur feugiat. Vivamus porta nunc a erat mattis, mattis feugiat
-      turpis pretium. Quisque sed tristique felis.
-    </p>
-  </section>
-</template>
-```
-
-### Header
-- in `~/app/frontend/layouts/default.vue` repleace the current `<header>header</header>` with the whole header section from the Classless Picocss Example page: 
-```
-<header>
-  <hgroup>
-    <h1>Pico</h1>
-    <p>A class-less example, without dependencies.</p>
-  </hgroup>
-  <nav>
-    <ul>
-      <li><a href="#" data-theme-switcher="auto">Auto</a></li>
-      <li><a href="#" data-theme-switcher="light">Light</a></li>
-      <li><a href="#" data-theme-switcher="dark">Dark</a></li>
-    </ul>
-  </nav>
-</header>
-```
-
-### Footer
-- in `~/app/frontend/layouts/default.vue` repleace the current `<footer>footer</footer>` with the whole footer section from the Classless Picocss Example page: 
-```
-<footer>
-  <small
-    >Built with <a href="https://picocss.com">Pico</a> •
-    <a
-      href="https://github.com/picocss/examples/blob/master/v2-html-classless/index.html"
-      >Source code</a
-    ></small
-  >
-</footer>
-```
-- `npm run dev` -> header, body & footer all show (will look the same as above)
-- `^ + c`
-
-### Content
-- `cd ~/app/frontend`
-- change `~/app/frontend/layouts/default.vue` so it looks like this:
-```
-<template>
-  <header>
-    <hgroup>
-      <h1>Auth Test App</h1>
-      <p>A really cool app.</p>
-    </hgroup>
-    <nav>
-      <ul>
-        <li><a href="#">Home</a></li>
-        <li><a href="#">Public</a></li>
-        <li><a href="#">Private</a></li>
-      </ul>
-    </nav>
-  </header>
-  <main>
-    <NuxtPage />
-  </main>
-  <footer>
-    <small>Built with <a href="https://picocss.com">Pico</a></small>
-  </footer>
-</template>
-```
-- change `~/app/frontend/pages/index.vue` so it looks like this:
-```
-<template>
-  <h2>Home</h2>
-  <p>Most bee jobs are small ones. But bees know that every small job, if it's done well means a lot. But choose carefully because you'll stay in the job you pick for the rest of your life.</p>
-</template>
-```
-- (placeholder `<p>` text generated with VSCode extension Ya Like Jazz)
-- `npm run dev` -> new content shows
-- `^ + c`
-
-### NuxtLinks
-- make `~/app/frontend/layouts/default.vue` look like this:
-```
-<template>
-  <header>
-    <hgroup>
-      <h1>Auth Test App</h1>
-      <p>A really cool app.</p>
-    </hgroup>
-    <nav>
-      <ul>
-        <li><NuxtLink to="/">Home</NuxtLink></li>
-        <li><NuxtLink to="/public">Public</NuxtLink></li>
-        <li><NuxtLink to="/private">Private</NuxtLink></li>
-      </ul>
-    </nav>
-  </header>
-  <main>
-    <NuxtPage />
-  </main>
-  <footer>
-    <small>Built with <a href="https://picocss.com">Pico</a></small>
-  </footer>
-</template>
-```
-- (subpages not yet built out yet, will link to 404 right now)
 
 ### Components
 - `cd ~/app/frontend`
 - `mkdir components`
 - `cd components`
-- `touch Header.vue Footer.vue`
+- `touch Header.vue`
 - make `~/app/frontend/components/Header.vue` look like this:
 ```
 <template>
-  <header>
-    <hgroup>
-      <h1>Auth Test App</h1>
-      <p>A really cool app.</p>
-    </hgroup>
-    <nav>
-      <ul>
-        <li><NuxtLink to="/">Home</NuxtLink></li>
-        <li><NuxtLink to="/public">Public</NuxtLink></li>
-        <li><NuxtLink to="/private">Private</NuxtLink></li>
-      </ul>
-    </nav>
-  </header>
+  <nav class="flex items-center justify-between flex-wrap bg-gray-800 p-6">
+    <div class="flex items-center flex-shrink-0 text-white mr-6">
+      <NuxtLink to="/">
+        <span class="font-bold text-xl">QA Applicant Portal</span>
+      </NuxtLink>
+    </div>
+    <div class="w-full block flex-grow sm:flex sm:items-center sm:w-auto">
+      <div class="text-sm sm:flex-grow text-end mr-4">
+        <NuxtLink to="/assignment" class="block mt-4 sm:inline-block sm:mt-0 text-white hover:text-cyan-500 mr-4">
+          Assignment
+        </NuxtLink>
+        <NuxtLink to="/upload" class="block mt-4 sm:inline-block sm:mt-0 text-white hover:text-cyan-500 mr-4">
+          Upload
+        </nuxtlink>
+      </div>
+      <div>
+        <NuxtLink to="/login" class="inline-block text-sm px-4 py-2 leading-none border rounded text-white border-white hover:border-transparent hover:text-blue-500 hover:bg-white mt-4 md:mt-0">
+          Login
+        </NuxtLink>
+      </div>
+    </div>
+  </nav>
 </template>
 ```
-- make `~/app/frontend/components/Footer.vue` look like this:
-```
-<template>
-  <footer>
-    <small>Built with <a href="https://picocss.com">Pico</a></small>
-  </footer>
-</template>
-```
-- make `~/app/frontend/layouts/default.vue` look like this:
-```
-<template>
-  <Header />
-  <main><NuxtPage /></main>
-  <Footer />
-</template>
-```
-- `npm run dev` -> header, body & footer all show
-- `^ + c`
 
 ### Subpages
 - `cd ~/app/frontend/pages`
@@ -501,16 +376,34 @@ css: ['~/assets/scss/main.scss'],
 - make `~/app/frontend/pages/public.vue` look like this:
 ```
 <template>
-  <h2>Public</h2>
-  <p>How come you don't fly everywhere? It's exhausting. Why don't you run everywhere? It's faster. Yeah, OK, I see, I see. All right, your turn. TiVo. You can just freeze live TV? That's insane! You don't have that? We have Hivo, but it's a disease. It's a horrible, horrible disease.</p>
+  <div class="w-4/6">
+    <span class="tracking-tight font-light text-gray-500 text-4xl">
+      <h4 class="text-7xl md:text-8 tracking-tight leading-none font-extrabold text-cyan-500 mt-1">
+        Public
+      </h4>
+      <p class="text-lg text-gray-500 mt-2">
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi a aliquet metus, non lacinia ligula. Vestibulum convallis massa vitae arcu fringilla rhoncus. In ut ligula posuere, fringilla leo sit amet, fringilla nisl. Nam orci odio, finibus a hendrerit sit amet, dapibus in risus. Phasellus maximus mattis turpis vitae gravida. Donec nec tellus elit. Mauris luctus mi ut est porta, sit amet lobortis felis imperdiet. Quisque ut eros pellentesque, vestibulum eros vel, cursus ligula. Nulla tortor purus, sollicitudin id gravida eu, efficitur eu elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer dictum congue nibh vel egestas. Nulla vel lacinia sem.
+      </p>
+    </span>
+  </div>
 </template>
+
 ```
 - make `~/app/frontend/pages/private.vue` look like this:
 ```
 <template>
-  <h2>Private</h2>
-  <p>We know that you, as a bee, have worked your whole life to get to the  point where you can work for your whole life. Honey begins when our valiant Pollen Jocks bring the nectar to the hive. Our top-secret formula is automatically  color-corrected, scent-adjusted and bubble-contoured into this soothing sweet syrup with its distinctive golden glow you know as Honey!</p>
+  <div class="w-4/6">
+    <span class="tracking-tight font-light text-gray-500 text-4xl">
+      <h4 class="text-7xl md:text-8 tracking-tight leading-none font-extrabold text-cyan-500 mt-1">
+        Private
+      </h4>
+      <p class="text-lg text-gray-500 mt-2">
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi a aliquet metus, non lacinia ligula. Vestibulum convallis massa vitae arcu fringilla rhoncus. In ut ligula posuere, fringilla leo sit amet, fringilla nisl. Nam orci odio, finibus a hendrerit sit amet, dapibus in risus. Phasellus maximus mattis turpis vitae gravida. Donec nec tellus elit. Mauris luctus mi ut est porta, sit amet lobortis felis imperdiet. Quisque ut eros pellentesque, vestibulum eros vel, cursus ligula. Nulla tortor purus, sollicitudin id gravida eu, efficitur eu elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer dictum congue nibh vel egestas. Nulla vel lacinia sem.
+      </p>
+    </span>
+  </div>
 </template>
+
 ```
 - `cd ~/app/frontend`
 - `npm run dev` -> home, public & private links work (private page is not yet locked)
@@ -519,9 +412,9 @@ css: ['~/assets/scss/main.scss'],
 ### Icon 
 - install the VSCode Iconify IntelliSense extention
 - `npx nuxi@latest module add icon`
-- in `~/app/frontend/components/Header.vue` make the `h1` look like this:
+- in `~/app/frontend/components/Header.vue`add:
 ```
-<h1><Icon name="fa-solid:lock" mode="svg" size="0.8em" /> Auth Test App</h1>
+<Icon name="fa-solid:laptop-code" mode="svg" size="0.8em" />
 ```
 - and add this at the bottom of `~/app/frontend/components/Header.vue`:
 ```
@@ -539,127 +432,6 @@ h1 {
 - `npm run dev`
 - `^ + c` -> Icon should show in h1
 
-### Mock API
-- `mkdir -p ~/app/frontend/server/api/auth`
-- `cd ~/app/frontend/server/api/auth`
-- `touch login.post.ts logout.post.ts session.get.ts`
-- make 
-`~/app/frontend/server/api/auth/logout.post.ts` look like this:
-```
-export default eventHandler(() => {
-
-})
-```
-- make `~/app/frontend/server/api/auth/session.get.ts` look like this:
-```
-export default eventHandler(() => {
-  return { user: { email: 'email', password: 'password' } }
-})
-```
-- make 
-`~/app/frontend/server/api/auth/login.post.ts` look like this:
-```
-const validEmail = 'email'
-const validPassword = 'password'
-const tokenStr = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJtaWNoYWVsdyIsImVtYWlsIjoibWljaGFlbC53aWxsaWFtc0B4LmR1bW15anNvbi5jb20iLCJmaXJzdE5hbWUiOiJNaWNoYWVsIiwibGFzdE5hbWUiOiJXaWxsaWFtcyIsImdlbmRlciI6Im1hbGUiLCJpbWFnZSI6Imh0dHBzOi8vZHVtbXlqc29uLmNvbS9pY29uL21pY2hhZWx3LzEyOCIsImlhdCI6MTcxNzYxMTc0MCwiZXhwIjoxNzE3NjE1MzQwfQ.eQnhQSnS4o0sXZWARh2HsWrEr6XfDT4ngh0ejiykfH8'
-
-export default eventHandler(async (event) => {
-  const creds = await readBody(event)
-  const { email, password } = creds
-  if (email === validEmail && password === validPassword) {
-    return { token: tokenStr }
-  }
-})
-```
-
-### Login Form
-- change `~/app/frontend/pages/index.vue` to look like this:
-```
-<script setup>
-const { signIn, status } = useAuth()
-definePageMeta({ auth: false })
-const email = ref('email')
-const password = ref('password')
-
-async function login() {
-  await signIn({ email: email.value, password: password.value }, { redirect: false })
-}
-</script>
-
-<template>
-  <h2>Home</h2>
-  <p>Most bee jobs are small ones. But bees know that every small job, if it's done well means a lot. But choose carefully because you'll stay in the job you pick for the rest of your life.</p>
-  <h3>Login</h3>
-  <section v-if="status === 'unauthenticated'">
-    <form>
-      <input v-model="email">
-      <input v-model="password">
-      <button type="submit" @click.prevent="login">Login</button>
-    </form>
-  </section>
-</template>
-```
-
-### Logout Button
-- make `~/app/frontend/components/Header.vue` look like this:
-```
-<script setup>
-const { data, signOut, status } = useAuth()
-
-async function logout() {
-  await signOut({ callbackUrl: '/' })
-}
-</script>
-
-<template>
-  <header>
-    <hgroup>
-      <h1>
-        <Icon name="fa-solid:lock" mode="svg" size="0.8em" />
-        Auth Test App
-      </h1>
-      <p>A really cool app.</p>
-    </hgroup>
-    <nav>
-      <ul>
-        <li>
-          <NuxtLink to="/">
-            Home
-          </NuxtLink>
-        </li>
-        <li>
-          <NuxtLink to="/public">
-            Public
-          </NuxtLink>
-        </li>
-        <li>
-          <NuxtLink to="/private">
-            Private
-          </NuxtLink>
-        </li>
-      </ul>
-    </nav>
-    <section v-if="status === 'authenticated'">
-      <button @click.prevent="logout">Logout</button>
-    </section>
-    <section>
-      <p>Data: {{ data }}</p>
-      <p>Status: {{ status }}</p>
-    </section>
-  </header>
-</template>
-
-<style scoped>
-h1 {
-  display: flex;
-  align-items: center;
-  svg {
-    margin-right: 0.2em;
-  }
-}
-</style>
-```
-
 ### Auth
 - `cd ~/app/frontend`
 - `npx nuxi@latest module add @sidebase/nuxt-auth`
@@ -672,12 +444,13 @@ definePageMeta({ auth: false })
 ```
 - make `~/app/frontend/nuxt.config.js` look like this:
 ```
+let development = process.env.NODE_ENV !== 'production'
 export default defineNuxtConfig({
   devtools: { enabled: true },
-  css: ['~/assets/scss/main.scss'],
-  modules: ['@nuxt/icon', '@sidebase/nuxt-auth'],
+  devServer: { port: 3001 },
+  modules: ["@nuxtjs/tailwindcss", "@nuxt/icon", "@sidebase/nuxt-auth"],
   auth: {
-    computed: { "pathname": "http://localhost:3000/api/auth/" },
+    computed: { pathname: development ? "http://localhost:3000/api/auth/" : "https://interview-app-backend.fly.dev/api/auth/" },
     isEnabled: true,
     globalAppMiddleware: { isEnabled: true },
     provider: {
@@ -697,27 +470,117 @@ export default defineNuxtConfig({
 - `npm run dev` -> Login/logout work & private page redirects to homepage when logged out
 - `^ + c`
 
-### Prep Frontend For Backend
-- `cd ~/app/frontend`
-- `rm -rf server`
-- to `~/app/frontend/nuxt.config.ts` add this after `modules` and before `auth`:
+### Header With Auth
+- make `~/app/frontend/components/Header.vue` look like this:
 ```
-devServer: { port: 3001 },
+<script setup>
+const { data, signOut, status } = useAuth()
+
+async function logout() {
+  await signOut({ callbackUrl: '/' })
+}
+</script>
+
+<template>
+  <nav class="flex items-center justify-between flex-wrap bg-gray-800 p-6">
+    <div class="flex items-center flex-shrink-0 text-white mr-6">
+      <NuxtLink to="/">
+        <span class="font-bold text-xl"><Icon name="fa-solid:laptop-code" mode="svg" /> QA Applicant Portal</span>
+      </NuxtLink>
+    </div>
+    <div class="w-full block flex-grow sm:flex sm:items-center sm:w-auto">
+      <div v-if="status === 'authenticated'" class="text-sm sm:flex-grow text-end mr-4">
+        <NuxtLink to="/assignment" class="block mt-4 sm:inline-block sm:mt-0 text-white hover:text-cyan-500 mr-4">
+          Assignment
+        </NuxtLink>
+        <NuxtLink to="/upload" class="block mt-4 sm:inline-block sm:mt-0 text-white hover:text-cyan-500 mr-4">
+          Upload
+        </nuxtlink>
+      </div>
+      <div>
+        <NuxtLink v-if="status === 'unauthenticated'" to="/login" class="inline-block text-sm px-4 py-2 leading-none border rounded text-white border-white hover:border-transparent hover:text-blue-500 hover:bg-white mt-4 md:mt-0">
+          Login
+        </NuxtLink>
+        <button v-if="status === 'authenticated'" class="inline-block text-sm px-4 py-2 leading-none border rounded text-white border-white hover:border-transparent hover:text-blue-500 hover:bg-white mt-4 md:mt-0" @click.prevent="logout">
+          Logout
+        </button>
+      </div>
+    </div>
+  </nav>
+</template>
+
+<style scoped>
+span {
+  display: flex;
+  align-items: center;
+    svg {
+      display: inline-block;
+      margin-right: 0.4em;
+    }
+}
+</style>
 ```
-- `npm run dev` -> http://localhost:3001 works (login/logout will not work right now)
-- `^ + c`
+
+### Login Form
+- touch `~/app/frontend/pages/login.vue`
+- make `~/app/frontend/pages/login.vue` look like this:
+```
+<script setup>
+const { signIn, status } = useAuth()
+definePageMeta({ auth: false })
+const email = ref('email')
+const password = ref('password')
+
+async function login() {
+  await signIn({ email: email.value, password: password.value }, { redirect: false })
+}
+</script>
+
+<template>
+  <div class="w-4/6">
+    <span class="tracking-tight font-light text-gray-500 text-4xl">
+
+      <h4 class="text-7xl md:text-8 tracking-tight leading-none font-extrabold text-cyan-500 mt-1">
+        Login
+      </h4>
+
+      <div class="w-full max-w-xs">
+        <form class="pt-6 pb-8 mb-4">
+          <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="email">
+              Email
+            </label>
+            <input v-model="email" class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" type="text">
+          </div>
+          <div class="mb-6">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="password">
+              Password
+            </label>
+            <input v-model="password" class="appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline" type="password">
+          </div>
+          <div class="flex items-center justify-between">
+            <button @click.prevent="login" class="inline-block bg-cyan-500 hover:bg-cyan-600 mt-3 px-6 py-3 rounded-md text-white text-lg" type="button">
+              Submit
+            </button>
+          </div>
+        </form>
+      </div></span>
+  </div>
+</template>
+```
 - `npm run test` -> all 14 tests should pass
 - `npm run lint`
+- `npm run lint:fix`
 
-## Build Out Backend
+## Backend
 
 ### Rails Starter API
-- install VSCode extentions RubyLSP and Rubocop
+- install VSCode extentions `Ruby LSP` and `Rubocop`
 - `cd ~/app/backend`
 - `bundle add rack-cors`
 - `bundle install`
 - check if there's a `~/app/backend/config/initializers/cors.rb` file and if not, run `touch config/initializers/cors.rb`
-- in `~/app/backend/config/initializers/cors.rb` uncomment lines 10-18 and change the `origins` line to `origins "*"`
+- in `~/app/backend/config/initializers/cors.rb` uncomment lines 10-18 and change the `origins` line to `origins 'http://localhost:3001', 'https://fixme'`
 
 ### Rubocop
 - `bundle add rubocop-rails`
