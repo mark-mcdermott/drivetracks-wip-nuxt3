@@ -532,7 +532,7 @@ const email = ref('email')
 const password = ref('password')
 
 async function login() {
-  await signIn({ email: email.value, password: password.value }, { redirect: false })
+  await signIn({ user: { email: email.value, password: password.value } }, { redirect: false })
 }
 </script>
 
@@ -878,7 +878,7 @@ end
 class CurrentUserController < ApplicationController
   before_action :authenticate_user!
   def index
-    render json: UserSerializer.new(current_user).serializeable_hash[:data][:attributes], status: :ok
+    render json: UserSerializer.new(current_user).serializable_hash[:data][:attributes], status: :ok
   end
 end
 ```
