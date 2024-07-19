@@ -580,7 +580,19 @@ async function login() {
 - `bundle add rack-cors`
 - `bundle install`
 - check if there's a `~/app/backend/config/initializers/cors.rb` file and if not, run `touch config/initializers/cors.rb`
-- in `~/app/backend/config/initializers/cors.rb` uncomment lines 10-18 and change the `origins` line to `origins 'http://localhost:3001', 'https://fixme'`
+- make `~/app/backend/config/initializers/cors.rb` look like this:
+```
+Rails.application.config.middleware.insert_before 0, Rack::Cors do
+  allow do
+    origins 'http://localhost:3001', 'https://qa-applicant-portal'
+    resource "*",
+    headers: :any,
+    expose: ['access-token', 'expiry', 'token-type', 'Authorization'],
+    methods: [:get, :patch, :put, :delete, :post, :options, :show]
+  end
+end
+```
+- `rails db:create` (or `rails db:drop db:create` if you already have a database called `backend`)
 
 ### Rubocop
 - `bundle add rubocop-rails`
@@ -642,7 +654,7 @@ end
 - `bundle add factory_bot_rails --group "development, test"`
 - `bundle install`
 - `mkdir spec/factories`
-- `touch spec/factories/user.rb spec/factories/token.rb`
+- REMOVE THIS? `touch spec/factories/user.rb spec/factories/token.rb`
 - make `~/app/backend/spec/factories/user.rb` look like this:
 ```
 FactoryBot.define do
@@ -652,7 +664,7 @@ FactoryBot.define do
   end
 end
 ```
-- make `~/app/backend/spec/factories/token.rb` look like this:
+- REMOVE THIS? make `~/app/backend/spec/factories/token.rb` look like this:
 ```
 FactoryBot.define do
   factory :token do
@@ -726,273 +738,157 @@ RSpec.describe "Auth requests" do
 end
 ```
 
+### Devise
+- `bundle add devise devise-jwt jsonapi-serializer`
+- `bundle install`
+- in `~/app/backend/config/environments/development.rb` add `config.action_mailer.default_url_options = { host: 'localhost', port: 3000 }` near the other `action_mailer` lines
+- in `~/app/backend/config/initializers/devise.rb` uncomment the `config.navigational_format` line and make it like this `config.navigational_formats = []`
+- to avoid a `Your application has sessions disabled. To write to the session you must first configure a session store` error, in `~/app/backend/config/application.rb` add this near the other `config.` lines:
+```
+    config.session_store :cookie_store, key: '_interslice_session'
+    config.middleware.use ActionDispatch::Cookies
+    config.middleware.use config.session_store, config.session_options
+```
+
 ### Users
 - `cd ~/app/backend`
-- `rails db:create` (or `rails db:drop db:create` if you already have a database called `backend`)
-- `touch app/models/user.rb`
-- make `~/app/backend/app/models/user.rb` look like this:
+- `rails g migration EnableUuid`
+- add `enable_extension 'pgcrypto'` to `~/app/backend/db/migrate/<timestamp>_enable_uuuid.rb`
+- `rails db:migrate`
+- `rails generate devise User`
+- to `~/app/backend/db/<timestamp>_devise_create_users.rb`, add:
 ```
-class User < ApplicationRecord
-  
-end
+t.boolean :admin, default: false
+t.uuid :uuid
 ```
-- `touch app/controllers/users_controller.rb`
-- make `~/app/backend/app/controllers/users_controller.rb` look like this:
+- and in `~/app/backend/db/<timestamp>_devise_create_users.rb`, before the close of the `change` block, add:
 ```
-class UsersController < ApplicationController
-  before_action :set_user, only: %i[ show update destroy ]
-
-  # GET /users
-  def index
-    @users = User.all
-
-    render json: @users
-  end
-
-  # GET /users/1
-  def show
-    render json: @user
-  end
-
-  # POST /users
-  def create
-    @user = User.new(user_params)
-
-    if @user.save
-      render json: @user, status: :created, location: @user
-    else
-      render json: @user.errors, status: :unprocessable_entity
-    end
-  end
-
-  # PATCH/PUT /users/1
-  def update
-    if @user.update(user_params)
-      render json: @user
-    else
-      render json: @user.errors, status: :unprocessable_entity
-    end
-  end
-
-  # DELETE /users/1
-  def destroy
-    @user.destroy!
-  end
-
-  private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_user
-      @user = User.find(params[:id])
-    end
-
-    # Only allow a list of trusted parameters through.
-    def user_params
-      params.require(:user).permit(:email, :password)
-    end
-end
-```
-- `rails generate migration CreateUsers email password`
-- in `~/app/backend/db/migrate/<datetime stamp>_create_users.rb` change the `email` and `password` lines to:
-```
-t.string :email, null: false, index: { unique: true }
-t.string :password, null: false
+add_index :users, :uuid
 ```
 - `rails db:migrate`
-
-### Tokens
-- (this and the next section are hand-rolled auth, for learning. the hand-rolled auth is replaced by devise afterwards)
-- `cd ~/app/backend`
-- `rails db:encryption:init`
-- ^ that should output something like:
+- `rails g devise:controllers users -c sessions registrations`
+- add `respond_to :json` to `~/app/backend/app/controllers/users/registrations_controller.rb` and `~/app/backend/app/controllers/users/sessions_controller.rb`
+- make `~/app/backend/config/routes.rb` look like this:
 ```
-active_record_encryption:
-  primary_key: one_primary_key
-  deterministic_key: one_deterministic_key
-  key_derivation_salt: one_key_derivation_salt
-```
-- copy all that output (not the block above) and then run `EDITOR="code --wait" rails credentials:edit`
-- then paste what you copied at the end of the credentials file and save and then close the file
-- make `~/app/backend/app/models/user.rb` look like this:
-```
-class User < ApplicationRecord
-  has_one :token, dependent: :destroy
-  after_create :add_user_token
+# frozen_string_literal: true
 
-  private
-
-  def add_user_token
-    self.token = Token.create({user_id: self.id, active: true})
-  end
-end
-```
-- `touch app/models/token.rb`
-- make `~/app/backend/app/models/token.rb` look like this:
-```
-class Token < ApplicationRecord
-  belongs_to :user
-  validates :token_str, presence: true, uniqueness: true
-  encrypts :token, deterministic: true
-  before_validation :generate_token, on: :create
-  
-  private
-
-  def generate_token
-    self.token_str = Digest::MD5.hexdigest(SecureRandom.hex)
-  end
-
-end
-```
-- `rails generate migration CreateToken token_str:index active:boolean user:references`
-- `rails db:migrate`
-- `rails console`
-  - in the console run `User.create(email:"email",password:"password")`
-  - type `exit` to exit the console
-
-### Auth Controller/Routes
-- (this and the previous section are hand-rolled auth, for learning. the hand-rolled auth is replaced by devise afterwards)
-- `cd ~/app/backend`
-- `mkdir -p app/controllers/api/auth`
-- `touch app/controllers/api/auth/auth_controller.rb`
-- make `~/app/backend/app/controllers/api/auth/auth_controller.rb` look like this:
-```
-class Api::Auth::AuthController < ActionController::API
-
-  def login
-    @no_auth_errors = true
-    creds = creds_from_params
-    if @no_auth_errors then user = user_from_creds(creds) end
-    if @no_auth_errors then token = token_from_user(user) end
-    if @no_auth_errors
-      token.active = true
-      render json: { token: token.token_str }
-    end
-  end
-
-  def logout
-  end
-
-  def session
-    @no_auth_errors = true
-    token = token_from_headers
-    if @no_auth_errors then user = user_from_token(token) end
-    if @no_auth_errors 
-      render json: { user: user }
-    end
-  end
-
-  private
-
-  def creds_from_params
-    unless params.has_key?(:email) && params.has_key?(:password)
-      handle_auth_error "Missing email and/or password", 401
-    end
-    creds = {}
-    creds['email'] = params[:email]
-    creds['password'] = params[:password]
-    creds
-  end
-
-  def user_from_creds creds
-    user = User.find_by(email: creds['email'], password: creds['password'])
-    if !user.present?
-      handle_auth_error "Wrong email and/or password", 401
-    end
-    user
-  end
-
-  def token_from_user user
-    token = Token.find_by(user: user)
-    if !token.present?
-      handle_auth_error "User token not found", 404
-    end
-    token
-  end
-
-  def token_from_headers
-    if 
-      request.headers['Authorization'].present? && 
-      request.headers['Authorization'].split(' ').present? && 
-      request.headers['Authorization'].split(' ').last.present?
-      token = request.headers['Authorization'].split(' ').last
-    else
-      handle_auth_error "User token not found", 404
-    end
-    token
-  end
-
-  def token_obj_from_token_str token_str
-    tokenObj = Token.find_by(token_str: token_str)
-    if !tokenObj.present?
-      handle_auth_error "User token not found", 404
-    end
-    tokenObj
-  end
-
-  def user_from_token token_str
-    token_obj = token_obj_from_token_str token_str
-    if token_obj.present?
-      user = User.find_by(token: token_obj)
-    end
-    user
-  end
-
-  def handle_auth_error message, status
-    @no_auth_errors = false
-    render json: { error: message }, status: status
-  end
-
-end
-```
-- make `config/routes.rb` look like this:
-```
 Rails.application.routes.draw do
-  resources :users
-  namespace :api do
-    namespace :auth do
-      post "login", to: "auth#login"
-      post "logout", to: "auth#logout"
-      get "session", to: "auth#session"
+  devise_for :users, path: '', path_names: {
+    sign_in: 'api/auth/login',
+    sign_out: 'api/auth/logout',
+    registration: 'api/auth/signup'
+  },
+  controllers: {
+    sessions: 'users/sessions',
+    registrations: 'users/registrations'
+  }
+  get 'up' => 'rails/health#show', as: :rails_health_check
+end
+```
+
+### JWT
+- add this to `~/app/backend/config/initializers/devise.rb` right before the last `end`:
+```
+config.jwt do |jwt|
+  jwt.secret = Rails.application.credentials.fetch(:secret_key_base)
+  jwt.dispatch_requests = [
+    ['POST', %r{^/login$}]
+  ]
+  jwt.revocation_requests = [
+    ['DELETE', %r{^/logout$}]
+  ]
+  jwt.expiration_time = 30.minutes.to_i
+end
+```
+- `rails g migration addJtiToUsers jti:string:index:unique`
+- change `~/app/backend/db/migrate/<timestamp>_add_jti_to_users.rb` to include this:
+```
+  add_column :users, :jti, :string, null: false
+  add_index :users, :jti, unique: true
+```
+- make `~/app/backend/app/models/user.rb` look like this:
+```
+class User < ApplicationRecord
+  include Devise::JWT::RevocationStrategies::JTIMatcher
+  devise :database_authenticatable, :registerable, :validatable,
+         :jwt_authenticatable, jwt_revocation_strategy: self
+end
+```
+- `rails db:migrate`
+- `rails generate serializer user uuid email`
+
+### Auth Controllers
+- make `~/app/backend/app/controllers/registrations_controller.rb` look like this:
+```
+class Users::RegistrationsController < Devise::RegistrationsController
+  respond_to :json
+  private
+
+  def respond_with(resource, _opts = {})
+    if request.method == "POST" && resource.persisted?
+      render json: {
+        status: {code: 200, message: "Signed up sucessfully."},
+        data: UserSerializer.new(resource).serializable_hash[:data][:attributes]
+      }, status: :ok
+    elsif request.method == "DELETE"
+      render json: {
+        status: { code: 200, message: "Account deleted successfully."}
+      }, status: :ok
+    else
+      render json: {
+        status: {code: 422, message: "User couldn't be created successfully. #{resource.errors.full_messages.to_sentence}"}
+      }, status: :unprocessable_entity
     end
   end
 end
 ```
-- `cd ~/app`
-- `rspec` -> all backend specs should pass
-- in a split terminal:
-  - run backend
-    - `cd backend`
-    - `rails server`
-  - run frontend
-    - `cd frontend`
-    - `npm run dev`
-  - now clicking login and then logout should work (first login may take ~5 seconds)
-  - private page should only show when logged in
-
-### Devise
-- `cd ~/app/backend`
-- `rails generate migration DropUsersTable`
-- make `~/app/backend/db/migrate/<datetime>_drop_users_table.rb` look like this:
+- make `~/app/backend/app/controllers/sessions_controller.rb` look like this:
 ```
-class DropProductsTable < ActiveRecord::Migration
-  def up
-    drop_table :users
+class Users::SessionsController < Devise::SessionsController
+  respond_to :json
+  private
+
+  def respond_with(resource, _opts = {})
+    render json: {
+      token: request.env['warden-jwt_auth.token'],
+      status: {code: 200, message: 'Logged in sucessfully.'},
+    }, status: :ok
   end
-  def down
-    raise ActiveRecord::IrreversibleMigration
+
+  def respond_to_on_destroy
+    if current_user
+      render json: {
+        status: 200,
+        message: "logged out successfully"
+      }, status: :ok
+    else
+      render json: {
+        status: 401,
+        message: "Couldn't find an active session."
+      }, status: :unauthorized
+    end
   end
 end
 ```
-- `rails db:migrate`
-- `bundle add gem 'devise devise-jwt jsonapi-serializer`
-- `bundle install`
-- `rails generate devise:install`
-- uncomment the `config.navigational_formats` line in `~/app/backend/config/initializers/devise.rb` and make it `config.navigational_formats = []`
-- in `~/app/backend/config/environments/development.rb`, add this near the end of the file right before the last `end`:
+
+### Current User Endpoint
+- `rails g controller current_user index`
+- make `~/app/backend/app/controller/current_users_controller.rb` look like this:
 ```
-config.action_mailer.default_url_options = { host: 'localhost', port: 3000 }
+class CurrentUserController < ApplicationController
+  before_action :authenticate_user!
+  def index
+    render json: UserSerializer.new(current_user).serializeable_hash[:data][:attributes], status: :ok
+  end
+end
 ```
-- `rails g devise User`
-- `rails db:migrate`
+- in `~/app/backend/config/routes.rb` replace `get 'current_user/index'` with `get '/api/auth/session', to: 'current_user#index'`
+
+### Test The API
+- `rails server`
+- split your terminal and in the second pane, run `curl -H 'Content-Type: application/json' -X POST -d '{"user": { "email": "test@mail.com", "password" : "password" }}' http://localhost:3000/api/auth/signup`
+- `curl -H 'Content-Type: application/json' -X POST -d '{"user": { "email": "test@mail.com", "password" : "password" }}' http://localhost:3000/api/auth/login`
+
 
 ## Sources
 - Nuxt https://nuxt.com (visited 7/4/24)
@@ -1000,4 +896,4 @@ config.action_mailer.default_url_options = { host: 'localhost', port: 3000 }
 - Picocss https://picocss.com (visited 7/4/24)
 - Picocss Examples https://picocss.com/examples (visited 7/4/24)
 - Picocss Classless Example https://x4qtf8.csb.app (visited 7/4/24)
-- Devise For API-Only Rails https://sdrmike.medium.com/rails-7-api-only-app-with-devise-and-jwt-for-authentication-1397211fb97c (visited 7/14/24)
+- Devise For API-Only Rails https://dakotaleemartinez.com/tutorials/devise-jwt-api-only-mode-for-authentication/ (visited 7/18/24)
