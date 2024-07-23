@@ -265,6 +265,7 @@ describe('Private page has correct copy', () => {
 - make `~/app/frontend/nuxt.config.ts` look like this:
 ```
 export default defineNuxtConfig({
+  runtimeConfig: { public: { apiBase: 'http://localhost:3000' }},
   devServer: { port: 3001 },
   devtools: { enabled: true },
 })
@@ -572,6 +573,151 @@ async function login() {
 - `npm run lint`
 - `npm run lint:fix`
 
+### Nuxt User Views
+- `cd ~/app/frontend`
+- `mkdir pages/users`
+- `cd pages/users`
+- `touch index.vue new.vue [id].vue`
+- make `~/app/frontend/pages/users/index.vue` look like this:
+```
+<template>
+  <div>
+    <h2>Users</h2>
+    <ul>
+      <li v-for="user in users" :key="user.id">
+        <NuxtLink :to="`/users/${user.id}`">{{ user.name }}</NuxtLink>
+      </li>
+    </ul>
+  </div>
+</template>
+  
+<script setup>
+import { ref, onMounted } from 'vue'
+import { useRuntimeConfig } from '#app'
+
+const users = ref([])
+
+onMounted(async () => {
+  const { apiBase } = useRuntimeConfig().public
+  const response = await fetch(`${apiBase}/users`)
+  users.value = await response.json()
+})
+</script>
+  ```
+- make `~/app/frontend/pages/users/[id].vue` look like this:
+```
+<template>
+  <div>
+    <h2>{{ user.name }}</h2>
+    <p>{{ user.email }}</p>
+    <img :src="user.avatarUrl" alt="User Avatar" v-if="user.avatarUrl" />
+  </div>
+</template>
+
+<script setup>
+import { ref, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
+import { useRuntimeConfig } from '#app'
+  
+const route = useRoute()
+const user = ref({})
+
+onMounted(async () => {
+  const { apiBase } = useRuntimeConfig().public
+  const response = await fetch(`${apiBase}/users/${route.params.id}`)
+  user.value = await response.json()
+})
+</script>
+```
+- make `~/app/fronte nd/pages/users/new.vue` look like this:
+```
+<template>
+  <div>
+    <h2>New User</h2>
+    <form @submit.prevent="createUser">
+      <input v-model="name" placeholder="Name" required />
+      <input v-model="email" placeholder="Email" type="email" required />
+      <Upload @fileSelected="handleFileSelected" />
+      <button type="submit">Create User</button>
+    </form>
+  </div>
+</template>
+
+<script setup>
+import { ref } from 'vue';
+import { useRuntimeConfig } from '#app';
+import Upload from '@/components/Upload.vue';
+
+const name = ref('');
+const email = ref('');
+const selectedFile = ref(null);
+
+const handleFileSelected = (file) => {
+  selectedFile.value = file;
+};
+
+const createUser = async () => {
+  const { apiBase } = useRuntimeConfig().public;
+  try {
+    const response = await fetch(`${apiBase}/users`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: name.value, email: email.value })
+    });
+    if (response.ok) {
+      const user = await response.json();
+      if (selectedFile.value) {
+        const formData = new FormData();
+        formData.append('avatar', selectedFile.value);
+        const avatarResponse = await fetch(`${apiBase}/users/${user.id}/upload_avatar`, {
+          method: 'POST',
+          body: formData
+        });
+        if (avatarResponse.ok) {
+          console.log('Avatar uploaded successfully');
+        } else {
+          console.error('Error uploading avatar');
+        }
+      }
+    } else {
+      console.error('Error creating user');
+    }
+  } catch (error) {
+    console.error('Error creating user:', error);
+  }
+};
+</script>
+```
+    
+    
+### Nuxt File Upload
+- `cd ~/app/frontend`
+- make `~/app/frontend/pages/upload.vue` look like this:
+```
+<template>
+  <input type="file" @change="handleFileUpload" />
+</template>
+
+<script setup>
+import { ref, defineEmits } from 'vue';
+
+// Define the emitted events for this component
+const emit = defineEmits(['fileSelected']);
+
+// Reactive reference for the file
+const file = ref(null);
+
+// Handle the file upload
+const handleFileUpload = (event) => {
+  const target = event.target; // No TypeScript syntax here
+  if (target.files && target.files.length > 0) {
+    file.value = target.files[0];
+    emit('fileSelected', file.value); // Emit the selected file to parent component
+  }
+};
+</script>
+```
+
 ## Backend
 
 ### Rails Starter API
@@ -593,6 +739,84 @@ Rails.application.config.middleware.insert_before 0, Rack::Cors do
 end
 ```
 - `rails db:create` (or `rails db:drop db:create` if you already have a database called `backend`)
+
+### AWS IAM User
+- login to AWS
+- in top right select a region if currently `global`
+- in searchbar at top, enter `iam` and select IAM
+- Create User
+  - enter name, something like `app-user`
+  - click Security Credentials tab
+  - click Create Access key towards the top right
+    - Use case: `Local code`
+    - check `I understand the above recommendation`
+    - Next
+    - Description tag value: enter tag name, like `app-user-access-key`
+    - click `Download .csv file` towards the bottom
+    - click Done
+
+### AWS S3 Bucket
+- login to AWS
+- in searchbar at top, enter `s3` and select S3
+- Create Bucket
+  - enter name, something like `app-bucket-development`
+  - under Object Ownership, click ACLs Enabled
+  - under Block Public Access settings
+    - uncheck `Block All Public Access`
+    - check `Block public access to buckets and objects granted through new public bucket or access point policies`
+    - check `Block public and cross-account access to buckets and objects through any public bucket or access point policies`
+    - check `I acknowledge that the current settings might result in this bucket and the objects within becoming public.`  
+  - scroll to bottom and click Create Bucket
+- click the bucket you just created -> then click Permissions
+  - under Bucket Policy, add this:
+```
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::<aws acct id without dashes>:user/<iam username>"
+            },
+            "Action": "s3:ListBucket",
+            "Resource": "arn:aws:s3:::<bucket name>"
+        },
+        {
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::<aws acct id without dashes>:user/<iam username>""
+            },
+            "Action": [
+                "s3:GetObject",
+                "s3:PutObject",
+                "s3:DeleteObject"
+            ],
+            "Resource": "arn:aws:s3:::<bucket name>/*"
+        }
+    ]
+}
+```
+  - under Cross-origin Resource Sharing (CORS) add this:
+```
+[
+    {
+        "AllowedHeaders": [
+            "*"
+        ],
+        "AllowedMethods": [
+            "GET",
+            "POST",
+            "PUT",
+            "DELETE"
+        ],
+        "AllowedOrigins": [
+            "*"
+        ],
+        "ExposeHeaders": [],
+        "MaxAgeSeconds": 3000
+    }
+]
+```
 
 ### Rubocop
 - `bundle add rubocop-rails`
@@ -889,6 +1113,36 @@ end
 - split your terminal and in the second pane, run `curl -H 'Content-Type: application/json' -X POST -d '{"user": { "email": "test@mail.com", "password" : "password" }}' http://localhost:3000/api/auth/signup`
 - `curl -H 'Content-Type: application/json' -X POST -d '{"user": { "email": "test@mail.com", "password" : "password" }}' http://localhost:3000/api/auth/login`
 
+### S3 In Rails
+- `cd ~/app/backend`
+- `bundle add aws-sdk-s3`
+- `bundle install`
+- `touch app/controllers/uploads_controller.rb`
+- make `~/app/backend/app/controllers/uploads_controller.rb` look like this:
+```
+class UploadsController < ApplicationController
+  before_action :authenticate_user! # Ensure you have authentication in place
+
+  def presigned_url
+    filename = params[:filename]
+    content_type = params[:content_type]
+
+    s3_client = Aws::S3::Client.new(region: 'your-region')
+    presigned_url = s3_client.presigned_url(:put_object,
+      bucket: 'qa-applicant-portal',
+      key: filename,
+      content_type: content_type,
+      acl: 'public-read' # Adjust ACL as needed
+    )
+
+    render json: { url: presigned_url }
+  end
+end
+```
+- add `get 'upload', to: 'uploads#presigned_url'` to `~/app/backend/config/routes.rb`
+
+
+
 
 ## Sources
 - Nuxt https://nuxt.com (visited 7/4/24)
@@ -897,3 +1151,5 @@ end
 - Picocss Examples https://picocss.com/examples (visited 7/4/24)
 - Picocss Classless Example https://x4qtf8.csb.app (visited 7/4/24)
 - Devise For API-Only Rails https://dakotaleemartinez.com/tutorials/devise-jwt-api-only-mode-for-authentication/ (visited 7/18/24)
+- Uploading to AWS S3 using VueJS + Nuxt, Dropzone and a Node API https://loadpixels.com/2018/11/22/uploading-to-aws-s3-using-vuejs-nuxt-dropzone-and-a-node-api/ (visited 7/19/24)
+- How to Upload Files to Amazon S3 with React and AWS SDK https://dev.to/aws-builders/how-to-upload-files-to-amazon-s3-with-react-and-aws-sdk-b0n (visited 7/19/24)
