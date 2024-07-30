@@ -13,6 +13,7 @@
   - `bundle install`
   - `rails server`
 - in a browser, go to `http://localhost:3001`
+- `^ + c` (to kill server)
 
 # To Create This Project From Scratch
 
@@ -520,6 +521,9 @@ async function logout() {
 }
 </style>
 ```
+- `cd ~/app/frontend`
+- `npm run dev`
+- `^ + c` -> Private link should now be hidden
 
 ### Login Form
 - touch `~/app/frontend/pages/login.vue`
