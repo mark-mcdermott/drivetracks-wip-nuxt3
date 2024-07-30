@@ -526,7 +526,7 @@ async function logout() {
 - `^ + c` -> Private link should now be hidden
 
 ### Login Form
-- touch `~/app/frontend/pages/login.vue`
+- `touch ~/app/frontend/pages/login.vue`
 - make `~/app/frontend/pages/login.vue` look like this:
 ```
 <script setup>
