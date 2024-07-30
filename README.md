@@ -329,7 +329,7 @@ export default defineNuxtConfig({
           Test App
         </h4>
         <p class="text-lg text-gray-500 mt-2">
-          Here you can read do anything your little heart desires.
+          Here you can do anything your little heart desires.
         </p>
         <NuxtLink to="/login" class="inline-block bg-cyan-500 hover:bg-cyan-600 mt-3 px-6 py-3 rounded-md text-white text-lg">Log In</NuxtLink>
       </span>
@@ -349,7 +349,7 @@ export default defineNuxtConfig({
     <nav class="flex items-center justify-between flex-wrap bg-gray-800 p-6">
       <div class="flex items-center flex-shrink-0 text-white mr-6">
         <NuxtLink to="/">
-          <span class="font-bold text-xl">Test App</span>
+          <span class="font-bold nav-header text-xl">Test App</span>
         </NuxtLink>
       </div>
       <div class="w-full block flex-grow sm:flex sm:items-center sm:w-auto">
@@ -413,14 +413,18 @@ export default defineNuxtConfig({
 ### Icon 
 - install the VSCode Iconify IntelliSense extention
 - `npx nuxi@latest module add icon`
-- in `~/app/frontend/components/Header.vue`add:
+- in `~/app/frontend/components/Header.vue` make
 ```
-<Icon name="fa-solid:laptop-code" mode="svg" size="0.8em" />
+<span class="font-bold nav-header text-xl">Test App</span>
+```
+look like this:
+```
+<span class="font-bold nav-header text-xl"><Icon name="fa-solid:laptop-code" mode="svg" size="0.8em" /> 
 ```
 - and add this at the bottom of `~/app/frontend/components/Header.vue`:
 ```
 <style scoped>
-h1 {
+.nav-header {
   display: flex;
   align-items: center;
   svg {
