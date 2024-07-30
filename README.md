@@ -87,7 +87,7 @@ export default defineConfig({
   test: { environment: 'happy-dom', setupFiles: ["./specs/mocks/mocks.js"] },
 })
 ```
-- add `plugins: ['vitest'],` to `~/app/frontend/eslint.config.mjs` so it looks like this:
+- add `plugins: ['vitest'],` to `~/app/frontend/eslint.config.js` so it looks like this:
 ```
 import antfu from '@antfu/eslint-config'
 
@@ -322,19 +322,19 @@ export default defineNuxtConfig({
 - make `~/app/frontend/pages/index.vue` look like:
 ```
 <template>
-  <div class="w-4/6">
-    <span class="tracking-tight font-light text-gray-500 text-4xl">
-      <h3 class="text-base">Welcome</h3>
-      <h4 class="text-7xl md:text-8 tracking-tight leading-none font-extrabold text-cyan-500 mt-1">
-        QA Applicant
-      </h4>
-      <p class="text-lg text-gray-500 mt-2">
-        Here you can read the assigment and upload your work.
-      </p>
-      <NuxtLink to="/login" class="inline-block bg-cyan-500 hover:bg-cyan-600 mt-3 px-6 py-3 rounded-md text-white text-lg">Log In</NuxtLink>
-    </span>
-  </div>
-</template>
+    <div class="w-4/6">
+      <span class="tracking-tight font-light text-gray-500 text-4xl">
+        <h3 class="text-base">Welcome</h3>
+        <h4 class="text-7xl md:text-8 tracking-tight leading-none font-extrabold text-cyan-500 mt-1">
+          Test App
+        </h4>
+        <p class="text-lg text-gray-500 mt-2">
+          Here you can read do anything your little heart desires.
+        </p>
+        <NuxtLink to="/login" class="inline-block bg-cyan-500 hover:bg-cyan-600 mt-3 px-6 py-3 rounded-md text-white text-lg">Log In</NuxtLink>
+      </span>
+    </div>
+  </template>
 ```
 - `rm ~/app/frontend/app.vue`
 
@@ -346,29 +346,29 @@ export default defineNuxtConfig({
 - make `~/app/frontend/components/Header.vue` look like this:
 ```
 <template>
-  <nav class="flex items-center justify-between flex-wrap bg-gray-800 p-6">
-    <div class="flex items-center flex-shrink-0 text-white mr-6">
-      <NuxtLink to="/">
-        <span class="font-bold text-xl">QA Applicant Portal</span>
-      </NuxtLink>
-    </div>
-    <div class="w-full block flex-grow sm:flex sm:items-center sm:w-auto">
-      <div class="text-sm sm:flex-grow text-end mr-4">
-        <NuxtLink to="/assignment" class="block mt-4 sm:inline-block sm:mt-0 text-white hover:text-cyan-500 mr-4">
-          Assignment
-        </NuxtLink>
-        <NuxtLink to="/upload" class="block mt-4 sm:inline-block sm:mt-0 text-white hover:text-cyan-500 mr-4">
-          Upload
-        </nuxtlink>
-      </div>
-      <div>
-        <NuxtLink to="/login" class="inline-block text-sm px-4 py-2 leading-none border rounded text-white border-white hover:border-transparent hover:text-blue-500 hover:bg-white mt-4 md:mt-0">
-          Login
+    <nav class="flex items-center justify-between flex-wrap bg-gray-800 p-6">
+      <div class="flex items-center flex-shrink-0 text-white mr-6">
+        <NuxtLink to="/">
+          <span class="font-bold text-xl">Test App</span>
         </NuxtLink>
       </div>
-    </div>
-  </nav>
-</template>
+      <div class="w-full block flex-grow sm:flex sm:items-center sm:w-auto">
+        <div class="text-sm sm:flex-grow text-end mr-4">
+          <NuxtLink to="/public" class="block mt-4 sm:inline-block sm:mt-0 text-white hover:text-cyan-500 mr-4">
+            Public
+          </NuxtLink>
+          <NuxtLink to="/private" class="block mt-4 sm:inline-block sm:mt-0 text-white hover:text-cyan-500 mr-4">
+            Private
+          </nuxtlink>
+        </div>
+        <div>
+          <NuxtLink to="/login" class="inline-block text-sm px-4 py-2 leading-none border rounded text-white border-white hover:border-transparent hover:text-blue-500 hover:bg-white mt-4 md:mt-0">
+            Login
+          </NuxtLink>
+        </div>
+      </div>
+    </nav>
+  </template>
 ```
 
 ### Subpages
