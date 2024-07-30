@@ -85,7 +85,7 @@ import vue from '@vitejs/plugin-vue'
 
 export default defineConfig({
   plugins: [vue({ template: { compilerOptions: { isCustomElement: (tag) => ['Icon','NuxtLink'].includes(tag) }}})],
-  test: { environment: 'happy-dom', setupFiles: ["./specs/mocks/mocks.js"] },
+  test: { environment: 'happy-dom', setupFiles: ["./spec/mocks/mocks.js"] },
 })
 ```
 - add `plugins: ['vitest'],` to `~/app/frontend/eslint.config.js` so it looks like this:
