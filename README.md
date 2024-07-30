@@ -109,7 +109,7 @@ export default antfu({
 - `cd spec`
 - `mkdir components layouts pages`
 - `cd components`
-- `touch Header.spec.js Footer.spec.js`
+- `touch Header.spec.js`
 - `cd ../pages`
 - `touch home.spec.js public.spec.js private.spec.js`
 
@@ -130,8 +130,8 @@ global.useAuth = vi.fn(() => { return { status: 'unauthenticated' } })
 ### Components Specs
 - make `~/app/frontend/specs/components/Header.spec.js` look like this:
 ```
-import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { describe, expect, it } from 'vitest'
 import Header from './../../components/Header.vue'
 
 describe('Header', () => {
@@ -142,57 +142,19 @@ describe('Header', () => {
     expect(wrapper.vm).toBeTruthy()
   })
 
-  it('has correct title', () => {
-    expect(h1.text()).toBe('Auth Test App');
+  it('has correct title text', () => {
+    const title = wrapper.find(".nav-header")
+    expect(title.text()).toBe('Test App');
   })
 
-  it('has correct h1 html', () => {
-    const h1Element = h1.element.cloneNode(true);
-    removeDataAttributes(h1Element);
-    const h1Html = h1Element.outerHTML;
-    expect(h1Html).toMatch('<h1><icon name="fa-solid:lock" mode="svg" size="0.8em"></icon> Auth Test App </h1>')
-  })
-})
-
-
-// Helper to remove data attributes recursively
-function removeDataAttributes(node) {
-  if (node.nodeType === 1) { // Element node
-    const attributes = Array.from(node.attributes);
-    for (const attr of attributes) {
-      if (attr.name.startsWith('data-')) {
-        node.removeAttribute(attr.name);
-      }
-    }
-    for (const child of node.childNodes) {
-      removeDataAttributes(child);
-    }
-  }
-}
-```
-- make `~/app/frontend/specs/components/Footer.spec.js` look like this:
-```
-import { describe, it, expect } from 'vitest'
-import { mount } from '@vue/test-utils'
-import Footer from './../../components/Footer.vue'
-
-const wrapper = mount(Footer)
-
-describe('Footer', () => {
-  it('is a Vue instance', () => {
-    expect(wrapper.vm).toBeTruthy()
-  })
-  it('has correct html', () => {
-    expect(wrapper.html()).toContain('<footer><small>Built with <a href="https://picocss.com">Pico</a></small></footer>')
-  })
 })
 ```
 
 ### Page Specs
 - make `~/app/frontend/specs/pages/home.spec.js` look like this:
 ```
-import { expect, describe, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { describe, expect, it } from 'vitest'
 import homePage from './../../pages/index.vue'
 
 describe('Home page', () => {
@@ -201,44 +163,27 @@ describe('Home page', () => {
   })
 })
 
-describe('Home page, when logged out', () => {
-  it('shows login form', () => {
-    const wrapper = mount(homePage)
-    expect(wrapper.find("form").exists()).toBe(true)
-    expect(wrapper.find("input").exists()).toBe(true)
-  })
-})
-
-describe('Home page, when logged in', () => {
-  it('does not show login form', () => {
-    vi.stubGlobal("useAuth", () => { return { status: 'authenticated' }}) // logged in
-    const wrapper = mount(homePage)
-    expect(wrapper.find("form").exists()).toBe(false)
-    expect(wrapper.find("input").exists()).toBe(false)
-  })
-})
-
 describe('Home page has correct copy', () => {
-  it('has correct h2 text', () => {
-    expect(mount(homePage).find("h2").text()).toBe('Home');
+  it('has correct h4 text', () => {
+    expect(mount(homePage).find("h4").text()).toBe('Test App');
   })
   it('has correct p text', () => {
-    expect(mount(homePage).find("p").text()).toContain('Most bee jobs are small ones. But bees know that every small job, if it\'s done well means a lot. But choose carefully because you\'ll stay in the job you pick for the rest of your life.');
+    expect(mount(homePage).find("p").text()).toContain('Here you can read do anything your little heart desires.');
   })
 })
 ```
 - make `~/app/frontend/specs/pages/public.spec.js` look like this:
 ```
-import { expect, describe, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { describe, expect, it } from 'vitest'
 import publicPage from './../../pages/public.vue'
 
 describe('Public page has correct copy', () => {
-  it('has correct h2 text', () => {
-    expect(mount(publicPage).find("h2").text()).toBe('Public');
+  it('has correct h4 text', () => {
+    expect(mount(publicPage).find("h4").text()).toBe('Public');
   })
   it('has correct p text', () => {
-    expect(mount(publicPage).find("p").text()).toContain("How come you don't fly everywhere? It's exhausting. Why don't you run everywhere? It's faster. Yeah, OK, I see, I see. All right, your turn. TiVo. You can just freeze live TV? That's insane! You don't have that? We have Hivo, but it's a disease. It's a horrible, horrible disease.");
+    expect(mount(publicPage).find("p").text()).toContain("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi a aliquet metus, non lacinia ligula. Vestibulum convallis massa vitae arcu fringilla rhoncus. In ut ligula posuere, fringilla leo sit amet, fringilla nisl. Nam orci odio, finibus a hendrerit sit amet, dapibus in risus. Phasellus maximus mattis turpis vitae gravida. Donec nec tellus elit. Mauris luctus mi ut est porta, sit amet lobortis felis imperdiet. Quisque ut eros pellentesque, vestibulum eros vel, cursus ligula. Nulla tortor purus, sollicitudin id gravida eu, efficitur eu elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer dictum congue nibh vel egestas. Nulla vel lacinia sem.");
   })
 })
 ```
