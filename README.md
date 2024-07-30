@@ -468,7 +468,7 @@ export default defineNuxtConfig({
   },
 })
 ```
-- `npm run dev` -> Login/logout work & private page redirects to homepage when logged out
+- `npm run dev` -> private page redirects to homepage (login still goes to a 404)
 - `^ + c`
 
 ### Header With Auth
@@ -483,41 +483,40 @@ async function logout() {
 </script>
 
 <template>
-  <nav class="flex items-center justify-between flex-wrap bg-gray-800 p-6">
-    <div class="flex items-center flex-shrink-0 text-white mr-6">
-      <NuxtLink to="/">
-        <span class="font-bold text-xl"><Icon name="fa-solid:laptop-code" mode="svg" /> QA Applicant Portal</span>
-      </NuxtLink>
-    </div>
-    <div class="w-full block flex-grow sm:flex sm:items-center sm:w-auto">
-      <div v-if="status === 'authenticated'" class="text-sm sm:flex-grow text-end mr-4">
-        <NuxtLink to="/assignment" class="block mt-4 sm:inline-block sm:mt-0 text-white hover:text-cyan-500 mr-4">
-          Assignment
+    <nav class="flex items-center justify-between flex-wrap bg-gray-800 p-6">
+      <div class="flex items-center flex-shrink-0 text-white mr-6">
+        <NuxtLink to="/">
+          <span class="font-bold nav-header text-xl"><Icon name="fa-solid:laptop-code" mode="svg" size="0.8em" /> Test App</span>
         </NuxtLink>
-        <NuxtLink to="/upload" class="block mt-4 sm:inline-block sm:mt-0 text-white hover:text-cyan-500 mr-4">
-          Upload
-        </nuxtlink>
       </div>
-      <div>
-        <NuxtLink v-if="status === 'unauthenticated'" to="/login" class="inline-block text-sm px-4 py-2 leading-none border rounded text-white border-white hover:border-transparent hover:text-blue-500 hover:bg-white mt-4 md:mt-0">
-          Login
-        </NuxtLink>
-        <button v-if="status === 'authenticated'" class="inline-block text-sm px-4 py-2 leading-none border rounded text-white border-white hover:border-transparent hover:text-blue-500 hover:bg-white mt-4 md:mt-0" @click.prevent="logout">
-          Logout
-        </button>
+      <div class="w-full block flex-grow sm:flex sm:items-center sm:w-auto">
+        <div class="text-sm sm:flex-grow text-end mr-4">
+          <NuxtLink to="/public" class="block mt-4 sm:inline-block sm:mt-0 text-white hover:text-cyan-500 mr-4">
+            Public
+          </NuxtLink>
+          <NuxtLink v-if="status === 'authenticated'" to="/private" class="block mt-4 sm:inline-block sm:mt-0 text-white hover:text-cyan-500 mr-4">
+            Private
+          </nuxtlink>
+        </div>
+        <div>
+          <NuxtLink v-if="status === 'unauthenticated'" to="/login" class="inline-block text-sm px-4 py-2 leading-none border rounded text-white border-white hover:border-transparent hover:text-blue-500 hover:bg-white mt-4 md:mt-0">
+            Login
+          </NuxtLink>
+          <button v-if="status === 'authenticated'" class="inline-block text-sm px-4 py-2 leading-none border rounded text-white border-white hover:border-transparent hover:text-blue-500 hover:bg-white mt-4 md:mt-0" @click.prevent="logout">
+            Logout
+          </button>
+        </div>
       </div>
-    </div>
-  </nav>
-</template>
+    </nav>
+  </template>
 
 <style scoped>
-span {
+.nav-header {
   display: flex;
   align-items: center;
-    svg {
-      display: inline-block;
-      margin-right: 0.4em;
-    }
+  svg {
+    margin-right: 0.2em;
+  }
 }
 </style>
 ```
