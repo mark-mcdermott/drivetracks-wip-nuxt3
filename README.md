@@ -688,28 +688,36 @@ end
 ```
 - `rails db:create` (or `rails db:drop db:create` if you already have a database called `backend`)
 
-### AWS IAM User
-- login to AWS
-- in top right select a region if currently `global` (I choose `us-east-1`)
-- in top right click your name
+### AWS S3 Setup
+Now we'll create our AWS S3 account so we can store our user avatar images there as well as any other file uploads we'll need. There are a few parts here. We want to create a S3 bucket to store the files. But a S3 bucket needs a IAM user. Both the S3 bucket and the IAM user need permissions policies. There's a little bit of a chicken and egg issue here - when we create the user permissions policy, we need the S3 bucket name. But when we create the S3 bucket permissions, we need the IAM user name. So we'll create everything and use placeholder strings in some of the policies. Then when we're all done, we'll go through the policies and update all the placeholder strings to what they really need to be.
+
+#### AWS General Setup
+- login to AWS (https://aws.amazon.com)
+  - If you don't have an AWS account, you'll need to sign up. It's been awhile since I did this part - I think you have to create a root user and add you credit card or something. Google it if you run into trouble with this part.
+- at top right, select a region if currently says `global` (I use the `us-east-1` region)
+- at top right click your name
   - next to Account ID, click the copy icon (two overlapping squares)
   - paste your Account ID in a new text file (It pastes without the dashes. Leave it that way - you need it without the dashes.)
   - save this to your Desktop. You'll need it shortly.
+
+#### AWS User Policy
 - in searchbar at top, enter `iam` and select IAM
 - click `Policies` in the left sidebar under Access Managment
   - click `Create policy` towards the top right
   - click the `JSON` tab on Policy Editor
-  - under Policy Editor select all with `command + a` and then hit `delete`
+  - under Policy Editor select all with `command + a` and then hit `delete` to clear out everything there
   - enter this under Policy Editor (we'll update it shortly, once we have our user and bucket names):
 ```
 {
 	"Version": "2012-10-17",
 	"Statement": [
 		{
-			"Sid": "Statement1",
+			"Sid": "AllowGetObject",
 			"Effect": "Allow",
 			 "Action": [
-                "s3:GetObject"
+          "s3:PutObject",
+          "s3:GetObject",
+          "s3:DeleteObject"
             ],
 			"Resource": "arn:aws:s3:::bucketname"
 		}
@@ -719,15 +727,18 @@ end
   - click Next towards bottom right
   - for Policy Name, enter `s3-user-policy`
   - click Create Policy towards the bottom right
+
+#### AWS User
 - click `Users` under Access Management in the left sidebar
   - click `Create User` towards the top right
   - enter name, something like `app-user`
+  - click Next
   - under Permissions Options click `Attach policies directly`
   - in the search bar under Permissions Policies, enter `s3-user-policy` -> this should then show the policy we just created (`s3-user-policy`) uner Policy Name
   - under Policy Name, click the checkbox to the left of `s3-user-policy`
   - click Next
   - click Create User towards the bottom right
-- under Users, click the user we just created (`app-user`)
+- under Users, click the name of the user we just created (`app-user`)
   - click Security Credentials tab
   - click `Create Access key` towards the top right
     - Use case: `Local code`
@@ -737,20 +748,20 @@ end
     - click `Create access key` towards the bottom right
     - click `Download .csv file` towards the bottom
     - click Done
+    - I like to create a folder on my desktop called `app-secrets` and move the `AccessKeys.csv` file into that
 
-### AWS S3 Bucket
-- login to AWS
+#### AWS S3 Bucket
 - in searchbar at top, enter `s3` and select S3
 - Create Bucket
-  - enter name, something like `app-bucket-development`
+  - for Bucket Name, something like `app-bucket-development` (below when you click Create Bucket, it may tell you this bucket already exists and you will have to make it more unique)
   - under Object Ownership, click ACLs Enabled
   - under Block Public Access settings
     - uncheck `Block All Public Access`
     - check `Block public access to buckets and objects granted through new public bucket or access point policies`
     - check `Block public and cross-account access to buckets and objects through any public bucket or access point policies`
     - check `I acknowledge that the current settings might result in this bucket and the objects within becoming public.`  
-  - scroll to bottom and click Create Bucket
-- click the bucket you just created -> then click Permissions
+  - scroll to bottom and click Create Bucket (if nothing happens, scroll up and look for red error messages)
+- click the name of the bucket you just created -> then click the Permissions tab towards the top
   - under Bucket Policy, add this:
 ```
 {
