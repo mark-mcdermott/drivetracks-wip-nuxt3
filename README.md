@@ -887,15 +887,7 @@ end
 - `bundle add factory_bot_rails --group "development, test"`
 - `bundle install`
 - `mkdir spec/factories`
-- `touch spec/factories/user.rb`
-- make `~/app/backend/spec/factories/user.rb` look like this:
-```
-FactoryBot.define do
-  factory :user do
-    sequence(:email) { |n| "user#{n}@example.com" }
-    password { "password" }
-  end
-end
+- we will wait to create the user factory until Devise creates it for us automatically when we use Devise to generate the user model
 ```
 - in `~/app/backend/spec/rails_helper.rb`, in the line after `RSpec.configure do |config|` add a blank line and put this there: 
 ```
@@ -990,6 +982,15 @@ t.uuid :uuid
 add_index :users, :uuid
 ```
 - `rails db:migrate`
+- make ~/app/backend/spec/factories/user.rb (TODO: is it user.rb or users.rb???) look like this:
+```
+FactoryBot.define do
+  factory :user do
+    sequence(:email) { |n| "user#{n}@example.com" }
+    password { "password" }
+  end
+end
+```
 - `rails g devise:controllers users -c sessions registrations`
 - add `respond_to :json` to `~/app/backend/app/controllers/users/registrations_controller.rb` and `~/app/backend/app/controllers/users/sessions_controller.rb`
 - make `~/app/backend/config/routes.rb` look like this:
