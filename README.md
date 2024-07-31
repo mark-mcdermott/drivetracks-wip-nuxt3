@@ -1108,6 +1108,7 @@ end
 - `rails server`
 - split your terminal and in the second pane, run `curl -H 'Content-Type: application/json' -X POST -d '{"user": { "email": "test@mail.com", "password" : "password" }}' http://localhost:3000/api/auth/signup`
 - `curl -H 'Content-Type: application/json' -X POST -d '{"user": { "email": "test@mail.com", "password" : "password" }}' http://localhost:3000/api/auth/login`
+- kill the server with `^ + c`
 
 ### S3 In Rails
 - `cd ~/app/backend`
