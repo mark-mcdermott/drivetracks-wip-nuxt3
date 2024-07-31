@@ -638,7 +638,7 @@ const createUser = async () => {
 ```
     
     
-### Nuxt File Upload
+### Nuxt File Upload (Delete This???)
 - `cd ~/app/frontend`
 - make `~/app/frontend/pages/upload.vue` look like this:
 ```
