@@ -517,7 +517,7 @@ async function login() {
   </div>
 </template>
 ```
-- `npm run test` -> all 14 tests should pass
+- `npm run test` -> 3 test files should pass and 1 should fail (private.spec.js)
 - `npm run lint`
 - `npm run lint:fix`
 
@@ -525,7 +525,7 @@ async function login() {
 - `cd ~/app/frontend`
 - `mkdir pages/users`
 - `cd pages/users`
-- `touch index.vue new.vue [id].vue`
+- `touch index.vue new.vue \[id\].vue`
 - make `~/app/frontend/pages/users/index.vue` look like this:
 ```
 <template>
