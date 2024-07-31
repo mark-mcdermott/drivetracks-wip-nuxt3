@@ -964,6 +964,7 @@ end
 ### Devise
 - `bundle add devise devise-jwt jsonapi-serializer`
 - `bundle install`
+- `rails generate devise:install`
 - in `~/app/backend/config/environments/development.rb` add `config.action_mailer.default_url_options = { host: 'localhost', port: 3000 }` near the other `action_mailer` lines
 - in `~/app/backend/config/initializers/devise.rb` uncomment the `config.navigational_format` line and make it like this `config.navigational_formats = []`
 - to avoid a `Your application has sessions disabled. To write to the session you must first configure a session store` error, in `~/app/backend/config/application.rb` add this near the other `config.` lines:
@@ -979,7 +980,7 @@ end
 - add `enable_extension 'pgcrypto'` to `~/app/backend/db/migrate/<timestamp>_enable_uuuid.rb`
 - `rails db:migrate`
 - `rails generate devise User`
-- to `~/app/backend/db/<timestamp>_devise_create_users.rb`, add:
+- to `~/app/backend/db/<timestamp>_devise_create_users.rb`, add this near the other `t.` lines:
 ```
 t.boolean :admin, default: false
 t.uuid :uuid
