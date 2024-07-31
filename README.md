@@ -700,44 +700,41 @@ end
   - click `Create policy` towards the top right
   - click the `JSON` tab on Policy Editor
   - under Policy Editor select all with `command + a` and then hit `delete`
-  - enter this under Policy Editor:
+  - enter this under Policy Editor (we'll update it shortly, once we have our user and bucket names):
 ```
 {
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Principal": {
-                "AWS": "arn:aws:iam::<aws acct id without dashes>:user/<iam username>"
-            },
-            "Action": "s3:ListBucket",
-            "Resource": "arn:aws:s3:::<bucket name>"
-        },
-        {
-            "Effect": "Allow",
-            "Principal": {
-                "AWS": "arn:aws:iam::<aws acct id without dashes>:user/<iam username>""
-            },
-            "Action": [
-                "s3:GetObject",
-                "s3:PutObject",
-                "s3:DeleteObject"
+	"Version": "2012-10-17",
+	"Statement": [
+		{
+			"Sid": "Statement1",
+			"Effect": "Allow",
+			 "Action": [
+                "s3:GetObject"
             ],
-            "Resource": "arn:aws:s3:::<bucket name>/*"
-        }
-    ]
+			"Resource": "arn:aws:s3:::bucketname"
+		}
+	]
 }
 ```
-  - 
-- click `Create User` towards the top right
+  - click Next towards bottom right
+  - for Policy Name, enter `s3-user-policy`
+  - click Create Policy towards the bottom right
+- click `Users` under Access Management in the left sidebar
+  - click `Create User` towards the top right
   - enter name, something like `app-user`
+  - under Permissions Options click `Attach policies directly`
+  - in the search bar under Permissions Policies, enter `s3-user-policy` -> this should then show the policy we just created (`s3-user-policy`) uner Policy Name
+  - under Policy Name, click the checkbox to the left of `s3-user-policy`
   - click Next
+  - click Create User towards the bottom right
+- under Users, click the user we just created (`app-user`)
   - click Security Credentials tab
-  - click Create Access key towards the top right
+  - click `Create Access key` towards the top right
     - Use case: `Local code`
     - check `I understand the above recommendation`
     - Next
     - Description tag value: enter tag name, like `app-user-access-key`
+    - click `Create access key` towards the bottom right
     - click `Download .csv file` towards the bottom
     - click Done
 
