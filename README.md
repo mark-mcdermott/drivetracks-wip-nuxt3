@@ -654,7 +654,7 @@ const createUser = async () => {
 - make `~/app/frontend/components/Upload.vue` look like this: (TODO: This is a WIP)
 ```
 <template>
-  <input~~ type="file" @change="handleFileUpload" />
+  <input type="file" @change="handleFileUpload" />
 </template>
 
 <script setup>
