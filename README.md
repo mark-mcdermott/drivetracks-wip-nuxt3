@@ -690,10 +690,48 @@ end
 
 ### AWS IAM User
 - login to AWS
-- in top right select a region if currently `global`
+- in top right select a region if currently `global` (I choose `us-east-1`)
+- in top right click your name
+  - next to Account ID, click the copy icon (two overlapping squares)
+  - paste your Account ID in a new text file (It pastes without the dashes. Leave it that way - you need it without the dashes.)
+  - save this to your Desktop. You'll need it shortly.
 - in searchbar at top, enter `iam` and select IAM
-- Create User
+- click `Policies` in the left sidebar under Access Managment
+  - click `Create policy` towards the top right
+  - click the `JSON` tab on Policy Editor
+  - under Policy Editor select all with `command + a` and then hit `delete`
+  - enter this under Policy Editor:
+```
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::<aws acct id without dashes>:user/<iam username>"
+            },
+            "Action": "s3:ListBucket",
+            "Resource": "arn:aws:s3:::<bucket name>"
+        },
+        {
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::<aws acct id without dashes>:user/<iam username>""
+            },
+            "Action": [
+                "s3:GetObject",
+                "s3:PutObject",
+                "s3:DeleteObject"
+            ],
+            "Resource": "arn:aws:s3:::<bucket name>/*"
+        }
+    ]
+}
+```
+  - 
+- click `Create User` towards the top right
   - enter name, something like `app-user`
+  - click Next
   - click Security Credentials tab
   - click Create Access key towards the top right
     - Use case: `Local code`
