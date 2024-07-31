@@ -887,23 +887,13 @@ end
 - `bundle add factory_bot_rails --group "development, test"`
 - `bundle install`
 - `mkdir spec/factories`
-- REMOVE THIS? `touch spec/factories/user.rb spec/factories/token.rb`
+- `touch spec/factories/user.rb`
 - make `~/app/backend/spec/factories/user.rb` look like this:
 ```
 FactoryBot.define do
   factory :user do
     sequence(:email) { |n| "user#{n}@example.com" }
     password { "password" }
-  end
-end
-```
-- REMOVE THIS? make `~/app/backend/spec/factories/token.rb` look like this:
-```
-FactoryBot.define do
-  factory :token do
-    association :user
-    token_str { Digest::MD5.hexdigest(SecureRandom.hex) }
-    active { false }
   end
 end
 ```
