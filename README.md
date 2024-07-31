@@ -577,24 +577,35 @@ onMounted(async () => {
 })
 </script>
 ```
-- make `~/app/fronte nd/pages/users/new.vue` look like this:
+- make `~/app/fronte nd/pages/users/new.vue` look like this: (TODO: This is a WIP)
 ```
 <template>
-  <div>
-    <h2>New User</h2>
+  <div class="w-4/6">
+    <span class="tracking-tight font-light text-gray-500 text-4xl">
+      <h4 class="text-7xl md:text-8 tracking-tight leading-none font-extrabold text-cyan-500 mt-1">
+        New User
+      </h4>
+    </span>
     <form @submit.prevent="createUser">
-      <input v-model="name" placeholder="Name" required />
-      <input v-model="email" placeholder="Email" type="email" required />
-      <Upload @fileSelected="handleFileSelected" />
-      <button type="submit">Create User</button>
-    </form>
+        <div class="mb-4">
+          <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Name</label>
+          <input v-model="name" type="text" id="name" class="shadow-sm rounded-md w-full px-3 py-2 border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:border-solid" placeholder="Name" required>
+        </div>
+        <div class="mb-4">
+          <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email</label>
+          <input id="email" class="shadow-sm rounded-md w-full px-3 py-2 border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:border-solid" placeholder="Enter your password" required>
+        </div>
+        <div class="mb-4">
+          <Upload @fileSelected="handleFileSelected" />
+        </div>
+        <button class="inline-block bg-cyan-500 hover:bg-cyan-600 mt-3 px-6 py-3 rounded-md text-white text-lg" type="submit">Submit</button>
+      </form>
   </div>
 </template>
-
+  
 <script setup>
-import { ref } from 'vue';
 import { useRuntimeConfig } from '#app';
-import Upload from '@/components/Upload.vue';
+import { ref } from 'vue';
 
 const name = ref('');
 const email = ref('');
@@ -640,7 +651,7 @@ const createUser = async () => {
 ### Nuxt File Upload Component
 - `cd ~/app/frontend`
 - `touch components/Upload.vue`
-- make `~/app/frontend/components/Upload.vue` look like this:
+- make `~/app/frontend/components/Upload.vue` look like this: (TODO: This is a WIP)
 ```
 <template>
   <input~~ type="file" @change="handleFileUpload" />
