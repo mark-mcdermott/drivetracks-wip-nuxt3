@@ -974,14 +974,10 @@ end
 - to `~/app/backend/db/<timestamp>_devise_create_users.rb`, add this near the other `t.` lines:
 ```
 t.boolean :admin, default: false
-t.uuid :uuid
-```
-- and in `~/app/backend/db/<timestamp>_devise_create_users.rb`, before the close of the `change` block, add:
-```
-add_index :users, :uuid
+t.uuid :uuid, index: { unique: true }
 ```
 - `rails db:migrate`
-- make ~/app/backend/spec/factories/user.rb (TODO: is it user.rb or users.rb???) look like this:
+- make ~/app/backend/spec/factories/user.rb (TODO: is it `user.rb` or `users.rb`???) look like this:
 ```
 FactoryBot.define do
   factory :user do
