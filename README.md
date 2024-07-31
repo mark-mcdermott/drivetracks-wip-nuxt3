@@ -674,11 +674,11 @@ const handleFileUpload = (event) => {
 - `bundle add rack-cors`
 - `bundle install`
 - check if there's a `~/app/backend/config/initializers/cors.rb` file and if not, run `touch config/initializers/cors.rb`
-- make `~/app/backend/config/initializers/cors.rb` look like this:
+- make `~/app/backend/config/initializers/cors.rb` look like this (you will probably have to change the `https://app-frontend.fly.dev` line later):
 ```
 Rails.application.config.middleware.insert_before 0, Rack::Cors do
   allow do
-    origins 'http://localhost:3001', 'https://qa-applicant-portal'
+    origins 'http://localhost:3001', 'https://app-frontend.fly.dev'
     resource "*",
     headers: :any,
     expose: ['access-token', 'expiry', 'token-type', 'Authorization'],
