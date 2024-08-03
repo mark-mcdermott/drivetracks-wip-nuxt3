@@ -243,7 +243,62 @@ export default defineNuxtConfig({
 }
 ```
 
+### UI Thing
+- `cd ~/app/frontend`
+- `npx ui-thing@latest init`
+  - hit `y` to proceed
+  - pick a theme color when prompted
+  - you can hit enter for all the other questions
+
+### Home Page
+- `cd ~/app/frontend`
+- `npx ui-thing@latest add container badge button gradient-divider`
+- `mkdir components`
+- `touch components/Home.vue`
+- make `~/app/frontend/components/Home.vue` look like this:
+```
+<template>
+  <h1 class="mb-4 mt-7 text-4xl font-bold lg:mb-6 lg:mt-5 lg:text-center lg:text-5xl xl:text-6xl">
+    There was a wall.<br />It did not look important.
+  </h1>
+  <p class="mx-auto max-w-[760px] text-lg text-muted-foreground lg:text-center lg:text-xl">
+     It was built of uncut rocks roughly mortared. An adult could look right over it, and even a child could climb it. Where it crossed the roadway, instead of having a gate it degenerated into mere geometry, a line, an idea of boundary. But the idea was real.
+  </p>
+
+  <div class="mt-8 grid w-full grid-cols-1 items-center gap-3 sm:flex sm:justify-center lg:mt-10">
+    <UiButton size="lg" variant="outline"> <Icon name="lucide:play-circle" /> Demo </UiButton>
+    <UiButton size="lg">Sign up</UiButton>
+  </div>
+
+  <div
+    class="mx-auto mt-10 h-[350px] w-full overflow-hidden rounded-md lg:mt-10 lg:h-[520px] lg:w-[900px] lg:rounded-lg"
+  >
+    <iframe
+      width="100%"
+      height="100%"
+      src="https://www.youtube.com/embed/oYEtLQ3lEH0?si=fQ6bK1XLkFAQBePK"
+      :title="`${COMPANY_NAME} hero section seven video`"
+      frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      allowfullscreen
+    />
+  </div>
+</template>
+
+<script lang="ts" setup></script>
+```
+- make `~/app/frontend/app.vue` look like this: 
+```
+<template>
+  <UiContainer class="relative flex flex-col items-center py-10 text-center lg:py-20">
+    <Home />
+  </UiContainer>
+</template>
+```
+
 ### Layout
+- `cd ~/app/frontend`
+- `npx ui-thing@latest add container`
 - `mkdir ~/app/frontend/layouts`
 - `touch ~/app/frontend/layouts/default.vue`
 - add this to `~/app/frontend/layouts/default.vue`:
@@ -280,10 +335,8 @@ export default defineNuxtConfig({
 ```
 - `rm ~/app/frontend/app.vue`
 
-### Components
-- `cd ~/app/frontend`
-- `mkdir components`
-- `cd components`
+### Header & Footer
+- `cd ~/app/frontend/components`
 - `touch Header.vue`
 - make `~/app/frontend/components/Header.vue` look like this:
 ```
