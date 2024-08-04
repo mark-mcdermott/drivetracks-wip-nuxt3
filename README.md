@@ -429,12 +429,14 @@ export default defineNuxtConfig({
 ```
 <template>
   <Header />
-  <UiContainer class="relative flex flex-col items-center py-10 text-center lg:py-20">
+  <main>
     <NuxtPage />
-  </UiContainer>
+  </main>
   <Footer />
 </template>
 ```
+- `npm run dev` -> Homepage should have header and footer
+- `^ + c`
 
 ### Subpages
 - `cd ~/app/frontend/pages`
