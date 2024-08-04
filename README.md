@@ -311,7 +311,7 @@ export default defineNuxtConfig({
 ### Header & Footer
 - `cd ~/app/frontend`
 - `npx ui-thing@latest add container navigation-menu sheet scroll-area collapsible`
-- `cd ~/app/frontend/components`
+- `cd components`
 - `touch Logo.vue Header.vue Footer.vue`
 - make `~/app/frontend/components/Logo.vue` look like this:
 ```
