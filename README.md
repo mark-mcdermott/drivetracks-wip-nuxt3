@@ -933,7 +933,7 @@ Now we'll create our AWS S3 account so we can store our user avatar images there
 #### AWS General Setup
 - login to AWS (https://aws.amazon.com)
   - If you don't have an AWS account, you'll need to sign up. It's been awhile since I did this part - I think you have to create a root user and add you credit card or something. Google it if you run into trouble with this part.
-- at top right, select a region if currently says `global` (I use the `us-east-1` region)
+- at top right, select a region if currently says `global` (I use the `us-east-1` region). If all the region options are grayed out, ignore this for now.
 - at top right click your name
   - next to Account ID, click the copy icon (two overlapping squares)
   - paste your Account ID in a new text file (It pastes without the dashes. Leave it that way - you need it without the dashes.)
