@@ -297,7 +297,7 @@ export default defineNuxtConfig({
 </template>
 ```
 - `mkdir pages`
-- `touch pages.index.vue`
+- `touch pages/index.vue`
 - add this to `~/app/frontend/pages/index.vue`:
 ```
 <template>
