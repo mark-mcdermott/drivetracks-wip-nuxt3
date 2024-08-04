@@ -633,7 +633,7 @@ async function logout() {
 
 ### Login Form
 - `cd ~/app/frontend`
-- `npx ui-thing@latest add form` -> hit enter to install `@vee-validate/nuxt` dependency
+- `npx ui-thing@latest add vee-input form` -> hit `y` when asked about installing dependencies
 - `touch pages/login.vue`
 - make `~/app/frontend/pages/login.vue` look like this:
 ```
@@ -645,39 +645,43 @@ const password = ref('password')
 
 async function login() {
   await signIn({ user: { email: email.value, password: password.value } }, { redirect: false })
+  useSonner('Logged in successfully!', { description: 'You have successfully logged in.' })
 }
 </script>
 
 <template>
-  <div class="w-4/6">
-    <span class="tracking-tight font-light text-gray-500 text-4xl">
+  <UiContainer class="relative flex flex-col py-10 lg:py-20">
+    <div class="flex h-screen items-center justify-center">
+      <div class="w-full max-w-[330px] px-5">
+        <h1 class="text-2xl font-bold tracking-tight lg:text-3xl">
+          Log in
+        </h1>
+        <p class="mt-1 text-muted-foreground">
+          Enter your email & password to log in.
+        </p>
 
-      <h4 class="text-7xl md:text-8 tracking-tight leading-none font-extrabold text-cyan-500 mt-1">
-        Login
-      </h4>
-
-      <div class="w-full max-w-xs">
-        <form class="pt-6 pb-8 mb-4">
-          <div class="mb-4">
-            <label class="block text-gray-700 text-sm font-bold mb-2" for="email">
-              Email
-            </label>
-            <input v-model="email" class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" type="text">
-          </div>
-          <div class="mb-6">
-            <label class="block text-gray-700 text-sm font-bold mb-2" for="password">
-              Password
-            </label>
-            <input v-model="password" class="appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline" type="password">
-          </div>
-          <div class="flex items-center justify-between">
-            <button @click.prevent="login" class="inline-block bg-cyan-500 hover:bg-cyan-600 mt-3 px-6 py-3 rounded-md text-white text-lg" type="button">
-              Submit
-            </button>
-          </div>
+        <form class="mt-10" @submit="login">
+          <fieldset :disabled="isSubmitting" class="grid gap-5">
+            <div>
+              <UiVeeInput v-model="email" label="Email" type="email" name="email" placeholder="test@mail.com" />
+            </div>
+            <div>
+              <UiVeeInput v-model="password" label="Password" type="password" name="password" placeholder="password" />
+            </div>
+            <div>
+              <UiButton class="w-full" type="submit" text="Log in" />
+            </div>
+          </fieldset>
         </form>
-      </div></span>
-  </div>
+        <p class="mt-4 text-sm text-muted-foreground">
+          Don't have an account?
+          <NuxtLink class="font-semibold text-primary underline-offset-2 hover:underline" to="/signup">
+            Create account
+          </NuxtLink>
+        </p>
+      </div>
+    </div>
+  </UiContainer>
 </template>
 ```
 - `npm run test` -> 3 test files should pass and 1 should fail (private.spec.js)
