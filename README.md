@@ -442,34 +442,45 @@ export default defineNuxtConfig({
 - make `~/app/frontend/pages/public.vue` look like this:
 ```
 <template>
-  <div class="w-4/6">
-    <span class="tracking-tight font-light text-gray-500 text-4xl">
-      <h4 class="text-7xl md:text-8 tracking-tight leading-none font-extrabold text-cyan-500 mt-1">
-        Public
-      </h4>
-      <p class="text-lg text-gray-500 mt-2">
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi a aliquet metus, non lacinia ligula. Vestibulum convallis massa vitae arcu fringilla rhoncus. In ut ligula posuere, fringilla leo sit amet, fringilla nisl. Nam orci odio, finibus a hendrerit sit amet, dapibus in risus. Phasellus maximus mattis turpis vitae gravida. Donec nec tellus elit. Mauris luctus mi ut est porta, sit amet lobortis felis imperdiet. Quisque ut eros pellentesque, vestibulum eros vel, cursus ligula. Nulla tortor purus, sollicitudin id gravida eu, efficitur eu elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer dictum congue nibh vel egestas. Nulla vel lacinia sem.
-      </p>
-    </span>
-  </div>
+  <UiContainer class="relative flex flex-col py-10 lg:py-20">
+    <div
+      class="absolute inset-0 z-[-2] h-full w-full bg-transparent bg-[linear-gradient(to_right,_theme(colors.border)_1px,_transparent_1px),linear-gradient(to_bottom,_theme(colors.border)_1px,_transparent_1px)] bg-[size:80px_80px] [mask-image:radial-gradient(#000,_transparent_80%)]"
+    />
+    <div class="flex h-full lg:w-[768px]">
+      <div>
+        <h1 class="mb-4 text-4xl font-bold md:text-5xl lg:mb-6 lg:mt-5 xl:text-6xl">
+          Public
+        </h1>
+        <p class="max-w-[768px] mb-8 text-lg text-muted-foreground lg:text-xl">
+          Looked at from one side, the wall enclosed a barren sixty-acre field called the Port of Anarres. On the field there were a couple of large gantry cranes, a rocket pad, three warehouses, a truck garage, and a dormitory. The dormitory looked durable, grimy, and mournful; it had no gardens, no children; plainly nobody lived there or was even meant to stay there long. It was in fact a quarantine. The wall shut in not only the landing field but also the ships that came down out of space, and the men that came on the ships, and the worlds they came from, and the rest of the universe. It enclosed the universe, leaving Anarres outside, free.
+        </p>
+        <p class="max-w-[768px] mb-8 text-lg text-muted-foreground lg:text-xl">
+          Looked at from the other side, the wall enclosed Anarres: the whole planet was inside it, a great prison camp, cut off from other worlds and other men, in quarantine.
+        </p>
+      </div>
+    </div>
+  </uicontainer>
 </template>
-
 ```
 - make `~/app/frontend/pages/private.vue` look like this:
 ```
 <template>
-  <div class="w-4/6">
-    <span class="tracking-tight font-light text-gray-500 text-4xl">
-      <h4 class="text-7xl md:text-8 tracking-tight leading-none font-extrabold text-cyan-500 mt-1">
-        Private
-      </h4>
-      <p class="text-lg text-gray-500 mt-2">
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi a aliquet metus, non lacinia ligula. Vestibulum convallis massa vitae arcu fringilla rhoncus. In ut ligula posuere, fringilla leo sit amet, fringilla nisl. Nam orci odio, finibus a hendrerit sit amet, dapibus in risus. Phasellus maximus mattis turpis vitae gravida. Donec nec tellus elit. Mauris luctus mi ut est porta, sit amet lobortis felis imperdiet. Quisque ut eros pellentesque, vestibulum eros vel, cursus ligula. Nulla tortor purus, sollicitudin id gravida eu, efficitur eu elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer dictum congue nibh vel egestas. Nulla vel lacinia sem.
-      </p>
-    </span>
-  </div>
+  <UiContainer class="relative flex flex-col py-10 lg:py-20">
+    <div
+      class="absolute inset-0 z-[-2] h-full w-full bg-transparent bg-[linear-gradient(to_right,_theme(colors.border)_1px,_transparent_1px),linear-gradient(to_bottom,_theme(colors.border)_1px,_transparent_1px)] bg-[size:80px_80px] [mask-image:radial-gradient(#000,_transparent_80%)]"
+    />
+    <div class="flex h-full lg:w-[768px]">
+      <div>
+        <h1 class="mb-4 text-4xl font-bold md:text-5xl lg:mb-6 lg:mt-5 xl:text-6xl">
+          Private
+        </h1>
+        <p class="max-w-[768px] mb-8 text-lg text-muted-foreground lg:text-xl">
+          A number of people were coming along the road towards the landing field, or standing around where the road cut through the wall. People often came out from the nearby city of Abbenay in hopes of seeing a spaceship, or simply to see the wall. After all, it was the only boundary wall on their world. Nowhere else could they see a sign that said No Trespassing. Adolescents, particularly, were drawn to it. They came up to the wall; they sat on it. There might be a gang to watch, offloading crates from track trucks at the warehouses. There might even be a freighter on the pad. Freighters came down only eight times a year, unannounced except to syndics actually working at the Port, so when the spectators were lucky enough to see one they were excited, at first. But there they sat, and there it sat, a squat black tower in a mess of movable cranes, away off across the field. And then a woman came over from one of the warehouse crews and said, “We’re shutting down for today, brothers.” She was wearing the Defense armband, a sight almost as rare as a spaceship. That was a bit of a thrill. But though her tone was mild, it was final. She was the foreman of this gang, and if provoked would be backed up by her syndics. And anyhow there wasn’t anything to see. The aliens, the offworlders, stayed hiding in their ship. No show.
+        </p>
+      </div>
+    </div>
+  </uicontainer>
 </template>
-
 ```
 - `cd ~/app/frontend`
 - `npm run dev` -> home, public & private links work (private page is not yet locked)
