@@ -500,13 +500,20 @@ definePageMeta({ auth: false })
 ```
 - make `~/app/frontend/nuxt.config.js` look like this:
 ```
-let development = process.env.NODE_ENV !== 'production'
+const development = process.env.NODE_ENV !== 'production'
 export default defineNuxtConfig({
   devtools: { enabled: true },
+  runtimeConfig: { public: { apiBase: 'http://localhost:3000' } },
   devServer: { port: 3001 },
-  modules: ["@nuxtjs/tailwindcss", "@sidebase/nuxt-auth"],
+  modules: ['@nuxtjs/tailwindcss', '@nuxtjs/color-mode', '@vueuse/nuxt', 'nuxt-icon', '@sidebase/nuxt-auth'],
+  imports: {
+    imports: [
+      { from: 'tailwind-variants', name: 'tv' },
+      { from: 'tailwind-variants', name: 'VariantProps', type: true },
+    ],
+  },
   auth: {
-    computed: { pathname: development ? "http://localhost:3000/api/auth/" : "https://interview-app-backend.fly.dev/api/auth/" },
+    computed: { pathname: development ? 'http://localhost:3000/api/auth/' : 'https://interview-app-backend.fly.dev/api/auth/' },
     isEnabled: true,
     globalAppMiddleware: { isEnabled: true },
     provider: {
@@ -517,7 +524,7 @@ export default defineNuxtConfig({
         signIn: { path: '/login', method: 'post' },
         signOut: { path: '/logout', method: 'post' },
         signUp: { path: '/register', method: 'post' },
-        getSession: { path: '/session', method: 'get' }
+        getSession: { path: '/session', method: 'get' },
       },
     },
   },
