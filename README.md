@@ -249,6 +249,7 @@ export default defineNuxtConfig({
   - hit `y` to proceed
   - pick a theme color when prompted
   - you can hit enter for all the other questions
+- `npm i -D @iconify-json/lucide`
 
 ### Home Page
 - `cd ~/app/frontend`
@@ -258,112 +259,181 @@ export default defineNuxtConfig({
 - make `~/app/frontend/components/Home.vue` look like this:
 ```
 <template>
-  <h1 class="mb-4 mt-7 text-4xl font-bold lg:mb-6 lg:mt-5 lg:text-center lg:text-5xl xl:text-6xl">
-    There was a wall.<br />It did not look important.
-  </h1>
-  <p class="mx-auto max-w-[760px] text-lg text-muted-foreground lg:text-center lg:text-xl">
-     It was built of uncut rocks roughly mortared. An adult could look right over it, and even a child could climb it. Where it crossed the roadway, instead of having a gate it degenerated into mere geometry, a line, an idea of boundary. But the idea was real.
-  </p>
-
-  <div class="mt-8 grid w-full grid-cols-1 items-center gap-3 sm:flex sm:justify-center lg:mt-10">
-    <UiButton size="lg" variant="outline"> <Icon name="lucide:play-circle" /> Demo </UiButton>
-    <UiButton size="lg">Sign up</UiButton>
-  </div>
-
-  <div
-    class="mx-auto mt-10 h-[350px] w-full overflow-hidden rounded-md lg:mt-10 lg:h-[520px] lg:w-[900px] lg:rounded-lg"
-  >
-    <iframe
-      width="100%"
-      height="100%"
-      src="https://www.youtube.com/embed/oYEtLQ3lEH0?si=fQ6bK1XLkFAQBePK"
-      :title="`${COMPANY_NAME} hero section seven video`"
-      frameborder="0"
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-      allowfullscreen
-    />
-  </div>
+  <UiContainer class="relative flex flex-col items-center py-10 text-center lg:py-20">
+    <h1 class="mb-4 mt-7 text-4xl font-bold lg:mb-6 lg:mt-5 lg:text-center lg:text-5xl xl:text-6xl">
+      There was a wall.<br>It did not look important.
+    </h1>
+    <p class="mx-auto max-w-[768px] tracking-tight text-lg text-muted-foreground lg:text-center lg:text-xl">
+      It was built of uncut rocks roughly mortared. An adult could look right over it, and even a child could climb it. Where it crossed the roadway, instead of having a gate it degenerated into mere geometry, a line, an idea of boundary. But the idea was real.
+    </p>
+    <div class="mt-8 grid w-full grid-cols-1 items-center gap-3 sm:flex sm:justify-center lg:mt-10">
+      <UiButton size="lg" variant="outline">
+        Login
+      </UiButton>
+      <UiButton size="lg">
+        Sign up
+      </UiButton>
+    </div>
+  </UiContainer>
 </template>
-
-<script lang="ts" setup></script>
 ```
 - make `~/app/frontend/app.vue` look like this: 
 ```
 <template>
-  <UiContainer class="relative flex flex-col items-center py-10 text-center lg:py-20">
-    <Home />
-  </UiContainer>
+  <Home />
 </template>
 ```
+- `npm run dev` -> Should be a nice looking homepage now
+- `^ + c`
 
 ### Layout
 - `cd ~/app/frontend`
-- `npx ui-thing@latest add container`
-- `mkdir ~/app/frontend/layouts`
-- `touch ~/app/frontend/layouts/default.vue`
+- `mkdir layouts`
+- `touch layouts/default.vue`
 - add this to `~/app/frontend/layouts/default.vue`:
 ```
 <template>
-  <Header />
-  <main class="flex flex-col xl:flex-row h-screen">
-    <div class="w-full xl:w-1/2 my-4 h-screen flex items-center justify-center">
-      <NuxtPage />
-    </div>
-  </main>
+  <NuxtPage />
 </template>
 ```
-
-### Pages
 - `mkdir pages`
-- `touch pages/index.vue`
-- make `~/app/frontend/pages/index.vue` look like:
+- `touch pages.index.vue`
+- add this to `~/app/frontend/pages/index.vue`:
 ```
 <template>
-    <div class="w-4/6">
-      <span class="tracking-tight font-light text-gray-500 text-4xl">
-        <h3 class="text-base">Welcome</h3>
-        <h4 class="text-7xl md:text-8 tracking-tight leading-none font-extrabold text-cyan-500 mt-1">
-          Test App
-        </h4>
-        <p class="text-lg text-gray-500 mt-2">
-          Here you can do anything your little heart desires.
-        </p>
-        <NuxtLink to="/login" class="inline-block bg-cyan-500 hover:bg-cyan-600 mt-3 px-6 py-3 rounded-md text-white text-lg">Log In</NuxtLink>
-      </span>
-    </div>
-  </template>
+  <Home />
+</template>
 ```
-- `rm ~/app/frontend/app.vue`
+- `rm app.vue`
+- `npm run dev` -> Homepage should look same as above
+- `^ + c`
 
 ### Header & Footer
+- `cd ~/app/frontend`
+- `npx ui-thing@latest add container navigation-menu sheet scroll-area collapsible`
 - `cd ~/app/frontend/components`
-- `touch Header.vue`
+- `touch Logo.vue Header.vue Footer.vue`
+- make `~/app/frontend/components/Logo.vue` look like this:
+```
+<template>
+  <NuxtLink to="/" class="flex items-center gap-3">
+    <!-- from https://www.untitledui.com/logos -->
+    <svg fill="none" height="48" viewBox="0 0 168 48" width="168" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><clipPath id="a"><path d="m0 0h40v48h-40z" /></clipPath><g clip-path="url(#a)" fill="#ff4405"><path d="m25.0887 5.05386-3.933-1.05386-3.3145 12.3696-2.9923-11.16736-3.9331 1.05386 3.233 12.0655-8.05262-8.0526-2.87919 2.8792 8.83271 8.8328-10.99975-2.9474-1.05385625 3.933 12.01860625 3.2204c-.1376-.5935-.2104-1.2119-.2104-1.8473 0-4.4976 3.646-8.1436 8.1437-8.1436 4.4976 0 8.1436 3.646 8.1436 8.1436 0 .6313-.0719 1.2459-.2078 1.8359l10.9227 2.9267 1.0538-3.933-12.0664-3.2332 11.0005-2.9476-1.0539-3.933-12.0659 3.233 8.0526-8.0526-2.8792-2.87916-8.7102 8.71026z" /><path d="m27.8723 26.2214c-.3372 1.4256-1.0491 2.7063-2.0259 3.7324l7.913 7.9131 2.8792-2.8792z" /><path d="m25.7665 30.0366c-.9886 1.0097-2.2379 1.7632-3.6389 2.1515l2.8794 10.746 3.933-1.0539z" /><path d="m21.9807 32.2274c-.65.1671-1.3313.2559-2.0334.2559-.7522 0-1.4806-.102-2.1721-.2929l-2.882 10.7558 3.933 1.0538z" /><path d="m17.6361 32.1507c-1.3796-.4076-2.6067-1.1707-3.5751-2.1833l-7.9325 7.9325 2.87919 2.8792z" /><path d="m13.9956 29.8973c-.9518-1.019-1.6451-2.2826-1.9751-3.6862l-10.95836 2.9363 1.05385 3.933z" /></g><g fill="#0c111d"><path d="m50 33v-18.522h3.699l7.452 9.99c.108.126.243.306.405.54.162.216.315.432.459.648s.243.387.297.513h.135c0-.306 0-.603 0-.891 0-.306 0-.576 0-.81v-9.99h3.807v18.522h-3.699l-7.614-10.233c-.18-.252-.369-.531-.567-.837s-.342-.54-.432-.702h-.135v.81.729 10.233z" /><path d="m68.9515 16.719v-3.24h3.753v3.24zm0 16.281v-14.202h3.753v14.202z" /><path d="m81.5227 33.324c-1.566 0-2.88-.261-3.942-.783-1.062-.54-1.863-1.359-2.403-2.457s-.81-2.493-.81-4.185c0-1.71.27-3.105.81-4.185.54-1.098 1.332-1.908 2.376-2.43 1.062-.54 2.358-.81 3.888-.81 1.44 0 2.655.261 3.645.783.99.504 1.737 1.296 2.241 2.376.504 1.062.756 2.439.756 4.131v.972h-9.909c.036.828.162 1.53.378 2.106.234.576.585 1.008 1.053 1.296.486.27 1.125.405 1.917.405.432 0 .819-.054 1.161-.162.36-.108.666-.27.918-.486s.45-.486.594-.81.216-.693.216-1.107h3.672c0 .9-.162 1.683-.486 2.349s-.774 1.224-1.35 1.674c-.576.432-1.269.765-2.079.999-.792.216-1.674.324-2.646.324zm-3.294-8.964h5.994c0-.54-.072-1.008-.216-1.404-.126-.396-.306-.72-.54-.972s-.522-.432-.864-.54c-.324-.126-.693-.189-1.107-.189-.684 0-1.26.117-1.728.351-.45.216-.801.558-1.053 1.026-.234.45-.396 1.026-.486 1.728z" /><path d="m93.9963 33.324c-.9 0-1.629-.162-2.187-.486s-.963-.756-1.215-1.296c-.252-.558-.378-1.17-.378-1.836v-8.019h-1.755v-2.889h1.89l.702-4.05h2.916v4.05h2.592v2.889h-2.592v7.398c0 .432.099.765.297.999.198.216.522.324.972.324h1.323v2.484c-.216.072-.468.135-.756.189-.288.072-.594.126-.918.162-.324.054-.621.081-.891.081z" /><path d="m96.7988 33v-1.593l6.9392-9.72h-6.5072v-2.889h11.9342v1.539l-6.966 9.747h7.236v2.916z" /><path d="m116.578 33.324c-.99 0-1.881-.108-2.673-.324s-1.467-.513-2.025-.891c-.558-.396-.99-.864-1.296-1.404-.288-.54-.432-1.152-.432-1.836 0-.072 0-.144 0-.216s.009-.126.027-.162h3.618v.108.108c.018.45.162.819.432 1.107.27.27.621.468 1.053.594.45.126.918.189 1.404.189.432 0 .846-.036 1.242-.108.414-.09.756-.243 1.026-.459.288-.216.432-.495.432-.837 0-.432-.18-.765-.54-.999-.342-.234-.801-.423-1.377-.567-.558-.144-1.17-.306-1.836-.486-.612-.144-1.224-.306-1.836-.486-.612-.198-1.17-.45-1.674-.756-.486-.306-.882-.702-1.188-1.188-.306-.504-.459-1.134-.459-1.89 0-.738.162-1.377.486-1.917.324-.558.765-1.017 1.323-1.377.576-.36 1.242-.621 1.998-.783.774-.18 1.602-.27 2.484-.27.828 0 1.602.09 2.322.27.72.162 1.35.414 1.89.756.54.324.963.738 1.269 1.242.306.486.459 1.035.459 1.647v.351c0 .108-.009.18-.027.216h-3.591v-.216c0-.324-.099-.594-.297-.81-.198-.234-.486-.414-.864-.54-.36-.126-.801-.189-1.323-.189-.36 0-.693.027-.999.081-.288.054-.54.135-.756.243s-.387.243-.513.405c-.108.144-.162.324-.162.54 0 .306.126.558.378.756.27.18.621.333 1.053.459s.909.261 1.431.405c.648.18 1.323.36 2.025.54.72.162 1.386.387 1.998.675s1.107.702 1.485 1.242c.378.522.567 1.233.567 2.133 0 .864-.171 1.593-.513 2.187-.324.594-.783 1.071-1.377 1.431s-1.287.621-2.079.783-1.647.243-2.565.243z" /><path d="m130.987 33.324c-1.512 0-2.781-.261-3.807-.783-1.026-.54-1.809-1.359-2.349-2.457-.522-1.116-.783-2.511-.783-4.185 0-1.71.261-3.105.783-4.185.54-1.098 1.323-1.917 2.349-2.457 1.044-.54 2.313-.81 3.807-.81.972 0 1.845.117 2.619.351.792.234 1.476.594 2.052 1.08s1.008 1.089 1.296 1.809c.306.702.459 1.539.459 2.511h-3.753c0-.648-.099-1.179-.297-1.593s-.504-.729-.918-.945c-.396-.216-.9-.324-1.512-.324-.72 0-1.305.162-1.755.486s-.783.801-.999 1.431-.324 1.413-.324 2.349v.621c0 .918.108 1.692.324 2.322.234.63.585 1.107 1.053 1.431.468.306 1.08.459 1.836.459.612 0 1.116-.108 1.512-.324.414-.216.729-.54.945-.972s.324-.954.324-1.566h3.564c0 .918-.153 1.737-.459 2.457-.288.72-.72 1.323-1.296 1.809-.558.486-1.233.855-2.025 1.107s-1.674.378-2.646.378z" /><path d="m139.147 33v-19.521h3.753v6.885h.189c.306-.378.666-.702 1.08-.972.432-.288.909-.513 1.431-.675.54-.162 1.125-.243 1.755-.243.936 0 1.755.171 2.457.513s1.242.882 1.62 1.62c.396.738.594 1.701.594 2.889v9.504h-3.753v-8.91c0-.45-.054-.828-.162-1.134-.108-.324-.27-.585-.486-.783-.198-.216-.45-.369-.756-.459s-.648-.135-1.026-.135c-.558 0-1.062.135-1.512.405s-.801.639-1.053 1.107-.378 1.008-.378 1.62v8.289z" /><path d="m160.762 33.324c-1.566 0-2.88-.261-3.942-.783-1.062-.54-1.863-1.359-2.403-2.457s-.81-2.493-.81-4.185c0-1.71.27-3.105.81-4.185.54-1.098 1.332-1.908 2.376-2.43 1.062-.54 2.358-.81 3.888-.81 1.44 0 2.655.261 3.645.783.99.504 1.737 1.296 2.241 2.376.504 1.062.756 2.439.756 4.131v.972h-9.909c.036.828.162 1.53.378 2.106.234.576.585 1.008 1.053 1.296.486.27 1.125.405 1.917.405.432 0 .819-.054 1.161-.162.36-.108.666-.27.918-.486s.45-.486.594-.81.216-.693.216-1.107h3.672c0 .9-.162 1.683-.486 2.349s-.774 1.224-1.35 1.674c-.576.432-1.269.765-2.079.999-.792.216-1.674.324-2.646.324zm-3.294-8.964h5.994c0-.54-.072-1.008-.216-1.404-.126-.396-.306-.72-.54-.972s-.522-.432-.864-.54c-.324-.126-.693-.189-1.107-.189-.684 0-1.26.117-1.728.351-.45.216-.801.558-1.053 1.026-.234.45-.396 1.026-.486 1.728z" /></g>
+    </svg>
+  </NuxtLink>
+</template>
+```
 - make `~/app/frontend/components/Header.vue` look like this:
 ```
 <template>
-    <nav class="flex items-center justify-between flex-wrap bg-gray-800 p-6">
-      <div class="flex items-center flex-shrink-0 text-white mr-6">
-        <NuxtLink to="/">
-          <span class="font-bold nav-header text-xl">Test App</span>
-        </NuxtLink>
+  <header class="z-20 border-b bg-background/90 backdrop-blur">
+    <UiContainer class="flex h-16 items-center justify-between md:h-20">
+      <div class="flex items-center gap-10">
+        <Logo />
+        <UiNavigationMenu as="nav" class="hidden items-center justify-start gap-8 md:flex">
+          <UiNavigationMenuList class="gap-2">
+            <UiNavigationMenuItem>
+              <UiNavigationMenuLink as-child>
+                <UiButton to="/" variant="ghost" size="sm">
+                  Home
+                </UiButton>
+              </UiNavigationMenuLink>
+            </UiNavigationMenuItem>
+            <UiNavigationMenuItem>
+              <UiNavigationMenuLink as-child>
+                <UiButton to="/public" variant="ghost" size="sm">
+                  Public
+                </UiButton>
+              </UiNavigationMenuLink>
+            </UiNavigationMenuItem>
+            <UiNavigationMenuItem>
+              <UiNavigationMenuLink as-child>
+                <UiButton to="/private" variant="ghost" size="sm">
+                  Private
+                </UiButton>
+              </UiNavigationMenuLink>
+            </UiNavigationMenuItem>
+          </UiNavigationMenuList>
+        </UiNavigationMenu>
       </div>
-      <div class="w-full block flex-grow sm:flex sm:items-center sm:w-auto">
-        <div class="text-sm sm:flex-grow text-end mr-4">
-          <NuxtLink to="/public" class="block mt-4 sm:inline-block sm:mt-0 text-white hover:text-cyan-500 mr-4">
-            Public
-          </NuxtLink>
-          <NuxtLink to="/private" class="block mt-4 sm:inline-block sm:mt-0 text-white hover:text-cyan-500 mr-4">
-            Private
-          </nuxtlink>
-        </div>
-        <div>
-          <NuxtLink to="/login" class="inline-block text-sm px-4 py-2 leading-none border rounded text-white border-white hover:border-transparent hover:text-blue-500 hover:bg-white mt-4 md:mt-0">
-            Login
-          </NuxtLink>
-        </div>
+      <div class="md:hidden">
+        <UiSheet>
+          <UiSheetTrigger as-child>
+            <UiButton variant="ghost" size="icon-sm">
+              <Icon name="lucide:menu" class="h-5 w-5" />
+            </UiButton>
+            <UiSheetContent class="w-[90%] p-0">
+              <template #content>
+                <UiSheetTitle class="sr-only" title="Mobile menu" />
+                <UiSheetDescription class="sr-only" description="Mobile menu" />
+                <UiSheetX class="z-20" />
+
+                <UiScrollArea class="h-full p-5">
+                  <div class="flex flex-col gap-2">
+                    <UiButton variant="ghost" class="justify-start text-base" to="/">
+                      Home
+                    </UiButton>
+                    <UiButton variant="ghost" class="justify-start text-base" to="/public">
+                      Public
+                    </UiButton>
+                    <UiButton variant="ghost" class="justify-start text-base" to="/private">
+                      Private
+                    </UiButton>
+                    <UiGradientDivider class="my-5" />
+                    <UiButton to="#">
+                      Sign up
+                    </UiButton>
+                    <UiButton variant="outline" to="#">
+                      Log in
+                    </UiButton>
+                  </div>
+                </UiScrollArea>
+              </template>
+            </UiSheetContent>
+          </UiSheetTrigger>
+        </UiSheet>
       </div>
-    </nav>
-  </template>
+      <div class="hidden items-center gap-3 md:flex">
+        <UiButton to="#" variant="ghost" size="sm">
+          Log in
+        </UiButton>
+        <UiButton to="#" size="sm">
+          Sign up
+        </UiButton>
+      </div>
+    </UiContainer>
+  </header>
+</template>
+```
+- make `~/app/frontend/components/Footer.vue` look like this:
+```
+<template>
+  <footer>
+    <UiContainer as="footer" class="py-16 lg:py-24">
+      <section class="flex flex-col justify-between gap-5 pt-8 lg:flex-row">
+        <p class="text-muted-foreground">
+          &copy; {{ new Date().getFullYear() }}. Made with
+          <a class="hover:underline" href="https://nuxt.com">Nuxt</a>,
+          <a class="hover:underline" href="https://tailwindcss.com/">Tailwind</a>,
+          <a class="hover:underline" href="https://ui-thing.behonbaker.com">UI Thing</a>,
+          <a class="hover:underline" href="https://rubyonrails.org/">Rails</a>,
+          <a class="hover:underline" href="https://fly.io">Fly.io</a> and
+          <a class="hover:underline" href="https://aws.amazon.com/s3/">S3</a>.
+        </p>
+      </section>
+    </UiContainer>
+  </footer>
+</template>
+```
+- make `~/app/frontend/layouts/default.vue` look like this:
+```
+<template>
+  <Header />
+  <UiContainer class="relative flex flex-col items-center py-10 text-center lg:py-20">
+    <NuxtPage />
+  </UiContainer>
+  <Footer />
+</template>
 ```
 
 ### Subpages
@@ -404,33 +474,6 @@ export default defineNuxtConfig({
 - `cd ~/app/frontend`
 - `npm run dev` -> home, public & private links work (private page is not yet locked)
 - `^ + c`
-
-### Icon 
-- install the VSCode Iconify IntelliSense extention
-- `npx nuxi@latest module add icon`
-- in `~/app/frontend/components/Header.vue` make
-```
-<span class="font-bold nav-header text-xl">Test App</span>
-```
-look like this:
-```
-<span class="font-bold nav-header text-xl"><Icon name="fa-solid:laptop-code" mode="svg" size="0.8em" /> 
-```
-- and add this at the bottom of `~/app/frontend/components/Header.vue`:
-```
-<style scoped>
-.nav-header {
-  display: flex;
-  align-items: center;
-  svg {
-    margin-right: 0.2em;
-  }
-}
-</style>
-```
-- `cd ~/app/frontend`
-- `npm run dev`
-- `^ + c` -> Icon should show in h1
 
 ### Auth
 - `cd ~/app/frontend`
