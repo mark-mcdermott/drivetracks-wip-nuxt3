@@ -545,42 +545,87 @@ async function logout() {
 </script>
 
 <template>
-    <nav class="flex items-center justify-between flex-wrap bg-gray-800 p-6">
-      <div class="flex items-center flex-shrink-0 text-white mr-6">
-        <NuxtLink to="/">
-          <span class="font-bold nav-header text-xl"><Icon name="fa-solid:laptop-code" mode="svg" size="0.8em" /> Test App</span>
-        </NuxtLink>
+  <header class="z-20 border-b bg-background/90 backdrop-blur">
+    <UiContainer class="flex h-16 items-center justify-between md:h-20">
+      <div class="flex items-center gap-10">
+        <Logo />
+        <UiNavigationMenu as="nav" class="hidden items-center justify-start gap-8 md:flex">
+          <UiNavigationMenuList class="gap-2">
+            <UiNavigationMenuItem>
+              <UiNavigationMenuLink as-child>
+                <UiButton to="/" variant="ghost" size="sm">
+                  Home
+                </UiButton>
+              </UiNavigationMenuLink>
+            </UiNavigationMenuItem>
+            <UiNavigationMenuItem>
+              <UiNavigationMenuLink as-child>
+                <UiButton to="/public" variant="ghost" size="sm">
+                  Public
+                </UiButton>
+              </UiNavigationMenuLink>
+            </UiNavigationMenuItem>
+            <UiNavigationMenuItem v-if="status === 'authenticated'">
+              <UiNavigationMenuLink as-child>
+                <UiButton to="/private" variant="ghost" size="sm">
+                  Private
+                </UiButton>
+              </UiNavigationMenuLink>
+            </UiNavigationMenuItem>
+          </UiNavigationMenuList>
+        </UiNavigationMenu>
       </div>
-      <div class="w-full block flex-grow sm:flex sm:items-center sm:w-auto">
-        <div class="text-sm sm:flex-grow text-end mr-4">
-          <NuxtLink to="/public" class="block mt-4 sm:inline-block sm:mt-0 text-white hover:text-cyan-500 mr-4">
-            Public
-          </NuxtLink>
-          <NuxtLink v-if="status === 'authenticated'" to="/private" class="block mt-4 sm:inline-block sm:mt-0 text-white hover:text-cyan-500 mr-4">
-            Private
-          </nuxtlink>
-        </div>
-        <div>
-          <NuxtLink v-if="status === 'unauthenticated'" to="/login" class="inline-block text-sm px-4 py-2 leading-none border rounded text-white border-white hover:border-transparent hover:text-blue-500 hover:bg-white mt-4 md:mt-0">
-            Login
-          </NuxtLink>
-          <button v-if="status === 'authenticated'" class="inline-block text-sm px-4 py-2 leading-none border rounded text-white border-white hover:border-transparent hover:text-blue-500 hover:bg-white mt-4 md:mt-0" @click.prevent="logout">
-            Logout
-          </button>
-        </div>
-      </div>
-    </nav>
-  </template>
+      <div class="md:hidden">
+        <UiSheet>
+          <UiSheetTrigger as-child>
+            <UiButton variant="ghost" size="icon-sm">
+              <Icon name="lucide:menu" class="h-5 w-5" />
+            </UiButton>
+            <UiSheetContent class="w-[90%] p-0">
+              <template #content>
+                <UiSheetTitle class="sr-only" title="Mobile menu" />
+                <UiSheetDescription class="sr-only" description="Mobile menu" />
+                <UiSheetX class="z-20" />
 
-<style scoped>
-.nav-header {
-  display: flex;
-  align-items: center;
-  svg {
-    margin-right: 0.2em;
-  }
-}
-</style>
+                <UiScrollArea class="h-full p-5">
+                  <div class="flex flex-col gap-2">
+                    <UiButton variant="ghost" class="justify-start text-base" to="/">
+                      Home
+                    </UiButton>
+                    <UiButton variant="ghost" class="justify-start text-base" to="/public">
+                      Public
+                    </UiButton>
+                    <UiButton v-if="status === 'authenticated'" variant="ghost" class="justify-start text-base" to="/private">
+                      Private
+                    </UiButton>
+                    <UiGradientDivider class="my-5" />
+                    <UiButton to="#">
+                      Sign up
+                    </UiButton>
+                    <UiButton variant="outline" to="#">
+                      Log in
+                    </UiButton>
+                  </div>
+                </UiScrollArea>
+              </template>
+            </UiSheetContent>
+          </UiSheetTrigger>
+        </UiSheet>
+      </div>
+      <div class="hidden items-center gap-3 md:flex">
+        <UiButton v-if="status === 'unauthenticated'" to="#" variant="ghost" size="sm">
+          Log in
+        </UiButton>
+        <UiButton v-if="status === 'unauthenticated'" to="#" size="sm">
+          Sign up
+        </UiButton>
+        <UiButton v-if="status === 'authenticated'" to="#" variant="ghost" size="sm">
+          Log out
+        </UiButton>
+      </div>
+    </UiContainer>
+  </header>
+</template>
 ```
 - `cd ~/app/frontend`
 - `npm run dev`
