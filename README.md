@@ -639,9 +639,10 @@ async function logout() {
 ```
 <script setup>
 const { signIn, status } = useAuth()
-definePageMeta({ auth: false })
 const email = ref('test@mail.com')
 const password = ref('password')
+
+definePageMeta({ auth: false })
 
 async function login() {
   await signIn({ user: { email: email.value, password: password.value } }, { redirect: false })
@@ -684,9 +685,71 @@ async function login() {
   </UiContainer>
 </template>
 ```
-- `npm run test` -> 3 test files should pass and 1 should fail (private.spec.js)
-- `npm run lint`
-- `npm run lint:fix`
+
+### Signup Form (TODO: Still WIP)
+- `cd ~/app/frontend`
+- `touch pages/signup.vue`
+- make `~/app/frontend/pages/signup.vue` look like this:
+```
+<script setup>
+import { ref } from 'vue'
+import { useRuntimeConfig } from '#app'
+
+definePageMeta({ auth: false })
+
+const name = ref('')
+const email = ref('')
+const selectedFile = ref(null)
+
+function handleFileSelected(file) {
+  selectedFile.value = file
+}
+
+async function signup() {
+  const { apiBase } = useRuntimeConfig().public
+  try {
+    const response = await fetch(`${apiBase}/users`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: name.value, email: email.value }),
+    })
+    console.log(response)
+  }
+  catch (error) {
+    console.error('Error creating user:', error)
+  }
+}
+</script>
+
+<template>
+  <UiContainer class="relative flex flex-col py-10 lg:py-20">
+    <div class="flex h-screen items-center justify-center">
+      <div class="w-full max-w-[350px] px-5">
+        <h1 class="text-2xl font-bold tracking-tight lg:text-3xl">
+          Sign up
+        </h1>
+        <p class="mt-1 text-muted-foreground">
+          Enter your email & password to sign up.
+        </p>
+
+        <form class="mt-10" @submit="signup">
+          <fieldset :disabled="isSubmitting" class="grid gap-5">
+            <div>
+              <UiVeeInput v-model="email" label="Email" type="email" name="email" placeholder="test@mail.com" />
+            </div>
+            <div>
+              <UiVeeInput v-model="password" label="Password" type="password" name="password" placeholder="password" />
+            </div>
+            <div>
+              <UiButton class="w-full" type="submit" text="Log in" />
+            </div>
+          </fieldset>
+        </form>
+      </div>
+    </div>
+  </UiContainer>
+</template>
+```
 
 ### Nuxt User Views
 - `cd ~/app/frontend`
@@ -700,8 +763,6 @@ import { onMounted, ref } from 'vue'
 import { useRuntimeConfig } from '#app'
 
 const users = ref([])
-
-definePageMeta({ auth: false })
 
 onMounted(async () => {
   const { apiBase } = useRuntimeConfig().public
@@ -757,90 +818,64 @@ onMounted(async () => {
 })
 </script>
 ```
-- make `~/app/fronte nd/pages/users/new.vue` look like this: (TODO: This is a WIP)
+- make `~/app/fronte nd/pages/users/new.vue` look like this: (TODO: Still WIP)
 ```
 <script setup>
-import { useRuntimeConfig } from '#app';
-import { ref } from 'vue';
+import { ref } from 'vue'
+import { useRuntimeConfig } from '#app'
 
-const name = ref('');
-const email = ref('');
-const selectedFile = ref(null);
+const name = ref('')
+const email = ref('')
+const selectedFile = ref(null)
 
-const handleFileSelected = (file) => {
-  selectedFile.value = file;
-};
+function handleFileSelected(file) {
+  selectedFile.value = file
+}
 
-const createUser = async () => {
-  const { apiBase } = useRuntimeConfig().public;
+async function createUser() {
+  const { apiBase } = useRuntimeConfig().public
   try {
     const response = await fetch(`${apiBase}/users`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: name.value, email: email.value })
-    });
+      body: JSON.stringify({ name: name.value, email: email.value }),
+    })
     console.log(response)
-    
-  } catch (error) {
-    console.error('Error creating user:', error);
   }
-};
+  catch (error) {
+    console.error('Error creating user:', error)
+  }
+}
 </script>
 
 <template>
-  <div class="w-4/6">
-    <span class="tracking-tight font-light text-gray-500 text-4xl">
-      <h4 class="text-7xl md:text-8 tracking-tight leading-none font-extrabold text-cyan-500 mt-1">
-        New User
-      </h4>
-    </span>
-    <form @submit.prevent="createUser">
-        <div class="mb-4">
-          <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Name</label>
-          <input v-model="name" type="text" id="name" class="shadow-sm rounded-md w-full px-3 py-2 border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:border-solid" placeholder="Name" required>
-        </div>
-        <div class="mb-4">
-          <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email</label>
-          <input id="email" class="shadow-sm rounded-md w-full px-3 py-2 border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:border-solid" placeholder="Enter your password" required>
-        </div>
-        <!-- <div class="mb-4">
-          <Upload @fileSelected="handleFileSelected" />
-        </div> -->
-        <button class="inline-block bg-cyan-500 hover:bg-cyan-600 mt-3 px-6 py-3 rounded-md text-white text-lg" type="submit">Submit</button>
-      </form>
-  </div>
+  <UiContainer class="relative flex flex-col py-10 lg:py-20">
+    <div
+      class="absolute inset-0 z-[-2] h-full w-full bg-transparent bg-[linear-gradient(to_right,_theme(colors.border)_1px,_transparent_1px),linear-gradient(to_bottom,_theme(colors.border)_1px,_transparent_1px)] bg-[size:80px_80px] [mask-image:radial-gradient(#000,_transparent_80%)]"
+    />
+    <div class="flex h-full lg:w-[768px]">
+      <div>
+        <h1 class="mb-4 text-4xl font-bold md:text-5xl lg:mb-6 lg:mt-5 xl:text-6xl">
+          Public
+        </h1>
+        <form class="mt-10" @submit="createUser">
+          <fieldset :disabled="isSubmitting" class="grid gap-5">
+            <div>
+              <UiVeeInput v-model="email" label="Email" type="email" name="email" placeholder="test@mail.com" />
+            </div>
+            <div>
+              <UiVeeInput v-model="password" label="Password" type="password" name="password" placeholder="password" />
+            </div>
+            <div>
+              <UiButton class="w-full" type="submit" text="Log in" />
+            </div>
+          </fieldset>
+        </form>
+      </div>
+    </div>
+  </UiContainer>
 </template>
 ```
-    
-### Nuxt File Upload Component
-- `cd ~/app/frontend`
-- `touch components/Upload.vue`
-- make `~/app/frontend/components/Upload.vue` look like this: (TODO: This is a WIP)
-```
-<template>
-  <input type="file" @change="handleFileUpload" />
-</template>
-
-<script setup>
-import { defineEmits, ref } from 'vue';
-
-// Define the emitted events for this component
-const emit = defineEmits(['fileSelected']);
-
-// Reactive reference for the file
-const file = ref(null);
-
-// Handle the file upload
-const handleFileUpload = (event) => {
-  const target = event.target; // No TypeScript syntax here
-  if (target.files && target.files.length > 0) {
-    file.value = target.files[0];
-    emit('fileSelected', file.value); // Emit the selected file to parent component
-  }
-};
-</script>
-```
-
 
 ### Nuxt File Upload Page (Delete This???)
 - `cd ~/app/frontend`
