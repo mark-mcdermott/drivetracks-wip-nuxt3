@@ -599,10 +599,10 @@ async function logout() {
                       Private
                     </UiButton>
                     <UiGradientDivider class="my-5" />
-                    <UiButton to="#">
+                    <UiButton to="/signup">
                       Sign up
                     </UiButton>
-                    <UiButton variant="outline" to="#">
+                    <UiButton variant="outline" to="login">
                       Log in
                     </UiButton>
                   </div>
@@ -613,10 +613,10 @@ async function logout() {
         </UiSheet>
       </div>
       <div class="hidden items-center gap-3 md:flex">
-        <UiButton v-if="status === 'unauthenticated'" to="#" variant="ghost" size="sm">
+        <UiButton v-if="status === 'unauthenticated'" to="/login" variant="ghost" size="sm">
           Log in
         </UiButton>
-        <UiButton v-if="status === 'unauthenticated'" to="#" size="sm">
+        <UiButton v-if="status === 'unauthenticated'" to="/signup" size="sm">
           Sign up
         </UiButton>
         <UiButton v-if="status === 'authenticated'" to="#" variant="ghost" size="sm">
@@ -632,7 +632,9 @@ async function logout() {
 - `^ + c` -> Private link should now be hidden
 
 ### Login Form
-- `touch ~/app/frontend/pages/login.vue`
+- `cd ~/app/frontend`
+- `npx ui-thing@latest add form` -> hit enter to install `@vee-validate/nuxt` dependency
+- `touch pages/login.vue`
 - make `~/app/frontend/pages/login.vue` look like this:
 ```
 <script setup>
