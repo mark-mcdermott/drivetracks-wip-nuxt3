@@ -937,7 +937,7 @@ Now we'll create our AWS S3 account so we can store our user avatar images there
 - at top right click your name
   - next to Account ID, click the copy icon (two overlapping squares)
   - paste your Account ID in a new text file (It pastes without the dashes. Leave it that way - you need it without the dashes.)
-  - save this in a file called `s3-creds.txt` or something in a folder on your Desktop called `app-secrets` or something. You'll need it shortly. Whatever you do, never commit the `app-secrets` folder or the `s3-creds.txt` file to your github repo. These will have to be kept locally on your computer, or better yet, saved to a password manager.
+  - save this in a file called `aws-details.txt` or something in a folder on your Desktop called `app-secrets` or something. You'll need it shortly. Whatever you do, never commit the `app-secrets` folder or the `aws-details.txt` file to your github repo. These will have to be kept locally on your computer, or better yet, saved to a password manager.
 
 #### AWS User Policy
 - in searchbar at top, enter `iam` and select IAM
@@ -965,12 +965,13 @@ Now we'll create our AWS S3 account so we can store our user avatar images there
 ```
   - click Next towards bottom right
   - for Policy Name, enter `app-s3-user-policy`
+  - save your policy name in your `aws-details.txt` file
   - click Create Policy towards the bottom right
 
 #### AWS User
 - click `Users` under Access Management in the left sidebar
   - click `Create User` towards the top right
-  - enter name, something like `app-s3-user` (add this to your `s3-creds.txt` file on your desktop - you'll need it later)
+  - enter name, something like `app-s3-user` (add this to your `aws-details.txt` file on your desktop - you'll need it later)
   - click Next
   - under Permissions Options click `Attach policies directly`
   - in the search bar under Permissions Policies, enter `app-s3-user-policy` -> this should then show the policy we just created above (`app-s3-user-policy`) under Policy Name
@@ -987,12 +988,12 @@ Now we'll create our AWS S3 account so we can store our user avatar images there
     - click `Create access key` towards the bottom right
     - click `Download .csv file` towards the bottom
     - click Done
-    - I like to create a folder on my desktop called `app-secrets` and move the `AccessKeys.csv` file into that
+    - move the `AccessKeys.csv` file into the `app-secrets` folder you made above
 
 #### AWS S3 Bucket
 - in searchbar at top, enter `s3` and select S3
 - Create Bucket
-  - for Bucket Name, enter something like `app-s3-bucket-development` (below when you click Create Bucket, it may tell you this bucket already exists and you will have to make it more unique. Regardless, add this to your `s3-creds.txt` file on your desktop - you'll need it later)
+  - for Bucket Name, enter something like `app-s3-bucket-development` (below when you click Create Bucket, it may tell you this bucket already exists and you will have to make it more unique. Regardless, add this to your `aws-details.txt` file on your desktop - you'll need it later)
   - under Object Ownership, click ACLs Enabled
   - under Block Public Access settings
     - uncheck the first option, `Block All Public Access`
@@ -1030,7 +1031,7 @@ Now we'll create our AWS S3 account so we can store our user avatar images there
     ]
 }
 ```
-  - Update all the `<aws acct id without dashes>`, `<iam username>` and `<bucket name>` parts in the policy now in the text editor area under Policy with the account number, user name and bucket name you jotted down above in your `s3-creds.txt` file on your Desktop.
+  - Update all the `<aws acct id without dashes>`, `<iam username>` and `<bucket name>` parts in the policy now in the text editor area under Policy with the account number, user name and bucket name you jotted down above in your `aws-details.txt` file on your Desktop.
   - click Save Changes towards the bottom right
   - in the Cross-Origin Resource Sharing (CORS) section, click `Edit` (to the right of "Cross-origin resource sharing (CORS)")
   - under Cross-origin Resource Sharing (CORS) add this:
@@ -1060,7 +1061,7 @@ Now we'll create our AWS S3 account so we can store our user avatar images there
   - click `Policies` in the left sidebar under Access Management
   - in the searchbar under Policies, type `app-s3-user-policy` -> click `app-s3-user-policy` under Policy Name
   - click Edit towards the top right
-  - in the Policy Editor text editor area, in the line `"Resource": "arn:aws:s3:::bucketname"` replace `bucketname` with your bucket name in your `aws-creds.txt` file
+  - in the Policy Editor text editor area, in the line `"Resource": "arn:aws:s3:::bucketname"` replace `bucketname` with your bucket name in your `aws-details.txt` file
   - click Next towards the bottom right
   - click Save Changes towards the bottom right
 - we're now done with our S3 setup and our AWS dashboard, at least for now. So let's go back to our terminal where we're building out our rails backend
