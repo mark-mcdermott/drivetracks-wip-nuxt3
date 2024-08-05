@@ -643,7 +643,7 @@ async function logout() {
 
 ### Login Form
 - `cd ~/app/frontend`
-- `npx ui-thing@latest add vee-input form` -> hit `y` when asked about installing dependencies
+- `npx ui-thing@latest add vee-input form vue-sonner` -> hit `y` when asked about installing dependencies
 - `touch pages/login.vue`
 - make `~/app/frontend/pages/login.vue` look like this:
 ```
