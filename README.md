@@ -267,10 +267,10 @@ export default defineNuxtConfig({
       It was built of uncut rocks roughly mortared. An adult could look right over it, and even a child could climb it. Where it crossed the roadway, instead of having a gate it degenerated into mere geometry, a line, an idea of boundary. But the idea was real.
     </p>
     <div class="mt-8 grid w-full grid-cols-1 items-center gap-3 sm:flex sm:justify-center lg:mt-10">
-      <UiButton size="lg" variant="outline">
+      <UiButton to="/login" size="lg" variant="outline">
         Login
       </UiButton>
-      <UiButton size="lg">
+      <UiButton to="/signup" size="lg">
         Sign up
       </UiButton>
     </div>
@@ -522,7 +522,7 @@ export default defineNuxtConfig({
       token: { signInResponseTokenPointer: '/token' },
       endpoints: {
         signIn: { path: '/login', method: 'post' },
-        signOut: { path: '/logout', method: 'post' },
+        signOut: { path: '/logout', method: 'delete' },
         signUp: { path: '/register', method: 'post' },
         getSession: { path: '/session', method: 'get' },
       },
@@ -541,6 +541,7 @@ const { data, signOut, status } = useAuth()
 
 async function logout() {
   await signOut({ callbackUrl: '/' })
+  useSonner('Logged out successfully!', { description: 'You have successfully logged out.' })
 }
 </script>
 
@@ -656,6 +657,7 @@ const password = ref('password')
 async function login() {
   await signIn({ user: { email: email.value, password: password.value } }, { redirect: false })
   useSonner('Logged in successfully!', { description: 'You have successfully logged in.' })
+  navigateTo('/')
 }
 </script>
 
@@ -692,6 +694,17 @@ async function login() {
       </div>
     </div>
   </UiContainer>
+</template>
+```
+- make `~/app/layouts/default.vue` look like this:
+```
+<template>
+  <Header />
+  <main>
+    <NuxtPage />
+    <UiVueSonner />
+  </main>
+  <Footer />
 </template>
 ```
 
