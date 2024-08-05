@@ -560,6 +560,13 @@ async function logout() {
             </UiNavigationMenuItem>
             <UiNavigationMenuItem>
               <UiNavigationMenuLink as-child>
+                <UiButton to="/users" variant="ghost" size="sm">
+                  Users
+                </UiButton>
+              </UiNavigationMenuLink>
+            </UiNavigationMenuItem>
+            <UiNavigationMenuItem>
+              <UiNavigationMenuLink as-child>
                 <UiButton to="/public" variant="ghost" size="sm">
                   Public
                 </UiButton>
@@ -592,6 +599,9 @@ async function logout() {
                     <UiButton variant="ghost" class="justify-start text-base" to="/">
                       Home
                     </UiButton>
+                    <UiButton variant="ghost" class="justify-start text-base" to="/users">
+                      Users
+                    </UiButton>
                     <UiButton variant="ghost" class="justify-start text-base" to="/public">
                       Public
                     </UiButton>
@@ -602,7 +612,7 @@ async function logout() {
                     <UiButton to="/signup">
                       Sign up
                     </UiButton>
-                    <UiButton variant="outline" to="login">
+                    <UiButton variant="outline" to="/login">
                       Log in
                     </UiButton>
                   </div>
@@ -619,7 +629,7 @@ async function logout() {
         <UiButton v-if="status === 'unauthenticated'" to="/signup" size="sm">
           Sign up
         </UiButton>
-        <UiButton v-if="status === 'authenticated'" to="#" variant="ghost" size="sm">
+        <UiButton v-if="status === 'authenticated'" variant="ghost" size="sm" @click.prevent="logout">
           Log out
         </UiButton>
       </div>
@@ -639,10 +649,9 @@ async function logout() {
 ```
 <script setup>
 const { signIn, status } = useAuth()
+definePageMeta({ auth: false })
 const email = ref('test@mail.com')
 const password = ref('password')
-
-definePageMeta({ auth: false })
 
 async function login() {
   await signIn({ user: { email: email.value, password: password.value } }, { redirect: false })
@@ -653,7 +662,7 @@ async function login() {
 <template>
   <UiContainer class="relative flex flex-col py-10 lg:py-20">
     <div class="flex h-screen items-center justify-center">
-      <div class="w-full max-w-[330px] px-5">
+      <div class="w-full max-w-[350px] px-5">
         <h1 class="text-2xl font-bold tracking-tight lg:text-3xl">
           Log in
         </h1>
@@ -661,8 +670,8 @@ async function login() {
           Enter your email & password to log in.
         </p>
 
-        <form class="mt-10" @submit="login">
-          <fieldset :disabled="isSubmitting" class="grid gap-5">
+        <form class="mt-10">
+          <fieldset class="grid gap-5">
             <div>
               <UiVeeInput v-model="email" label="Email" type="email" name="email" placeholder="test@mail.com" />
             </div>
@@ -670,7 +679,7 @@ async function login() {
               <UiVeeInput v-model="password" label="Password" type="password" name="password" placeholder="password" />
             </div>
             <div>
-              <UiButton class="w-full" type="submit" text="Log in" />
+              <UiButton class="w-full" type="submit" text="Log in" @click.prevent="login" />
             </div>
           </fieldset>
         </form>
