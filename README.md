@@ -534,6 +534,8 @@ export default defineNuxtConfig({
 - `^ + c`
 
 ### Header With Auth
+- `cd ~/app/frontend`
+- `npx ui-thing@latest add avatar dropdown-menu`
 - make `~/app/frontend/components/Header.vue` look like this:
 ```
 <script setup>
@@ -561,7 +563,7 @@ async function logout() {
             </UiNavigationMenuItem>
             <UiNavigationMenuItem>
               <UiNavigationMenuLink as-child>
-                <UiButton to="/users" variant="ghost" size="sm">
+                <UiButton v-if="status === 'authenticated'" to="/users" variant="ghost" size="sm">
                   Users
                 </UiButton>
               </UiNavigationMenuLink>
@@ -600,7 +602,7 @@ async function logout() {
                     <UiButton variant="ghost" class="justify-start text-base" to="/">
                       Home
                     </UiButton>
-                    <UiButton variant="ghost" class="justify-start text-base" to="/users">
+                    <UiButton v-if="status === 'authenticated'" variant="ghost" class="justify-start text-base" to="/users">
                       Users
                     </UiButton>
                     <UiButton variant="ghost" class="justify-start text-base" to="/public">
