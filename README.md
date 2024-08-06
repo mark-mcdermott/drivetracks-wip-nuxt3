@@ -949,29 +949,32 @@ watch(user, (newUser) => {
 - make `~/app/fronte nd/pages/users/new.vue` look like this: (TODO: Still WIP)
 ```
 <script setup>
-import { ref } from 'vue'
-import { useRuntimeConfig } from '#app'
+definePageMeta({ auth: false })
 
-const name = ref('')
-const email = ref('')
-const selectedFile = ref(null)
-
-function handleFileSelected(file) {
-  selectedFile.value = file
-}
+const user = ref({
+  email: '',
+  password: '',
+  password_confirmation: '',
+})
 
 async function createUser() {
   const { apiBase } = useRuntimeConfig().public
-  try {
-    const response = await fetch(`${apiBase}/users`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: name.value, email: email.value }),
-    })
-    console.log(response)
-  }
-  catch (error) {
-    console.error('Error creating user:', error)
+  const response = await fetch(`${apiBase}/users`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      user: {
+        email: user.value.email,
+        password: user.value.password,
+      },
+    }),
+  })
+
+  if (response.ok) {
+    const createdUser = await response.json()
+    navigateTo(`/users/${createdUser.uuid}`)
   }
 }
 </script>
@@ -984,21 +987,39 @@ async function createUser() {
     <div class="flex h-full lg:w-[768px]">
       <div>
         <h1 class="mb-4 text-4xl font-bold md:text-5xl lg:mb-6 lg:mt-5 xl:text-6xl">
-          Public
+          Create User
         </h1>
-        <form class="mt-10" @submit="createUser">
-          <fieldset :disabled="isSubmitting" class="grid gap-5">
-            <div>
-              <UiVeeInput v-model="email" label="Email" type="email" name="email" placeholder="test@mail.com" />
-            </div>
-            <div>
-              <UiVeeInput v-model="password" label="Password" type="password" name="password" placeholder="password" />
-            </div>
-            <div>
-              <UiButton class="w-full" type="submit" text="Log in" />
-            </div>
-          </fieldset>
-        </form>
+        <div class="flex items-center justify-center">
+          <form @submit.prevent="createUser">
+            <UiCard class="w-[360px] max-w-sm" :title="user.email">
+              <template #content>
+                <UiCardContent>
+                  <div class="grid w-full items-center gap-4">
+                    <div class="flex flex-col space-y-1.5">
+                      <UiLabel for="email">
+                        Email
+                      </UiLabel>
+                      <UiInput id="email" v-model="user.email" required />
+                    </div>
+                    <div class="flex flex-col space-y-1.5">
+                      <UiLabel for="password">
+                        Password
+                      </UiLabel>
+                      <UiInput id="password" v-model="user.password" type="password" required />
+                    </div>
+                  </div>
+                </UiCardContent>
+              </template>
+              <template #footer>
+                <UiCardFooter class="flex justify-between">
+                  <UiButton type="submit">
+                    Create User
+                  </UiButton>
+                </UiCardFooter>
+              </template>
+            </UiCard>
+          </form>
+        </div>
       </div>
     </div>
   </UiContainer>
@@ -1409,14 +1430,10 @@ class UsersController < ApplicationController
   def create
     @user = User.new(user_params)
 
-    respond_to do |format|
-      if @user.save
-        format.html { redirect_to user_url(@user), notice: "User was successfully created." }
-        format.json { render :show, status: :created, location: @user }
-      else
-        format.html { render :new, status: :unprocessable_entity }
-        format.json { render json: @user.errors, status: :unprocessable_entity }
-      end
+    if @user.save
+      render json: @user, status: :created, location: @user
+    else
+      render json: @user.errors, status: :unprocessable_entity
     end
   end
 
@@ -1443,7 +1460,7 @@ class UsersController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def user_params
-      params.require(:user).permit(:uuid, :email)
+      params.require(:user).permit(:uuid, :email, :password)
     end
 end
 ```
