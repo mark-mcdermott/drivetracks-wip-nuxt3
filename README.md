@@ -767,8 +767,10 @@ async function register() {
 - make `~/app/frontend/pages/users/index.vue` look like this:
 ```
 <script setup lang="ts">
+import { ref } from 'vue'
+
 const config = useRuntimeConfig()
-const { data: users } = await useAsyncData('users', () =>
+const { data: users, refresh } = await useAsyncData('users', () =>
   $fetch(`${config.public.apiBase}/users`))
 
 const sortedUsers = computed(() => {
@@ -779,7 +781,17 @@ const sortedUsers = computed(() => {
 })
 
 async function navigateToUser(uuid) {
-  await navigateTo(`/users/${uuid}`)
+  navigateTo(`/users/${uuid}`)
+}
+
+async function deleteUser(uuid) {
+  await fetch(`${config.public.apiBase}/users/${uuid}`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
+  refresh()
 }
 </script>
 
@@ -802,16 +814,26 @@ async function navigateToUser(uuid) {
                 </UiTableHead>
                 <UiTableHead>email</UiTableHead>
                 <UiTableHead>uuid</UiTableHead>
+                <UiTableHead class="w-[50px]" />
               </UiTableRow>
             </UiTableHeader>
             <UiTableBody class="last:border-b">
               <template v-for="user in sortedUsers" :key="user.id">
-                <UiTableRow class="cursor-pointer hover:bg-gray-100" @click="navigateToUser(user.uuid)">
-                  <UiTableCell class="font-medium">
+                <UiTableRow class="cursor-pointer hover:bg-gray-100">
+                  <UiTableCell class="font-medium" @click="navigateToUser(user.uuid)">
                     {{ user.id }}
                   </UiTableCell>
-                  <UiTableCell>{{ user.email }}</UiTableCell>
-                  <UiTableCell>{{ user.uuid }}</UiTableCell>
+                  <UiTableCell @click="navigateToUser(user.uuid)">
+                    {{ user.email }}
+                  </UiTableCell>
+                  <UiTableCell @click="navigateToUser(user.uuid)">
+                    {{ user.uuid }}
+                  </UiTableCell>
+                  <UiTableCell class="text-right">
+                    <button @click.stop="deleteUser(user.uuid)">
+                      <Icon name="lucide:trash" class="text-red-500 hover:text-red-700" />
+                    </button>
+                  </UiTableCell>
                 </UiTableRow>
               </template>
             </UiTableBody>
@@ -819,6 +841,11 @@ async function navigateToUser(uuid) {
         </div>
       </div>
     </div>
+    <NuxtLink to="/users/new">
+      <UiButton class="w-[100px]">
+        New User
+      </UiButton>
+    </NuxtLink>
   </UiContainer>
 </template>
 ```
