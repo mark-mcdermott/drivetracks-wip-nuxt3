@@ -760,22 +760,27 @@ async function register() {
 
 ### Nuxt User Views
 - `cd ~/app/frontend`
+- `npx ui-thing@latest add card table`
 - `mkdir pages/users`
 - `cd pages/users`
 - `touch index.vue new.vue \[id\].vue`
 - make `~/app/frontend/pages/users/index.vue` look like this:
 ```
-<script setup>
-import { onMounted, ref } from 'vue'
-import { useRuntimeConfig } from '#app'
+<script setup lang="ts">
+const config = useRuntimeConfig()
+const { data: users } = await useAsyncData('users', () =>
+  $fetch(`${config.public.apiBase}/users`))
 
-const users = ref([])
-
-onMounted(async () => {
-  const { apiBase } = useRuntimeConfig().public
-  const response = await fetch(`${apiBase}/users`)
-  users.value = await response.json()
+const sortedUsers = computed(() => {
+  if (users.value) {
+    return [...users.value].sort((a, b) => a.id - b.id)
+  }
+  return []
 })
+
+async function navigateToUser(uuid) {
+  await navigateTo(`/users/${uuid}`)
+}
 </script>
 
 <template>
@@ -788,42 +793,123 @@ onMounted(async () => {
         <h1 class="mb-4 text-4xl font-bold md:text-5xl lg:mb-6 lg:mt-5 xl:text-6xl">
           Users
         </h1>
-        <ul>
-          <li v-for="user in users" :key="user.id">
-            <NuxtLink :to="`/users/${user.id}`">
-              {{ user.name }}
-            </NuxtLink>
-          </li>
-        </ul>
+        <div class="overflow-x-auto rounded-md border pb-4">
+          <UiTable>
+            <UiTableHeader>
+              <UiTableRow>
+                <UiTableHead class="w-[100px]">
+                  id
+                </UiTableHead>
+                <UiTableHead>email</UiTableHead>
+                <UiTableHead>uuid</UiTableHead>
+              </UiTableRow>
+            </UiTableHeader>
+            <UiTableBody class="last:border-b">
+              <template v-for="user in sortedUsers" :key="user.id">
+                <UiTableRow class="cursor-pointer hover:bg-gray-100" @click="navigateToUser(user.uuid)">
+                  <UiTableCell class="font-medium">
+                    {{ user.id }}
+                  </UiTableCell>
+                  <UiTableCell>{{ user.email }}</UiTableCell>
+                  <UiTableCell>{{ user.uuid }}</UiTableCell>
+                </UiTableRow>
+              </template>
+            </UiTableBody>
+          </UiTable>
+        </div>
       </div>
     </div>
-  </uicontainer>
+  </UiContainer>
 </template>
-  ```
+```
 - make `~/app/frontend/pages/users/[id].vue` look like this:
 ```
-<template>
-  <div>
-    <h2>{{ user.name }}</h2>
-    <p>{{ user.email }}</p>
-    <img :src="user.avatarUrl" alt="User Avatar" v-if="user.avatarUrl" />
-  </div>
-</template>
-
 <script setup>
-import { ref, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
-import { useRuntimeConfig } from '#app'
-  
+definePageMeta({ auth: false })
+
 const route = useRoute()
 const user = ref({})
 
-onMounted(async () => {
+async function fetchUser() {
   const { apiBase } = useRuntimeConfig().public
   const response = await fetch(`${apiBase}/users/${route.params.id}`)
   user.value = await response.json()
-})
+}
+
+async function saveUserChanges(updatedUser) {
+  const { apiBase } = useRuntimeConfig().public
+  await fetch(`${apiBase}/users/${route.params.id}`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      user: {
+        email: updatedUser.email,
+        uuid: updatedUser.uuid,
+      },
+    }),
+  })
+}
+
+onMounted(fetchUser)
+
+// Watch for changes in the user object
+watch(user, (newUser) => {
+  if (newUser.id) { // Ensure user data is loaded before sending a request
+    saveUserChanges(newUser)
+  }
+}, { deep: true })
 </script>
+
+<template>
+  <UiContainer class="relative flex flex-col py-10 lg:py-20">
+    <div
+      class="absolute inset-0 z-[-2] h-full w-full bg-transparent bg-[linear-gradient(to_right,_theme(colors.border)_1px,_transparent_1px),linear-gradient(to_bottom,_theme(colors.border)_1px,_transparent_1px)] bg-[size:80px_80px] [mask-image:radial-gradient(#000,_transparent_80%)]"
+    />
+    <div class="flex h-full lg:w-[768px]">
+      <div>
+        <h1 class="mb-4 text-4xl font-bold md:text-5xl lg:mb-6 lg:mt-5 xl:text-6xl">
+          User
+        </h1>
+        <div class="flex items-center justify-center">
+          <form @submit.prevent>
+            <UiCard class="w-[360px] max-w-sm" :title="user.email">
+              <template #content>
+                <UiCardContent>
+                  <div class="grid w-full items-center gap-4">
+                    <div class="flex flex-col space-y-1.5">
+                      <UiLabel for="email">
+                        Email
+                      </UiLabel>
+                      <UiInput id="email" v-model="user.email" required />
+                    </div>
+                    <div class="flex flex-col space-y-1.5">
+                      <UiLabel for="uuid">
+                        UUID
+                      </UiLabel>
+                      <p class="text-sm">
+                        {{ user.uuid }}
+                      </p>
+                    </div>
+                  </div>
+                </UiCardContent>
+              </template>
+              <template #footer>
+                <UiCardFooter class="flex justify-between">
+                  <UiButton variant="destructive">
+                    <Icon name="lucide:trash" />
+                    Delete
+                  </UiButton>
+                </UiCardFooter>
+              </template>
+            </UiCard>
+          </form>
+        </div>
+      </div>
+    </div>
+  </UiContainer>
+</template>
 ```
 - make `~/app/fronte nd/pages/users/new.vue` look like this: (TODO: Still WIP)
 ```
@@ -1242,7 +1328,7 @@ end
 # frozen_string_literal: true
 
 Rails.application.routes.draw do
-  resources :users
+  resources :users, param: :uuid
   devise_for :users, path: '', path_names: {
     sign_in: 'api/auth/login',
     sign_out: 'api/auth/logout',
@@ -1267,10 +1353,12 @@ class UsersController < ApplicationController
   # GET /users or /users.json
   def index
     @users = User.all
+    render json: @users
   end
 
   # GET /users/1 or /users/1.json
   def show
+    render json: @user
   end
 
   # GET /users/new
@@ -1299,14 +1387,10 @@ class UsersController < ApplicationController
 
   # PATCH/PUT /users/1 or /users/1.json
   def update
-    respond_to do |format|
-      if @user.update(user_params)
-        format.html { redirect_to user_url(@user), notice: "User was successfully updated." }
-        format.json { render :show, status: :ok, location: @user }
-      else
-        format.html { render :edit, status: :unprocessable_entity }
-        format.json { render json: @user.errors, status: :unprocessable_entity }
-      end
+    if @user.update(user_params)
+      render json: @user, status: :ok, location: @user
+    else
+      render json: @user.errors, status: :unprocessable_entity
     end
   end
 
@@ -1323,7 +1407,7 @@ class UsersController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_user
-      @user = User.find(params[:id])
+      @user = User.find_by!(uuid: params[:uuid])
     end
 
     # Only allow a list of trusted parameters through.
@@ -1359,10 +1443,17 @@ class User < ApplicationRecord
   include Devise::JWT::RevocationStrategies::JTIMatcher
   devise :database_authenticatable, :registerable, :validatable,
          :jwt_authenticatable, jwt_revocation_strategy: self
+  before_create :set_uuid
+
+  private
+
+  def set_uuid
+    self.uuid = SecureRandom.uuid if uuid.blank?
+  end
 end
 ```
 - `rails db:migrate`
-- `rails generate serializer user uuid email`
+- `rails generate serializer user id email uuid`
 
 ### Auth Controllers
 - make `~/app/backend/app/controllers/registrations_controller.rb` look like this:
@@ -1430,6 +1521,13 @@ class CurrentUserController < ApplicationController
 end
 ```
 - in `~/app/backend/config/routes.rb` replace `get 'current_user/index'` with `get '/api/auth/session', to: 'current_user#index'`
+
+### User Seeds
+- make `~/app/backend/db/seeds.rb` look like this:
+```
+User.create!(email: 'test@mail.com', password: 'password', admin: true)
+User.create!(email: 'test2@mail.com', password: 'password')
+```
 
 ### Test The API
 - `rails server`
