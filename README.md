@@ -523,7 +523,7 @@ export default defineNuxtConfig({
       endpoints: {
         signIn: { path: '/login', method: 'post' },
         signOut: { path: '/logout', method: 'delete' },
-        signUp: { path: '/register', method: 'post' },
+        signUp: { path: '/signup', method: 'post' },
         getSession: { path: '/session', method: 'get' },
       },
     },
@@ -714,32 +714,17 @@ async function login() {
 - make `~/app/frontend/pages/signup.vue` look like this:
 ```
 <script setup>
-import { ref } from 'vue'
-import { useRuntimeConfig } from '#app'
+const { signUp } = useAuth()
 
 definePageMeta({ auth: false })
 
-const name = ref('')
 const email = ref('')
-const selectedFile = ref(null)
+const password = ref('')
 
-function handleFileSelected(file) {
-  selectedFile.value = file
-}
-
-async function signup() {
-  const { apiBase } = useRuntimeConfig().public
-  try {
-    const response = await fetch(`${apiBase}/users`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: name.value, email: email.value }),
-    })
-    console.log(response)
-  }
-  catch (error) {
-    console.error('Error creating user:', error)
-  }
+async function register() {
+  await signUp({ user: { email: email.value, password: password.value } }, { redirect: false })
+  useSonner('Signed up successfully!', { description: 'You have successfully signed in.' })
+  navigateTo('/')
 }
 </script>
 
@@ -754,8 +739,8 @@ async function signup() {
           Enter your email & password to sign up.
         </p>
 
-        <form class="mt-10" @submit="signup">
-          <fieldset :disabled="isSubmitting" class="grid gap-5">
+        <form class="mt-10">
+          <fieldset class="grid gap-5">
             <div>
               <UiVeeInput v-model="email" label="Email" type="email" name="email" placeholder="test@mail.com" />
             </div>
@@ -763,7 +748,7 @@ async function signup() {
               <UiVeeInput v-model="password" label="Password" type="password" name="password" placeholder="password" />
             </div>
             <div>
-              <UiButton class="w-full" type="submit" text="Log in" />
+              <UiButton class="w-full" type="submit" text="Sign up" @click.prevent="register" />
             </div>
           </fieldset>
         </form>
@@ -1227,7 +1212,7 @@ end
     config.middleware.use config.session_store, config.session_options
 ```
 
-### Users
+### User Model
 - `cd ~/app/backend`
 - `rails g migration EnableUuid`
 - add `enable_extension 'pgcrypto'` to `~/app/backend/db/migrate/<timestamp>_enable_uuuid.rb`
@@ -1248,6 +1233,8 @@ FactoryBot.define do
   end
 end
 ```
+
+### User Registration
 - `rails g devise:controllers users -c sessions registrations`
 - add `respond_to :json` to `~/app/backend/app/controllers/users/registrations_controller.rb` and `~/app/backend/app/controllers/users/sessions_controller.rb` (in both files hit return at the start of line 4 right after the opening `class` line to create a blank line and add `respond_to :json` there)
 - make `~/app/backend/config/routes.rb` look like this:
@@ -1255,6 +1242,7 @@ end
 # frozen_string_literal: true
 
 Rails.application.routes.draw do
+  resources :users
   devise_for :users, path: '', path_names: {
     sign_in: 'api/auth/login',
     sign_out: 'api/auth/logout',
@@ -1265,6 +1253,83 @@ Rails.application.routes.draw do
     registrations: 'users/registrations'
   }
   get 'up' => 'rails/health#show', as: :rails_health_check
+end
+```
+
+### Users Controller
+- `cd ~/app/backend`
+- `touch app/controllers/users/users_controller.rb`
+- make `~/app/backend/app/controllers/users/users_controller.rb` look like this:
+```
+class UsersController < ApplicationController
+  before_action :set_user, only: %i[ show edit update destroy ]
+
+  # GET /users or /users.json
+  def index
+    @users = User.all
+  end
+
+  # GET /users/1 or /users/1.json
+  def show
+  end
+
+  # GET /users/new
+  def new
+    @user = User.new
+  end
+
+  # GET /users/1/edit
+  def edit
+  end
+
+  # POST /users or /users.json
+  def create
+    @user = User.new(user_params)
+
+    respond_to do |format|
+      if @user.save
+        format.html { redirect_to user_url(@user), notice: "User was successfully created." }
+        format.json { render :show, status: :created, location: @user }
+      else
+        format.html { render :new, status: :unprocessable_entity }
+        format.json { render json: @user.errors, status: :unprocessable_entity }
+      end
+    end
+  end
+
+  # PATCH/PUT /users/1 or /users/1.json
+  def update
+    respond_to do |format|
+      if @user.update(user_params)
+        format.html { redirect_to user_url(@user), notice: "User was successfully updated." }
+        format.json { render :show, status: :ok, location: @user }
+      else
+        format.html { render :edit, status: :unprocessable_entity }
+        format.json { render json: @user.errors, status: :unprocessable_entity }
+      end
+    end
+  end
+
+  # DELETE /users/1 or /users/1.json
+  def destroy
+    @user.destroy!
+
+    respond_to do |format|
+      format.html { redirect_to users_url, notice: "User was successfully destroyed." }
+      format.json { head :no_content }
+    end
+  end
+
+  private
+    # Use callbacks to share common setup or constraints between actions.
+    def set_user
+      @user = User.find(params[:id])
+    end
+
+    # Only allow a list of trusted parameters through.
+    def user_params
+      params.require(:user).permit(:uuid, :email)
+    end
 end
 ```
 
