@@ -541,6 +541,13 @@ export default defineNuxtConfig({
 <script setup>
 const { data, signOut, status } = useAuth()
 
+const uuid = computed(() => {
+  if (data && data.value) {
+    return data.value.uuid
+  }
+  return ''
+})
+
 async function logout() {
   await signOut({ callbackUrl: '/' })
   useSonner('Logged out successfully!', { description: 'You have successfully logged out.' })
@@ -632,6 +639,29 @@ async function logout() {
         <UiButton v-if="status === 'unauthenticated'" to="/signup" size="sm">
           Sign up
         </UiButton>
+
+        <div v-if="status === 'authenticated'" class="flex items-center justify-center">
+          <UiDropdownMenu>
+            <UiDropdownMenuTrigger as-child>
+              <UiButton id="dropdown-menu-trigger" class="focus:ring-0 focus:outline-none hover:bg-transparent" variant="ghost">
+                <UiAvatar
+                  src="https://images.unsplash.com/photo-1492633423870-43d1cd2775eb?&w=128&h=128&dpr=2&q=80"
+                  alt="Colm Tuite"
+                  fallback="CT"
+                  :delay-ms="600"
+                />
+              </UiButton>
+            </UiDropdownMenuTrigger>
+            <UiDropdownMenuContent class="w-56">
+              <NuxtLink :to="`/users/${uuid}`">
+                <UiDropdownMenuItem title="Profile" icon="ph:user" />
+              </NuxtLink>
+              <UiDropdownMenuSeparator />
+              <UiDropdownMenuItem title="Log out" icon="ph:user" @click.prevent="logout" />
+            </UiDropdownMenuContent>
+          </UiDropdownMenu>
+        </div>
+
         <UiButton v-if="status === 'authenticated'" variant="ghost" size="sm" @click.prevent="logout">
           Log out
         </UiButton>
