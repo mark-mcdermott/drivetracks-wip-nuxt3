@@ -949,8 +949,6 @@ watch(user, (newUser) => {
 - make `~/app/fronte nd/pages/users/new.vue` look like this: (TODO: Still WIP)
 ```
 <script setup>
-definePageMeta({ auth: false })
-
 const user = ref({
   email: '',
   password: '',
