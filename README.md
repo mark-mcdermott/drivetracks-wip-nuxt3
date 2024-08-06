@@ -852,6 +852,14 @@ async function saveUserChanges(updatedUser) {
   })
 }
 
+async function deleteUser() {
+  const { apiBase } = useRuntimeConfig().public
+  await fetch(`${apiBase}/users/${route.params.id}`, {
+    method: 'DELETE',
+  })
+  navigateTo('/users')
+}
+
 onMounted(fetchUser)
 
 // Watch for changes in the user object
@@ -897,9 +905,9 @@ watch(user, (newUser) => {
               </template>
               <template #footer>
                 <UiCardFooter class="flex justify-between">
-                  <UiButton variant="destructive">
+                  <UiButton variant="destructive" @click.prevent="deleteUser">
                     <Icon name="lucide:trash" />
-                    Delete
+                    Delete User
                   </UiButton>
                 </UiCardFooter>
               </template>
@@ -1397,11 +1405,7 @@ class UsersController < ApplicationController
   # DELETE /users/1 or /users/1.json
   def destroy
     @user.destroy!
-
-    respond_to do |format|
-      format.html { redirect_to users_url, notice: "User was successfully destroyed." }
-      format.json { head :no_content }
-    end
+    head :no_content
   end
 
   private
