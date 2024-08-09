@@ -1434,7 +1434,7 @@ end
 
 ### Users Controller
 - `cd ~/app/backend`
-- `touch app/controllers/users/users_controller.rb`
+- `touch app/controllers/users_controller.rb`
 - make `~/app/backend/app/controllers/users/users_controller.rb` look like this:
 ```
 class UsersController < ApplicationController
