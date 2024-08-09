@@ -282,7 +282,7 @@ export default defineNuxtConfig({
   <Home />
 </template>
 ```
-- `npm run dev` -> Should be a nice looking homepage now
+- `npm run dev` -> Should be a decent looking homepage now
 - `^ + c`
 
 ### Layout
