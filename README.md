@@ -1913,6 +1913,40 @@ onMounted(fetchUser)
 </template>
 ```
 
+### Deploy to Fly.io
+- `cd ~/app/backend`
+  - `fly launch` -> hit enter for all questions
+  - `fly deploy` -> hit enter for all questions
+  - note the url, something like `https://backend-withered-sun-1452.fly.dev/
+  - change `~/app/backend/config/environments/production.rb` to look like this:
+```
+require "active_support/core_ext/integer/time"
+Rails.application.configure do
+  config.enable_reloading = false
+  config.eager_load = true
+  config.consider_all_requests_local = false
+  config.public_file_server.enabled = ENV['RAILS_SERVE_STATIC_FILES'].present?
+  config.active_storage.service = :amazon
+  config.force_ssl = true
+  config.logger = ActiveSupport::Logger.new(STDOUT)
+    .tap  { |logger| logger.formatter = ::Logger::Formatter.new }
+    .then { |logger| ActiveSupport::TaggedLogging.new(logger) }
+  config.log_tags = [ :request_id ]
+  config.log_level = ENV.fetch("RAILS_LOG_LEVEL", "info")
+  config.action_mailer.perform_caching = false
+  config.i18n.fallbacks = true
+  config.active_support.report_deprecations = false
+  config.active_record.dump_schema_after_migration = false
+end
+```
+
+- `cd ~/app/frontend`
+  - in `~/app/frontend/nuxt.config.ts`, change `runtimeConfig: { public: { apiBase: 'http://localhost:3000' } },` to `runtimeConfig: { public: { apiBase: development ? 'http://localhost:3000' : '<your backend fly.io url noted above>' } },`
+  - also in `~/app/frontend/nuxt.config.ts`, change `computed: { pathname: development ? 'http://localhost:3000/api/auth/' : 'https://interview-app-backend.fly.dev/api/auth/' },` to `computed: { pathname: development ? 'http://localhost:3000/api/auth/' : '<your fly.io backend url>/api/auth/' },`
+  - `fly launch` -> hit enter for all questions
+  - `fly deploy` -> hit enter for all questions
+  - note the url, something like `https://frontend-lingering-tree-6083.fly.dev/`
+
 
 
 ## Sources
