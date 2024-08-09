@@ -254,7 +254,6 @@ export default defineNuxtConfig({
 ### Home Page
 - `cd ~/app/frontend`
 - `npx ui-thing@latest add container badge button gradient-divider`
-- `mkdir components`
 - `touch components/Home.vue`
 - make `~/app/frontend/components/Home.vue` look like this:
 ```
