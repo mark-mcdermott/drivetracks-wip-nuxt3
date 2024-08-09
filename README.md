@@ -1243,6 +1243,11 @@ Now we'll create our AWS S3 account so we can store our user avatar images there
   - in the Policy Editor text editor area, in the line `"Resource": "arn:aws:s3:::bucketname"` replace `bucketname` with your bucket name in your `aws-details.txt` file
   - click Next towards the bottom right
   - click Save Changes towards the bottom right
+- see what region you're logged into
+  - click the AWS logo in the top left
+  - in the top right there will be a region dropdown - click it
+  - look at the highlighted region in the dropdown and look for the region string to the right of it - something like `us-east-1`
+  - write down the region in your `~/Desktop/app-secrets/aws-details.txt`
 - we're now done with our S3 setup and our AWS dashboard, at least for now. So let's go back to our terminal where we're building out our rails backend
 
 ### Rubocop
@@ -1641,6 +1646,273 @@ end
 ```
 - add `get 'upload', to: 'uploads#presigned_url'` to `~/app/backend/config/routes.rb`
 
+### Avatars In Rails
+- `cd ~/app/backend`
+- `rails active_storage:install`
+- `rails db:migrate`
+- open your `~/Desktop/app-secrets/User Access Keys.csv`. You'll need the `access key ID` and `secret access key` in the next step.
+- `EDITOR="code --wait" rails credentials:edit`
+  - uncomment the first three lines (the AWS lines)
+  - add your `access key ID` and `secret access key` so the file will look something like this (with the x's replaced with your values):
+```
+aws:
+  access_key_id: XXXXXXXXXXXXXXXXXXXX
+  secret_access_key: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+  region: <your aws region>
+  bucket: <your s3 bucket name>
+```
+  - save and close the credentials.yml file
+- in your `~/app/backend/config/storage.yml` file, uncomment the aws section like:
+```
+amazon:
+  service: S3
+  access_key_id: <%= Rails.application.credentials.dig(:aws, :access_key_id) %>
+  secret_access_key: <%= Rails.application.credentials.dig(:aws, :secret_access_key) %>
+  region: us-east-1
+  bucket: your_own_bucket-<%= Rails.env %>
+```
+- in `~/app/backend/app/models/user.rb`, add `has_one_attached :avatar` so it looks like this:
+```
+class User < ApplicationRecord
+  include Devise::JWT::RevocationStrategies::JTIMatcher
+  devise :database_authenticatable, :registerable, :validatable,
+         :jwt_authenticatable, jwt_revocation_strategy: self
+  has_one_attached :avatar
+
+  before_create :set_uuid
+
+  def avatar_url
+    Rails.application.routes.url_helpers.rails_blob_url(self.avatar, only_path: true) if avatar.attached?
+  end
+
+  private
+
+  def set_uuid
+    self.uuid = SecureRandom.uuid if uuid.blank?
+  end
+end
+```
+- in `~/app/backend/app/controllers/users_controller.rb`, add `:avatar` to the permitted parameters and change the `update` method so the whole file looks like this:
+```
+class UsersController < ApplicationController
+  before_action :set_user, only: %i[ show edit update destroy ]
+
+  # GET /users or /users.json
+  def index
+    @users = User.all
+    render json: @users
+  end
+
+  # GET /users/1 or /users/1.json
+  def show
+    render json: @user.as_json.merge(avatar_url: @user.avatar.attached? ? url_for(@user.avatar) : nil)
+  end
+
+  # GET /users/new
+  def new
+    @user = User.new
+  end
+
+  # GET /users/1/edit
+  def edit
+  end
+
+  # POST /users or /users.json
+  def create
+    @user = User.new(user_params)
+
+    if @user.save
+      render json: @user, status: :created, location: @user
+    else
+      render json: @user.errors, status: :unprocessable_entity
+    end
+  end
+
+  # PATCH/PUT /users/1 or /users/1.json
+
+  def update
+    if @user.update(user_params)
+      render json: @user.as_json.merge(avatar_url: @user.avatar.attached? ? url_for(@user.avatar) : nil)
+    else
+      render json: { errors: @user.errors.full_messages }, status: :unprocessable_entity
+    end
+  end
+
+  # DELETE /users/1 or /users/1.json
+  def destroy
+    @user.destroy!
+    head :no_content
+  end
+
+  private
+    # Use callbacks to share common setup or constraints between actions.
+    def set_user
+      @user = User.find_by!(uuid: params[:uuid])
+    end
+
+    # Only allow a list of trusted parameters through.
+    def user_params
+      params.require(:user).permit(:uuid, :email, :avatar, :password)
+    end
+end
+```
+- change `~/app/backend/app/serializers/user_serializer.rb` to look like this:
+```
+class UserSerializer
+  include JSONAPI::Serializer
+  attributes :id, :email, :uuid, :avatar_url
+end
+```
+- change `~/app/backend/config/routes.rb` to look like this:
+```
+# frozen_string_literal: true
+
+Rails.application.routes.draw do
+  resources :users, param: :uuid
+  devise_for :users, path: '', path_names: {
+    sign_in: 'api/auth/login',
+    sign_out: 'api/auth/logout',
+    registration: 'api/auth/signup'
+  },
+  controllers: {
+    sessions: 'users/sessions',
+    registrations: 'users/registrations'
+  }
+  get '/api/auth/session', to: 'current_user#index'
+  get 'up' => 'rails/health#show', as: :rails_health_check
+  get 'upload', to: 'uploads#presigned_url'
+end
+```
+
+### Avatars In Nuxt
+- change `~/app/frontend/pages/users/[id].vue` to look like this:
+```
+<script setup>
+definePageMeta({ auth: false })
+
+const route = useRoute()
+const user = ref({})
+const avatar = ref(null)
+
+async function fetchUser() {
+  const { apiBase } = useRuntimeConfig().public
+  const response = await fetch(`${apiBase}/users/${route.params.id}`)
+  user.value = await response.json()
+
+  console.log('Fetched user avatar URL:', user.value.avatar_url)
+}
+
+async function saveUserChanges(updatedUser) {
+  const { apiBase } = useRuntimeConfig().public
+  const formData = new FormData()
+  formData.append('user[email]', updatedUser.email)
+  formData.append('user[uuid]', updatedUser.uuid)
+  if (avatar.value) {
+    formData.append('user[avatar]', avatar.value)
+  }
+
+  await fetch(`${apiBase}/users/${route.params.id}`, {
+    method: 'PATCH',
+    body: formData,
+  })
+
+  // Wait a moment before fetching updated user data
+  setTimeout(fetchUser, 500)
+}
+
+async function deleteUser() {
+  const { apiBase } = useRuntimeConfig().public
+  await fetch(`${apiBase}/users/${route.params.id}`, {
+    method: 'DELETE',
+  })
+  navigateTo('/users')
+}
+
+function onFileChange(e) {
+  avatar.value = e.target.files[0]
+  console.log('Selected file:', avatar.value)
+}
+
+// Watch for changes in the email field and avatar value
+watch(
+  () => user.value.email,
+  (newEmail, oldEmail) => {
+    if (newEmail !== oldEmail) {
+      saveUserChanges(user.value)
+    }
+  },
+)
+
+watch(
+  avatar,
+  (newAvatar, oldAvatar) => {
+    if (newAvatar !== oldAvatar) {
+      saveUserChanges(user.value)
+    }
+  },
+)
+
+onMounted(fetchUser)
+</script>
+
+<template>
+  <UiContainer class="relative flex flex-col py-10 lg:py-20">
+    <div
+      class="absolute inset-0 z-[-2] h-full w-full bg-transparent bg-[linear-gradient(to_right,_theme(colors.border)_1px,_transparent_1px),linear-gradient(to_bottom,_theme(colors.border)_1px,_transparent_1px)] bg-[size:80px_80px] [mask-image:radial-gradient(#000,_transparent_80%)]"
+    />
+    <div class="flex h-full lg:w-[768px]">
+      <div>
+        <h1 class="mb-4 text-4xl font-bold md:text-5xl lg:mb-6 lg:mt-5 xl:text-6xl">
+          User
+        </h1>
+        <div class="flex items-center justify-center">
+          <form @submit.prevent="saveUserChanges(user)">
+            <UiCard class="w-[360px] max-w-sm" :title="user.email">
+              <template #content>
+                <UiCardContent>
+                  <div class="grid w-full items-center gap-4">
+                    <div class="flex flex-col space-y-1.5">
+                      <UiLabel for="email">
+                        Email
+                      </UiLabel>
+                      <UiInput id="email" v-model="user.email" required />
+                    </div>
+                    <div class="flex flex-col space-y-1.5">
+                      <UiLabel for="uuid">
+                        UUID
+                      </UiLabel>
+                      <p class="text-sm">
+                        {{ user.uuid }}
+                      </p>
+                    </div>
+                    <div class="flex flex-col space-y-1.5">
+                      <UiLabel for="avatar">
+                        Avatar
+                      </UiLabel>
+                      <div v-if="user.avatar_url">
+                        <img :src="`${user.avatar_url}?${new Date().getTime()}`" alt="User Avatar" class="w-32 h-32 object-cover rounded-full">
+                      </div>
+                      <input type="file" @change="onFileChange">
+                    </div>
+                  </div>
+                </UiCardContent>
+              </template>
+              <template #footer>
+                <UiCardFooter class="flex justify-between">
+                  <UiButton variant="destructive" @click.prevent="deleteUser">
+                    <Icon name="lucide:trash" />
+                    Delete User
+                  </UiButton>
+                </UiCardFooter>
+              </template>
+            </UiCard>
+          </form>
+        </div>
+      </div>
+    </div>
+  </UiContainer>
+</template>
+```
 
 
 
