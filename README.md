@@ -1953,6 +1953,8 @@ Rails.application.configure do
 end
 ```
 - `fly deploy`
+- `fly secrets set access_key_id=<your s3 user access key>`
+- `fly secrets set secret_access_key=<your s3 user secret access key>`
 
 - `cd ~/app/frontend`
   - in `~/app/frontend/nuxt.config.ts`, change `runtimeConfig: { public: { apiBase: 'http://localhost:3000' } },` to `runtimeConfig: { public: { apiBase: development ? 'http://localhost:3000' : '<your backend fly.io url noted above>' } },`
