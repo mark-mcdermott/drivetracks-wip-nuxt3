@@ -1918,6 +1918,18 @@ onMounted(fetchUser)
   - `fly launch` -> hit enter for all questions
   - `fly deploy` -> hit enter for all questions
   - note the url, something like `https://backend-withered-sun-1452.fly.dev/
+  - change `~/app/backend/config/initializers/cors.rb` to 
+  ```
+Rails.application.config.middleware.insert_before 0, Rack::Cors do
+  allow do
+    origins 'http://localhost:3001', '<your fly.io frontend url>'
+    resource "*",
+    headers: :any,
+    expose: ['access-token', 'expiry', 'token-type', 'Authorization'],
+    methods: [:get, :patch, :put, :delete, :post, :options, :show]
+  end
+end
+  ```
   - change `~/app/backend/config/environments/production.rb` to look like this:
 ```
 require "active_support/core_ext/integer/time"
@@ -1939,6 +1951,7 @@ Rails.application.configure do
   config.active_record.dump_schema_after_migration = false
 end
 ```
+- `fly deploy`
 
 - `cd ~/app/frontend`
   - in `~/app/frontend/nuxt.config.ts`, change `runtimeConfig: { public: { apiBase: 'http://localhost:3000' } },` to `runtimeConfig: { public: { apiBase: development ? 'http://localhost:3000' : '<your backend fly.io url noted above>' } },`
