@@ -1919,7 +1919,7 @@ onMounted(fetchUser)
   - `fly deploy` -> hit enter for all questions
   - note the url, something like `https://backend-withered-sun-1452.fly.dev/
   - change `~/app/backend/config/initializers/cors.rb` to 
-  ```
+```
 Rails.application.config.middleware.insert_before 0, Rack::Cors do
   allow do
     origins 'http://localhost:3001', '<your fly.io frontend url>'
@@ -1929,7 +1929,8 @@ Rails.application.config.middleware.insert_before 0, Rack::Cors do
     methods: [:get, :patch, :put, :delete, :post, :options, :show]
   end
 end
-  ```
+```
+  - in the above `cors.rb`, make sure there is no trailing `/` after your fly.io frontend url
   - change `~/app/backend/config/environments/production.rb` to look like this:
 ```
 require "active_support/core_ext/integer/time"
