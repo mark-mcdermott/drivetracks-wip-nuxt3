@@ -33,7 +33,25 @@
 node_modules
 .env
 ```
-`touch .env`
+- `touch .env`
+- make `~/app/.env` look like this:
+```
+# fly.io details:
+#   frontend url: 
+#   backend url: 
+
+# AWS details:
+#   aws acct id:
+#   aws region:
+#   s3 user policy:
+#   s3 user:
+#   s3 user access key:
+#   s3 user secret access key:
+#   s3 bucket dev:
+#   s3 bucket prod:
+```
+
+
 
 ## Frontend 
 
