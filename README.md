@@ -41,7 +41,7 @@ node_modules
 #   backend url: 
 
 # fly.io postgres cluster details
-#   name: app001-backend-db
+#   name:
 #   Username:
 #   Password:
 #   Hostname:
