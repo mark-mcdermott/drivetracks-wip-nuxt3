@@ -1234,7 +1234,8 @@ Now we'll create our AWS S3 account so we can store our user avatar images there
 ]
 ```
   - click Save Changes towards the bottom right
-- now that we know our bucket name, let's update the our user policy with the bucket name
+- now repeat the entire step above again, but make a production s3 bucket named something like `app-s3-bucket-development`
+- now that we know our bucket names, let's update the our user policy with the bucket name
   - in the searchbar at the top of the page, type `iam` and select `IAM`
   - click `Policies` in the left sidebar under Access Management
   - in the searchbar under Policies, type `app-s3-user-policy` -> click `app-s3-user-policy` under Policy Name
