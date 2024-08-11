@@ -1183,7 +1183,7 @@ Now we'll create our AWS S3 account so we can store our user avatar images there
 #### AWS S3 Bucket
 - in searchbar at top, enter `s3` and select S3
 - Create Bucket
-  - for Bucket Name, enter something like `app-s3-bucket-development` (below when you click Create Bucket, it may tell you this bucket already exists and you will have to make it more unique. Regardless, add this to your `aws-details.txt` file on your desktop - you'll need it later)
+  - for Bucket Name, enter something like `app-s3-bucket-development` (below when you click Create Bucket, it may tell you this bucket already exists and you will have to make it more unique. Regardless, add this to your `.env` file - you'll need it later. Also, make sure it ends in `-development`.)
   - under Object Ownership, click ACLs Enabled
   - under Block Public Access settings
     - uncheck the first option, `Block All Public Access`
@@ -1221,7 +1221,7 @@ Now we'll create our AWS S3 account so we can store our user avatar images there
     ]
 }
 ```
-  - Update all the `<aws acct id without dashes>`, `<iam username>` and `<bucket name>` parts in the policy now in the text editor area under Policy with the account number, user name and bucket name you jotted down above in your `aws-details.txt` file on your Desktop.
+  - Update all the `<aws acct id without dashes>`, `<iam username>` and `<bucket name>` parts in the policy now in the text editor area under Policy with the account number, user name and bucket name you jotted down above in your `~/app/.env` file.
   - click Save Changes towards the bottom right
   - in the Cross-Origin Resource Sharing (CORS) section, click `Edit` (to the right of "Cross-origin resource sharing (CORS)")
   - under Cross-origin Resource Sharing (CORS) add this:
@@ -1246,7 +1246,7 @@ Now we'll create our AWS S3 account so we can store our user avatar images there
 ]
 ```
   - click Save Changes towards the bottom right
-- now repeat the entire step above again, but make a production s3 bucket named something like `app-s3-bucket-production` and note the production bucket name in your `aws-details.txt` file
+- now repeat the entire step above again, but make a production s3 bucket named something like `app-s3-bucket-production` and note the production bucket name in your `.env` file
 - now that we know our bucket names, let's update the our user policy with the bucket name
   - in the searchbar at the top of the page, type `iam` and select `IAM`
   - click `Policies` in the left sidebar under Access Management
