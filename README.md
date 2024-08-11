@@ -1136,7 +1136,7 @@ Now we'll create our AWS S3 account so we can store our user avatar images there
           "s3:GetObject",
           "s3:DeleteObject"
             ],
-			"Resource": "arn:aws:s3:::bucketname"
+			"Resource": ["arn:aws:s3:::<development bucket name>", "arn:aws:s3:::<production bucket name>"]
 		}
 	]
 }
@@ -1234,13 +1234,13 @@ Now we'll create our AWS S3 account so we can store our user avatar images there
 ]
 ```
   - click Save Changes towards the bottom right
-- now repeat the entire step above again, but make a production s3 bucket named something like `app-s3-bucket-development`
+- now repeat the entire step above again, but make a production s3 bucket named something like `app-s3-bucket-production` and note the production bucket name in your `aws-details.txt` file
 - now that we know our bucket names, let's update the our user policy with the bucket name
   - in the searchbar at the top of the page, type `iam` and select `IAM`
   - click `Policies` in the left sidebar under Access Management
   - in the searchbar under Policies, type `app-s3-user-policy` -> click `app-s3-user-policy` under Policy Name
   - click Edit towards the top right
-  - in the Policy Editor text editor area, in the line `"Resource": "arn:aws:s3:::bucketname"` replace `bucketname` with your bucket name in your `aws-details.txt` file
+  - in the Policy Editor text editor area, change the line `"Resource": ["arn:aws:s3:::<development bucket name>", "arn:aws:s3:::<production bucket name>"]` replace `<development bucket name>` and `<production bucket name>` with your development bucket name and production bucket name, respectively, in your `aws-details.txt` file
   - click Next towards the bottom right
   - click Save Changes towards the bottom right
 - see what region you're logged into
