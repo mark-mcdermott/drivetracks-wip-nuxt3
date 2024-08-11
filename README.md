@@ -1623,7 +1623,7 @@ User.create!(email: 'test2@mail.com', password: 'password')
 - `bundle add aws-sdk-s3`
 - `bundle install`
 - `touch app/controllers/uploads_controller.rb`
-- make `~/app/backend/app/controllers/uploads_controller.rb` look like this:
+- make `~/app/backend/app/controllers/uploads_controller.rb` look like this (replacing `<your production s3 bucket name>` with your production s3 bucket name):
 ```
 class UploadsController < ApplicationController
   before_action :authenticate_user! # Ensure you have authentication in place
@@ -1634,7 +1634,7 @@ class UploadsController < ApplicationController
 
     s3_client = Aws::S3::Client.new(region: 'your-region')
     presigned_url = s3_client.presigned_url(:put_object,
-      bucket: 'qa-applicant-portal',
+      bucket: '<your production s3 bucket name>',
       key: filename,
       content_type: content_type,
       acl: 'public-read' # Adjust ACL as needed
@@ -1662,14 +1662,14 @@ aws:
   bucket: <your s3 bucket name>
 ```
   - save and close the credentials.yml file
-- in your `~/app/backend/config/storage.yml` file, uncomment the aws section like:
+- in your `~/app/backend/config/storage.yml` file, uncomment the aws section and change the `bucket` line to use your actual s3 bucket name prefix - so if your production s3 bucket is `app-s3-bucket001-production`, the prefix would be `app-s3-bucket001`
 ```
 amazon:
   service: S3
   access_key_id: <%= Rails.application.credentials.dig(:aws, :access_key_id) %>
   secret_access_key: <%= Rails.application.credentials.dig(:aws, :secret_access_key) %>
   region: us-east-1
-  bucket: your_own_bucket-<%= Rails.env %>
+  bucket: <your s3 bucket name prefix>-<%= Rails.env %>
 ```
 - in `~/app/backend/app/models/user.rb`, add `has_one_attached :avatar` so it looks like this:
 ```
@@ -1953,9 +1953,15 @@ Rails.application.configure do
   config.active_record.dump_schema_after_migration = false
 end
 ```
+- copy and paste the below `fly secrets` console line into a blank file and replace all the `<...>` sections with the appropriate info. The S3 endpoint is like `https://s3.<aws region>.amazonaws.com/<bucket name>`, so something like `https://s3.us-east-1.amazonaws.com/app-s3-bucket001-production` Once it's filled in paste it all in your backend terminal and hit enter
+```
+fly secrets set \ 
+  AWS_ACCESS_KEY_ID=<your aws access key> \ 
+  AWS_SECRET_ACCESS_KEY=<your aws secret access key> \ 
+  AWS_ENDPOINT_URL_S3=<your s3 endpoint> \ 
+  BUCKET_NAME=<your s3 production bucket name>
+```
 - `fly deploy`
-- `fly secrets set access_key_id=<your s3 user access key>`
-- `fly secrets set secret_access_key=<your s3 user secret access key>`
 
 - `cd ~/app/frontend`
   - in `~/app/frontend/nuxt.config.ts`, change `runtimeConfig: { public: { apiBase: 'http://localhost:3000' } },` to `runtimeConfig: { public: { apiBase: development ? 'http://localhost:3000' : '<your backend fly.io url noted above>' } },`
