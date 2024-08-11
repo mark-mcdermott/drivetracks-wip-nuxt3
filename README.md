@@ -1125,11 +1125,10 @@ Now we'll create our AWS S3 account so we can store our user avatar images there
 #### AWS General Setup
 - login to AWS (https://aws.amazon.com)
   - If you don't have an AWS account, you'll need to sign up. It's been awhile since I did this part - I think you have to create a root user and add you credit card or something. Google it if you run into trouble with this part.
-- at top right, select a region if currently says `global` (I use the `us-east-1` region). If all the region options are grayed out, ignore this for now.
+- at top right, select a region if currently says `global` (I use the `us-east-1` region). If all the region options are grayed out, ignore this for now and we'll set it later.
 - at top right click your name
   - next to Account ID, click the copy icon (two overlapping squares)
-  - paste your Account ID in a new text file (It pastes without the dashes. Leave it that way - you need it without the dashes.)
-  - save this in a file called `aws-details.txt` or something in a folder on your Desktop called `app-secrets` or something. You'll need it shortly. Whatever you do, never commit the `app-secrets` folder or the `aws-details.txt` file to your github repo. These will have to be kept locally on your computer, or better yet, saved to a password manager.
+  - paste your Account ID in your `~/app/.env` file (It pastes without the dashes. Leave it that way - you need it without the dashes.)
 
 #### AWS User Policy
 - in searchbar at top, enter `iam` and select IAM
@@ -1157,13 +1156,13 @@ Now we'll create our AWS S3 account so we can store our user avatar images there
 ```
   - click Next towards bottom right
   - for Policy Name, enter `app-s3-user-policy`
-  - save your policy name in your `aws-details.txt` file
+  - paste your policy name in your `.env` file
   - click Create Policy towards the bottom right
 
 #### AWS User
 - click `Users` under Access Management in the left sidebar
   - click `Create User` towards the top right
-  - enter name, something like `app-s3-user` (add this to your `aws-details.txt` file on your desktop - you'll need it later)
+  - enter name, something like `app-s3-user` (add this to your `.env` file - you'll need it later)
   - click Next
   - under Permissions Options click `Attach policies directly`
   - in the search bar under Permissions Policies, enter `app-s3-user-policy` -> this should then show the policy we just created above (`app-s3-user-policy`) under Policy Name
@@ -1178,9 +1177,8 @@ Now we'll create our AWS S3 account so we can store our user avatar images there
     - Next
     - Description tag value: enter tag name, like `app-user-access-key`
     - click `Create access key` towards the bottom right
-    - click `Download .csv file` towards the bottom
+    - paste both the Access Key and the Secret Access Key into your `.env` file - this is important!
     - click Done
-    - move the `AccessKeys.csv` file into the `app-secrets` folder you made above
 
 #### AWS S3 Bucket
 - in searchbar at top, enter `s3` and select S3
