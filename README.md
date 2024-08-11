@@ -1930,10 +1930,7 @@ onMounted(fetchUser)
 
 ### Deploy to Fly.io
 - `cd ~/app/backend`
-  - `fly launch` -> hit enter for all questions
-  - `fly deploy` -> hit enter for all questions
-  - note the url, something like `https://backend-withered-sun-1452.fly.dev/
-  - change `~/app/backend/config/initializers/cors.rb` to 
+- change `~/app/backend/config/initializers/cors.rb` to 
 ```
 Rails.application.config.middleware.insert_before 0, Rack::Cors do
   allow do
@@ -1945,8 +1942,8 @@ Rails.application.config.middleware.insert_before 0, Rack::Cors do
   end
 end
 ```
-  - in the above `cors.rb`, make sure there is no trailing `/` after your fly.io frontend url
-  - change `~/app/backend/config/environments/production.rb` to look like this:
+- in the above `cors.rb`, make sure to replace `<your fly.io frontend url` with your fly.io frontend url and also make sure there is no trailing `/` after your fly.io frontend url here
+- change `~/app/backend/config/environments/production.rb` to look like this:
 ```
 require "active_support/core_ext/integer/time"
 Rails.application.configure do
@@ -1967,7 +1964,7 @@ Rails.application.configure do
   config.active_record.dump_schema_after_migration = false
 end
 ```
-- copy and paste the below `fly secrets` console line into a blank file and replace all the `<...>` sections with the appropriate info. The S3 endpoint is like `https://s3.<aws region>.amazonaws.com/<bucket name>`, so something like `https://s3.us-east-1.amazonaws.com/app-s3-bucket001-production` Once it's filled in paste it all in your backend terminal and hit enter
+- copy and paste the below `fly secrets` console line into a blank file and replace all the `<...>` sections with the appropriate info. The S3 endpoint is like `https://s3.<aws region>.amazonaws.com/<bucket name>`, so something like `https://s3.us-east-1.amazonaws.com/app-s3-bucket-production` Once it's filled in paste it all in your backend terminal and hit enter
 ```
 fly secrets set \ 
   AWS_ACCESS_KEY_ID=<your aws access key> \ 
@@ -1980,9 +1977,7 @@ fly secrets set \
 - `cd ~/app/frontend`
   - in `~/app/frontend/nuxt.config.ts`, change `runtimeConfig: { public: { apiBase: 'http://localhost:3000' } },` to `runtimeConfig: { public: { apiBase: development ? 'http://localhost:3000' : '<your backend fly.io url noted above>' } },`
   - also in `~/app/frontend/nuxt.config.ts`, change `computed: { pathname: development ? 'http://localhost:3000/api/auth/' : 'https://interview-app-backend.fly.dev/api/auth/' },` to `computed: { pathname: development ? 'http://localhost:3000/api/auth/' : '<your fly.io backend url>/api/auth/' },`
-  - `fly launch` -> hit enter for all questions
   - `fly deploy` -> hit enter for all questions
-  - note the url, something like `https://frontend-lingering-tree-6083.fly.dev/`
 
 
 
