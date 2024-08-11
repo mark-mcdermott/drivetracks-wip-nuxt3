@@ -26,6 +26,14 @@
   - package manager: `npm`
   - init git repo: `no`
 - `rails new backend --api --database=postgresql --skip-git`
+- `touch .gitignore`
+- make `~/app/.gitignore` look like this:
+```
+.DS_Store
+node_modules
+.env
+```
+`touch .env`
 
 ## Frontend 
 
@@ -45,12 +53,6 @@
     "source.fixAll.eslint": "always",
     "source.organizeImports": "always"
   },
-```
-- `touch .gitignore`
-- make `~/app/.gitignore` look like this:
-```
-.DS_Store
-node_modules
 ```
 - open `package.json`
   - you should see some red underlines for ESLint violations
