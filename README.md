@@ -1062,8 +1062,7 @@ async function createUser() {
 - `cd ~/app/backend`
 - `bundle add rack-cors`
 - `bundle install`
-- check if there's a `~/app/backend/config/initializers/cors.rb` file and if not, run `touch config/initializers/cors.rb`
-- make `~/app/backend/config/initializers/cors.rb` look like this (you will probably have to change the `https://app-frontend.fly.dev` line later):
+- make `~/app/backend/config/initializers/cors.rb` (if it doesn't exist, then make it) look like this (you will probably have to change the `https://app-frontend.fly.dev` line later):
 ```
 Rails.application.config.middleware.insert_before 0, Rack::Cors do
   allow do
