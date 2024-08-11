@@ -74,7 +74,7 @@ node_modules
   - `fly launch --name app-frontend`
     - hit enter when it asks you questions
     - copy the frontend app url it gives you at the end of all the output and paste it into your `.env` file at the `frontend url:` line
-- in a browser, go to your fly.io frontend app url. You should see a decent looking homepage. Clicking the 'public', 'log in' or 'sign up' pages should bring you to decent looking subpages with appropriate content/forms. The login/signup functionality does not yet work if you actually fill in the forms and submit them though.
+- in a browser, go to your fly.io frontend app url. You should see a decent looking homepage. Clicking the "public", "log in" or "sign up" pages should bring you to decent looking subpages with appropriate content/forms. The login/signup functionality does not yet work if you actually fill in the forms and submit them though.
 
 ## Frontend 
 
