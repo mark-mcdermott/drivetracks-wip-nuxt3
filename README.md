@@ -1055,34 +1055,6 @@ async function createUser() {
 </template>
 ```
 
-### Nuxt File Upload Page (Delete This???)
-- `cd ~/app/frontend`
-- make `~/app/frontend/pages/upload.vue` look like this:
-```
-<template>
-  <input type="file" @change="handleFileUpload" />
-</template>
-
-<script setup>
-import { ref, defineEmits } from 'vue';
-
-// Define the emitted events for this component
-const emit = defineEmits(['fileSelected']);
-
-// Reactive reference for the file
-const file = ref(null);
-
-// Handle the file upload
-const handleFileUpload = (event) => {
-  const target = event.target; // No TypeScript syntax here
-  if (target.files && target.files.length > 0) {
-    file.value = target.files[0];
-    emit('fileSelected', file.value); // Emit the selected file to parent component
-  }
-};
-</script>
-```
-
 ## Backend
 
 ### Rails Starter API
