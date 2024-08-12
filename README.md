@@ -1680,7 +1680,7 @@ amazon:
   service: S3
   access_key_id: <%= Rails.application.credentials.dig(:aws, :access_key_id) %>
   secret_access_key: <%= Rails.application.credentials.dig(:aws, :secret_access_key) %>
-  region: us-east-1
+  region: <your aws region string>
   bucket: <your s3 bucket name prefix>-<%= Rails.env %>
 ```
 - in `~/app/backend/app/models/user.rb`, add `has_one_attached :avatar` so it looks like this:
