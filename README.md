@@ -1963,10 +1963,10 @@ end
 ```
 - copy and paste the below `fly secrets` console line into a blank file and replace all the `<...>` sections with the appropriate info. The S3 endpoint is like `https://s3.<aws region>.amazonaws.com/<bucket name>`, so something like `https://s3.us-east-1.amazonaws.com/app-s3-bucket-production` Once it's filled in paste it all in your backend terminal and hit enter
 ```
-fly secrets set \ 
-  AWS_ACCESS_KEY_ID=<your aws access key> \ 
-  AWS_SECRET_ACCESS_KEY=<your aws secret access key> \ 
-  AWS_ENDPOINT_URL_S3=<your s3 endpoint> \ 
+fly secrets set \
+  AWS_ACCESS_KEY_ID=<your aws access key> \
+  AWS_SECRET_ACCESS_KEY=<your aws secret access key> \
+  AWS_ENDPOINT_URL_S3=<your s3 endpoint> \
   BUCKET_NAME=<your s3 production bucket name>
 ```
 - `fly deploy`
