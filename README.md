@@ -1928,7 +1928,7 @@ onMounted(fetchUser)
 
 ### Deploy to Fly.io
 - `cd ~/app/backend`
-- change `~/app/backend/config/initializers/cors.rb` to 
+- make `~/app/backend/config/initializers/cors.rb` look like this (changing `<your fly.io frontend url>` to your fly.io frontend url):
 ```
 Rails.application.config.middleware.insert_before 0, Rack::Cors do
   allow do
