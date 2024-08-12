@@ -123,12 +123,12 @@ node_modules
 - `touch vitest.config.ts`
 - make `~/app/frontend/vitest.config.ts` look like this:
 ```
-import { defineConfig } from 'vitest/config'
 import vue from '@vitejs/plugin-vue'
+import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
-  plugins: [vue({ template: { compilerOptions: { isCustomElement: (tag) => ['Icon','NuxtLink'].includes(tag) }}})],
-  test: { environment: 'happy-dom', setupFiles: ["./spec/mocks/mocks.js"] },
+  plugins: [vue({ template: { compilerOptions: { isCustomElement: tag => ['Logo', 'UiButton', 'Home', 'UiContainer', 'UiNavigationMenuLink', 'UiNavigationMenuItem', 'UiNavigationMenuList', 'UiNavigationMenu', 'Icon', 'UiSheetTitle', 'UiSheetDescription', 'UiSheetX', 'UiGradientDivider', 'UiScrollArea', 'UiSheetContent', 'UiSheetTrigger', 'UiSheet', 'UiAvatar', 'UiDropdownMenuTrigger', 'UiDropdownMenuItem', 'UiDropdownMenuSeparator', 'UiDropdownMenuContent', 'UiDropdownMenu', 'NuxtLink'].includes(tag) } } })],
+  test: { environment: 'happy-dom', setupFiles: ['./spec/mocks/mocks.js'] },
 })
 ```
 - add `plugins: ['vitest'],` to `~/app/frontend/eslint.config.js` so it looks like this:
