@@ -405,32 +405,30 @@ export default defineNuxtConfig({
               <Icon name="lucide:menu" class="h-5 w-5" />
             </UiButton>
             <UiSheetContent class="w-[90%] p-0">
-              <template #content>
-                <UiSheetTitle class="sr-only" title="Mobile menu" />
-                <UiSheetDescription class="sr-only" description="Mobile menu" />
-                <UiSheetX class="z-20" />
+              <UiSheetTitle class="sr-only" title="Mobile menu" />
+              <UiSheetDescription class="sr-only" description="Mobile menu" />
+              <UiSheetX class="z-20" />
 
-                <UiScrollArea class="h-full p-5">
-                  <div class="flex flex-col gap-2">
-                    <UiButton variant="ghost" class="justify-start text-base" to="/">
-                      Home
-                    </UiButton>
-                    <UiButton variant="ghost" class="justify-start text-base" to="/public">
-                      Public
-                    </UiButton>
-                    <UiButton variant="ghost" class="justify-start text-base" to="/private">
-                      Private
-                    </UiButton>
-                    <UiGradientDivider class="my-5" />
-                    <UiButton to="#">
-                      Sign up
-                    </UiButton>
-                    <UiButton variant="outline" to="#">
-                      Log in
-                    </UiButton>
-                  </div>
-                </UiScrollArea>
-              </template>
+              <UiScrollArea class="h-full p-5">
+                <div class="flex flex-col gap-2">
+                  <UiButton variant="ghost" class="justify-start text-base" to="/">
+                    Home
+                  </UiButton>
+                  <UiButton variant="ghost" class="justify-start text-base" to="/public">
+                    Public
+                  </UiButton>
+                  <UiButton variant="ghost" class="justify-start text-base" to="/private">
+                    Private
+                  </UiButton>
+                  <UiGradientDivider class="my-5" />
+                  <UiButton to="#">
+                    Sign up
+                  </UiButton>
+                  <UiButton variant="outline" to="#">
+                    Log in
+                  </UiButton>
+                </div>
+              </UiScrollArea>
             </UiSheetContent>
           </UiSheetTrigger>
         </UiSheet>
