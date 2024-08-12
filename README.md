@@ -119,15 +119,21 @@ node_modules
 ### Vitest
 - install VSCode `Vitest` extension
 - `cd ~/app/frontend`
-- `npm install --save-dev @nuxt/test-utils vitest @vue/test-utils happy-dom eslint-plugin-vitest`
+- `npm install --save-dev @nuxt/test-utils vitest @vue/test-utils happy-dom eslint-plugin-vitest unplugin-auto-import unplugin-vue-components`
 - `touch vitest.config.ts`
 - make `~/app/frontend/vitest.config.ts` look like this:
 ```
 import vue from '@vitejs/plugin-vue'
+import AutoImport from 'unplugin-auto-import/vite'
+import Components from 'unplugin-vue-components/vite'
 import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
-  plugins: [vue({ template: { compilerOptions: { isCustomElement: tag => ['Logo', 'UiButton', 'Home', 'UiContainer', 'UiNavigationMenuLink', 'UiNavigationMenuItem', 'UiNavigationMenuList', 'UiNavigationMenu', 'Icon', 'UiSheetTitle', 'UiSheetDescription', 'UiSheetX', 'UiGradientDivider', 'UiScrollArea', 'UiSheetContent', 'UiSheetTrigger', 'UiSheet', 'UiAvatar', 'UiDropdownMenuTrigger', 'UiDropdownMenuItem', 'UiDropdownMenuSeparator', 'UiDropdownMenuContent', 'UiDropdownMenu', 'NuxtLink'].includes(tag) } } })],
+  plugins: [
+    vue({ template: { compilerOptions: { isCustomElement: tag => ['Logo', 'UiButton', 'Home', 'UiContainer', 'UiNavigationMenuLink', 'UiNavigationMenuItem', 'UiNavigationMenuList', 'UiNavigationMenu', 'Icon', 'UiSheetTitle', 'UiSheetDescription', 'UiSheetX', 'UiGradientDivider', 'UiScrollArea', 'UiSheetContent', 'UiSheetTrigger', 'UiSheet', 'UiAvatar', 'UiDropdownMenuTrigger', 'UiDropdownMenuItem', 'UiDropdownMenuSeparator', 'UiDropdownMenuContent', 'UiDropdownMenu', 'NuxtLink'].includes(tag) } } }),
+    AutoImport({ imports: ['vue', 'vue-router'] }),
+    Components({ dirs: ['components' ], directoryAsNamespace: true }),
+  ],
   test: { environment: 'happy-dom', setupFiles: ['./spec/mocks/mocks.js'] },
 })
 ```
