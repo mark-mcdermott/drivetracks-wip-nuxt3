@@ -1635,7 +1635,7 @@ User.create!(email: 'test2@mail.com', password: 'password')
 - `bundle add aws-sdk-s3`
 - `bundle install`
 - `touch app/controllers/uploads_controller.rb`
-- make `~/app/backend/app/controllers/uploads_controller.rb` look like this (replacing `<your production s3 bucket name>` with your production s3 bucket name):
+- make `~/app/backend/app/controllers/uploads_controller.rb` look like this (replacing `your-region` with your aws region and `<your production s3 bucket name>` with your production s3 bucket name):
 ```
 class UploadsController < ApplicationController
   before_action :authenticate_user! # Ensure you have authentication in place
