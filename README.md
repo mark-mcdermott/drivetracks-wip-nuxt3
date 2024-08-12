@@ -1928,7 +1928,7 @@ onMounted(fetchUser)
 
 ### Deploy to Fly.io
 - `cd ~/app/backend`
-- make `~/app/backend/config/initializers/cors.rb` look like this (changing `<your fly.io frontend url>` to your fly.io frontend url):
+- make `~/app/backend/config/initializers/cors.rb` look like this (changing `<your fly.io frontend url>` to your fly.io frontend url and also make sure there is no trailing `/` after your fly.io frontend url here):
 ```
 Rails.application.config.middleware.insert_before 0, Rack::Cors do
   allow do
@@ -1940,7 +1940,6 @@ Rails.application.config.middleware.insert_before 0, Rack::Cors do
   end
 end
 ```
-- in the above `cors.rb`, make sure to replace `<your fly.io frontend url` with your fly.io frontend url and also make sure there is no trailing `/` after your fly.io frontend url here
 - change `~/app/backend/config/environments/production.rb` to look like this:
 ```
 require "active_support/core_ext/integer/time"
