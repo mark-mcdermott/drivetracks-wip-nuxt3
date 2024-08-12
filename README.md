@@ -1970,6 +1970,9 @@ fly secrets set \
   BUCKET_NAME=<your s3 production bucket name>
 ```
 - `fly deploy`
+- `fly ssh console`
+  - `bin/rails db:seed`
+  - `exit`
 
 - `cd ~/app/frontend`
   - in `~/app/frontend/nuxt.config.ts`, change `runtimeConfig: { public: { apiBase: 'http://localhost:3000' } },` to `runtimeConfig: { public: { apiBase: development ? 'http://localhost:3000' : '<your backend fly.io url>' } },` (substituting your backend fly.io url for `<your backend fly.io url>`)
