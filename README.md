@@ -1252,14 +1252,14 @@ Now we'll create our AWS S3 account so we can store our user avatar images there
   - click `Policies` in the left sidebar under Access Management
   - in the searchbar under Policies, type `app-s3-user-policy` -> click `app-s3-user-policy` under Policy Name
   - click Edit towards the top right
-  - in the Policy Editor text editor area, change the line `"Resource": ["arn:aws:s3:::<development bucket name>", "arn:aws:s3:::<production bucket name>"]` replace `<development bucket name>` and `<production bucket name>` with your development bucket name and production bucket name, respectively, in your `aws-details.txt` file
+  - in the Policy Editor text editor area, change the line `"Resource": ["arn:aws:s3:::<development bucket name>", "arn:aws:s3:::<production bucket name>"]` replace `<development bucket name>` and `<production bucket name>` with your development bucket name and production bucket name, respectively, in your `.env` file
   - click Next towards the bottom right
   - click Save Changes towards the bottom right
 - see what region you're logged into
   - click the AWS logo in the top left
   - in the top right there will be a region dropdown - click it
   - look at the highlighted region in the dropdown and look for the region string to the right of it - something like `us-east-1`
-  - write down the region in your `~/Desktop/app-secrets/aws-details.txt`
+  - paste your region string in your `~/app/.env` file in the `aws region` line
 - we're now done with our S3 setup and our AWS dashboard, at least for now. So let's go back to our terminal where we're building out our rails backend
 
 ### Rubocop
