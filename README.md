@@ -1674,7 +1674,7 @@ aws:
   bucket: <your s3 production bucket name>
 ```
   - save and close the credentials.yml file
-- in your `~/app/backend/config/storage.yml` file, uncomment the aws section and change the `bucket` line to use your actual s3 bucket name prefix - so if your production s3 bucket is `app-s3-bucket001-production`, the prefix would be `app-s3-bucket001`
+- in your `~/app/backend/config/storage.yml` file, uncomment the `amazon` section and change the `bucket` line to use your actual s3 bucket name prefix - so if your production s3 bucket is `app-s3-bucket001-production`, the prefix would be `app-s3-bucket001`
 ```
 amazon:
   service: S3
