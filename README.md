@@ -1810,8 +1810,6 @@ async function fetchUser() {
   const { apiBase } = useRuntimeConfig().public
   const response = await fetch(`${apiBase}/users/${route.params.id}`)
   user.value = await response.json()
-
-  console.log('Fetched user avatar URL:', user.value.avatar_url)
 }
 
 async function saveUserChanges(updatedUser) {
@@ -1842,7 +1840,6 @@ async function deleteUser() {
 
 function onFileChange(e) {
   avatar.value = e.target.files[0]
-  console.log('Selected file:', avatar.value)
 }
 
 // Watch for changes in the email field and avatar value
