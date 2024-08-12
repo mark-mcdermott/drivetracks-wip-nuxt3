@@ -1972,9 +1972,9 @@ fly secrets set \
 - `fly deploy`
 
 - `cd ~/app/frontend`
-  - in `~/app/frontend/nuxt.config.ts`, change `runtimeConfig: { public: { apiBase: 'http://localhost:3000' } },` to `runtimeConfig: { public: { apiBase: development ? 'http://localhost:3000' : '<your backend fly.io url noted above>' } },` (substituting your backend fly.io url for `<your backend fly.io url noted above>`)
-  - also in `~/app/frontend/nuxt.config.ts`, change `computed: { pathname: development ? 'http://localhost:3000/api/auth/' : 'https://interview-app-backend.fly.dev/api/auth/' },` to `computed: { pathname: development ? 'http://localhost:3000/api/auth/' : '<your fly.io backend url>/api/auth/' },`
-  - `fly deploy` -> hit enter for all questions
+  - in `~/app/frontend/nuxt.config.ts`, change `runtimeConfig: { public: { apiBase: 'http://localhost:3000' } },` to `runtimeConfig: { public: { apiBase: development ? 'http://localhost:3000' : '<your backend fly.io url>' } },` (substituting your backend fly.io url for `<your backend fly.io url>`)
+  - also in `~/app/frontend/nuxt.config.ts`, change `computed: { pathname: development ? 'http://localhost:3000/api/auth/' : 'https://interview-app-backend.fly.dev/api/auth/' },` to `computed: { pathname: development ? 'http://localhost:3000/api/auth/' : '<your fly.io backend url>/api/auth/' },` (also substituting your backend fly.io url for `<your fly.io backend url>`)
+  - `fly deploy`
 
 
 
