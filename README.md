@@ -1662,7 +1662,7 @@ end
 - `cd ~/app/backend`
 - `rails active_storage:install`
 - `rails db:migrate`
-- open your `~/Desktop/app-secrets/User Access Keys.csv` and `~/Desktop/app-secrets/aws-details.txt`. You'll need the `access key ID`, `secret access key`, `region` and `bucket` in the next step.
+- open your `~/app/.env`. You'll need the `access key ID`, `secret access key`, `region` and `bucket` in the next step.
 - `EDITOR="code --wait" rails credentials:edit`
   - uncomment the first three lines (the AWS lines)
   - add your `access key ID` and `secret access key` so the file will look something like this (with the x's replaced with your values):
