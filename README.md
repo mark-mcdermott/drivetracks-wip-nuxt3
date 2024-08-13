@@ -66,7 +66,7 @@ node_modules
 - `cd ~/app/backend`
   - let's init our backend fly.io app. The name part has to be unique in their system I think, so if you run the below line as is, it will probably tell you your app name is already chosen and you'll have to keep trying with more obscure app names until you find a unique one that works.
   - `fly launch --name app-backend`
-    - hit enter when it asks questions
+    - hit enter (for "no") when it asks a question about wanting to tweak the settings
     - watch the output and look for the `Postgres cluster` details, which end with the line, `Save your credentials in a secure place -- you won't be able to see them again!` When you see it, copy and paste it to the corresponding section in your `~/app/.env` file and make sure all the lines are commented out with `#`s.
     - at the end of all the output it will say, `Visit your newly deployed app at https://<your backend app name>.fly.dev/` - copy/paste the backend app name url it gives you to the `backend url:` part of your `.env` file
 - `cd ~/app/frontend`
