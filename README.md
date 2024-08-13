@@ -158,7 +158,7 @@ export default antfu({
 - `cd spec`
 - `mkdir components layouts pages`
 - `cd components`
-- `touch Header.spec.js`
+- `touch Header.spec.js Home.spec.js`
 - `cd ../pages`
 - `touch home.spec.js public.spec.js private.spec.js`
 
@@ -198,29 +198,32 @@ describe('Header', () => {
 
 })
 ```
-
-### Page Specs
-- make `~/app/frontend/specs/pages/home.spec.js` look like this:
+- make `~/app/frontend/specs/components/Home.spec.js` look like this:
 ```
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
-import homePage from './../../pages/index.vue'
+import home from './../../components/Home.vue'
 
 describe('Home page', () => {
   it('is a Vue instance', () => {
-    expect(mount(homePage).vm).toBeTruthy()
+    expect(mount(home).vm).toBeTruthy()
   })
 })
 
 describe('Home page has correct copy', () => {
-  it('has correct h4 text', () => {
-    expect(mount(homePage).find("h4").text()).toBe('Test App');
+  it('has correct h1 text', () => {
+    const wrapper = mount(home)
+    const h1 = wrapper.find('h1')
+    expect(h1.exists()).toBe(true)
+    expect(h1.text()).toContain('There was a wall.').and.toContain('It did not look important.')
   })
   it('has correct p text', () => {
-    expect(mount(homePage).find("p").text()).toContain('Here you can read do anything your little heart desires.');
+    expect(mount(home).find("p").text()).toContain('It was built of uncut rocks roughly mortared.');
   })
 })
 ```
+
+### Page Specs
 - make `~/app/frontend/specs/pages/public.spec.js` look like this:
 ```
 import { mount } from '@vue/test-utils'
@@ -228,29 +231,29 @@ import { describe, expect, it } from 'vitest'
 import publicPage from './../../pages/public.vue'
 
 describe('Public page has correct copy', () => {
-  it('has correct h4 text', () => {
-    expect(mount(publicPage).find("h4").text()).toBe('Public');
+  it('has correct h1 text', () => {
+    expect(mount(publicPage).find("h1").text()).toBe('Public');
   })
   it('has correct p text', () => {
-    expect(mount(publicPage).find("p").text()).toContain("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi a aliquet metus, non lacinia ligula. Vestibulum convallis massa vitae arcu fringilla rhoncus. In ut ligula posuere, fringilla leo sit amet, fringilla nisl. Nam orci odio, finibus a hendrerit sit amet, dapibus in risus. Phasellus maximus mattis turpis vitae gravida. Donec nec tellus elit. Mauris luctus mi ut est porta, sit amet lobortis felis imperdiet. Quisque ut eros pellentesque, vestibulum eros vel, cursus ligula. Nulla tortor purus, sollicitudin id gravida eu, efficitur eu elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer dictum congue nibh vel egestas. Nulla vel lacinia sem.");
+    expect(mount(publicPage).find("p").text()).toContain("Looked at from one side, the wall enclosed a barren sixty-acre field called the Port of Anarres. On the field there were a couple of large gantry cranes, a rocket pad, three warehouses, a truck garage, and a dormitory. The dormitory looked durable, grimy, and mournful; it had no gardens, no children; plainly nobody lived there or was even meant to stay there long. It was in fact a quarantine. The wall shut in not only the landing field but also the ships that came down out of space, and the men that came on the ships, and the worlds they came from, and the rest of the universe. It enclosed the universe, leaving Anarres outside, free.");
   })
 })
 ```
 - make `~/app/frontend/specs/pages/private.spec.js` look like this:
 ```
-import { expect, describe, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { describe, expect, it, vi } from 'vitest'
 import privatePage from './../../pages/private.vue'
 
 vi.stubGlobal("definePageMeta", () => {})
 vi.stubGlobal("ref", (initialValue) => { return { value: initialValue } })
 
 describe('Private page has correct copy', () => {
-  it('has correct h2 text', () => {
-    expect(mount(privatePage).find("h2").text()).toBe('Private');
+  it('has correct h1 text', () => {
+    expect(mount(privatePage).find("h1").text()).toBe('Private');
   })
   it('has correct p text', () => {
-    expect(mount(privatePage).find("p").text()).toContain("We know that you, as a bee, have worked your whole life to get to the point where you can work for your whole life. Honey begins when our valiant Pollen Jocks bring the nectar to the hive. Our top-secret formula is automatically color-corrected, scent-adjusted and bubble-contoured into this soothing sweet syrup with its distinctive golden glow you know as Honey!");
+    expect(mount(privatePage).find("p").text()).toContain("A number of people were coming along the road towards the landing field, or standing around where the road cut through the wall. People often came out from the nearby city of Abbenay in hopes of seeing a spaceship, or simply to see the wall. After all, it was the only boundary wall on their world. Nowhere else could they see a sign that said No Trespassing. Adolescents, particularly, were drawn to it. They came up to the wall; they sat on it. There might be a gang to watch, offloading crates from track trucks at the warehouses. There might even be a freighter on the pad. Freighters came down only eight times a year, unannounced except to syndics actually working at the Port, so when the spectators were lucky enough to see one they were excited, at first. But there they sat, and there it sat, a squat black tower in a mess of movable cranes, away off across the field. And then a woman came over from one of the warehouse crews and said, “We’re shutting down for today, brothers.” She was wearing the Defense armband, a sight almost as rare as a spaceship. That was a bit of a thrill. But though her tone was mild, it was final. She was the foreman of this gang, and if provoked would be backed up by her syndics. And anyhow there wasn’t anything to see. The aliens, the offworlders, stayed hiding in their ship. No show.");
   })
 })
 ```
