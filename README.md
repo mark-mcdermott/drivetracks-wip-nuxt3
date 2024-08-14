@@ -819,16 +819,10 @@ describe('private page', async () => {
 ### Login/Signup E2E Specs
 - TODO!!!
 
-### Auth
+### Install Sidebase Nuxt-Auth
 - `cd ~/app/frontend`
 - `npx nuxi@latest module add @sidebase/nuxt-auth`
 - `npm install`
-- to the top of `~/app/frontend/pages/public.vue` add:
-```
-<script>
-definePageMeta({ auth: false })
-</script>
-```
 - make `~/app/frontend/nuxt.config.js` look like this:
 ```
 const development = process.env.NODE_ENV !== 'production'
@@ -861,10 +855,115 @@ export default defineNuxtConfig({
   },
 })
 ```
-- `npm run dev` -> private page redirects to homepage (login still goes to a 404)
+
+### Lock The Private Page
+- `cd ~/app/frontend`
+- to the top of `~/app/frontend/pages/public.vue` add:
+```
+<script>
+definePageMeta({ auth: false })
+</script>
+```
+- `npm run dev` -> private page redirects to homepage (Login still goes to a 404 and also now the private.spec.js test will fail until we change some things.)
 - `^ + c`
 
-### Header With Auth
+### Hide The Private Page Link
+- `cd ~/app/frontend`
+- make `~/app/frontend/components/Header.vue` look like this:
+```
+<script setup>
+const { data, signOut, status } = useAuth()
+
+const uuid = computed(() => {
+  if (data && data.value) {
+    return data.value.uuid
+  }
+  return ''
+})
+</script>
+
+<template>
+  <header class="z-20 border-b bg-background/90 backdrop-blur">
+    <UiContainer class="flex h-16 items-center justify-between md:h-20">
+      <div class="flex items-center gap-10">
+        <Logo />
+        <UiNavigationMenu as="nav" class="header-main-nav hidden items-center justify-start gap-8 md:flex">
+          <UiNavigationMenuList class="gap-2">
+            <UiNavigationMenuItem>
+              <UiNavigationMenuLink as-child>
+                <UiButton to="/" variant="ghost" size="sm">
+                  Home
+                </UiButton>
+              </UiNavigationMenuLink>
+            </UiNavigationMenuItem>
+            <UiNavigationMenuItem>
+              <UiNavigationMenuLink as-child>
+                <UiButton to="/public" variant="ghost" size="sm">
+                  Public
+                </UiButton>
+              </UiNavigationMenuLink>
+            </UiNavigationMenuItem>
+            <UiNavigationMenuItem>
+              <UiNavigationMenuLink as-child>
+                <UiButton to="/private" variant="ghost" size="sm">
+                  Private
+                </UiButton>
+              </UiNavigationMenuLink>
+            </UiNavigationMenuItem>
+          </UiNavigationMenuList>
+        </UiNavigationMenu>
+      </div>
+      <div class="md:hidden">
+        <UiSheet>
+          <UiSheetTrigger as-child>
+            <UiButton variant="ghost" size="icon-sm">
+              <Icon name="lucide:menu" class="h-5 w-5" />
+            </UiButton>
+            <UiSheetContent class="w-[90%] p-0">
+              <UiSheetTitle class="sr-only" title="Mobile menu" />
+              <UiSheetDescription class="sr-only" description="Mobile menu" />
+              <UiSheetX class="z-20" />
+
+              <UiScrollArea class="h-full p-5">
+                <div class="flex flex-col gap-2">
+                  <UiButton variant="ghost" class="justify-start text-base" to="/">
+                    Home
+                  </UiButton>
+                  <UiButton variant="ghost" class="justify-start text-base" to="/public">
+                    Public
+                  </UiButton>
+                  <UiButton v-if="status === 'authenticated'" variant="ghost" class="justify-start text-base" to="/private">
+                    Private
+                  </UiButton>
+                  <UiGradientDivider class="my-5" />
+                  <UiButton to="#">
+                    Sign up
+                  </UiButton>
+                  <UiButton variant="outline" to="#">
+                    Log in
+                  </UiButton>
+                </div>
+              </UiScrollArea>
+            </UiSheetContent>
+          </UiSheetTrigger>
+        </UiSheet>
+      </div>
+      <div class="header-login-nav hidden items-center gap-3 md:flex">
+        <UiButton to="/login" variant="ghost" size="sm">
+          Log in
+        </UiButton>
+        <UiButton to="/signup" size="sm">
+          Sign up
+        </UiButton>
+      </div>
+    </UiContainer>
+  </header>
+</template>
+```
+- `npm run dev` -> Private page link now not showing on homepage. When logged in (which we'll build out shortly), Private page link will show
+- `^ + c`
+
+### Add User Dropdown To Nav
 - `cd ~/app/frontend`
 - `npx ui-thing@latest add avatar dropdown-menu`
 - make `~/app/frontend/components/Header.vue` look like this:
@@ -1003,7 +1102,7 @@ async function logout() {
 ```
 - `cd ~/app/frontend`
 - `npm run dev`
-- `^ + c` -> Private link should now be hidden
+- `^ + c` -> User dropdown is coded, but not showing because we're logged out. We're also now showing Log In & Sign Up buttons only when logged out. When logged in (which we'll build out shortly), Log In & Sign Up buttons will not show and the Log Out button will show.
 
 ### Login Form
 - `cd ~/app/frontend`
