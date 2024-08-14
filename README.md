@@ -816,9 +816,6 @@ describe('private page', async () => {
   - close second terminal
 - `^ + c` in first terminal
 
-### Login/Signup E2E Specs
-- TODO!!!
-
 ### Install Sidebase Nuxt-Auth
 - `cd ~/app/frontend`
 - `npx nuxi@latest module add @sidebase/nuxt-auth`
@@ -855,6 +852,12 @@ export default defineNuxtConfig({
   },
 })
 ```
+
+### Update Header Spec For Logged In/Out Functionality
+- TODO!!!
+
+### Update Page Specs For Logged In/Out Functionality
+- TODO!!!
 
 ### Lock The Private Page
 - `cd ~/app/frontend`
@@ -1104,7 +1107,10 @@ async function logout() {
 - `npm run dev`
 - `^ + c` -> User dropdown is coded, but not showing because we're logged out. We're also now showing Log In & Sign Up buttons only when logged out. When logged in (which we'll build out shortly), Log In & Sign Up buttons will not show and the Log Out button will show.
 
-### Login Form
+### Login/Signup Page Specs
+- TODO!!!
+
+### Login Page
 - `cd ~/app/frontend`
 - `npx ui-thing@latest add vee-input form vue-sonner` -> hit `y` when asked about installing dependencies
 - `touch pages/login.vue`
@@ -1170,7 +1176,7 @@ async function login() {
 </template>
 ```
 
-### Signup Form
+### Signup Page
 - `cd ~/app/frontend`
 - `touch pages/signup.vue`
 - make `~/app/frontend/pages/signup.vue` look like this:
