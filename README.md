@@ -318,7 +318,7 @@ describe('Footer', () => {
   const wrapper = mount(Footer)
   it('has correct text', () => {
     const title = wrapper.find("p")
-    expect(title.text()).toContain("Made with Nuxt, Tailwind, UI Thing, Rails, Fly.io and S3")
+    expect(title.text()).toContain("© 2024. Made with Nuxt, Tailwind, UI Thing, Rails, Fly.io and S3.")
   })
 })
 ```
