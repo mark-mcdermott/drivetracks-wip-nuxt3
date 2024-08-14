@@ -152,19 +152,9 @@ export default antfu({
 ```
 - `npm run test` -> vitest should run (it will try to run, but there are no tests yet)
 
-### Stub Specs
+### Vitest Mocks
 - `cd ~/app/frontend`
-- `mkdir spec`
-- `cd spec`
-- `mkdir components layouts pages`
-- `cd components`
-- `touch Header.spec.js Home.spec.js`
-- `cd ../pages`
-- `touch home.spec.js public.spec.js private.spec.js`
-
-### Mocks
-- `cd ~/app/frontend`
-- `mkdir spec/mocks`
+- `mkdir spec/mocks -p`
 - `touch spec/mocks/mocks.js`
 - make `~/app/frontend/spec/mocks/mocks.js` look like this:
 ```
@@ -176,7 +166,46 @@ global.ref = vi.fn((initialValue) => { return { value: initialValue } })
 global.useAuth = vi.fn(() => { return { status: 'unauthenticated' } })
 ```
 
+### Homepage Spec
+- Let's do some test-driven development and write failing specs, build to spec and then make sure the tests pass.
+- `cd ~/app/frontend`
+- `mkdir spec/pages`
+- `touch spec/pages/index.js`
+- make `~/app/frontend/specs/pages/index.spec.js` look like this:
+```
+import { mount } from '@vue/test-utils'
+import { describe, expect, it } from 'vitest'
+import home from './../../pages/index.vue'
+
+describe('Home page', () => {
+  it('is a Vue instance', () => {
+    expect(mount(home).vm).toBeTruthy()
+  })
+})
+
+describe('Home page has correct copy', () => {
+  it('has correct h1 text', () => {
+    const wrapper = mount(home)
+    const h1 = wrapper.find('h1')
+    expect(h1.exists()).toBe(true)
+    expect(h1.text()).toContain('There was a wall.').and.toContain('It did not look important.')
+  })
+  it('has correct p text', () => {
+    expect(mount(home).find("p").text()).toContain('It was built of uncut rocks roughly mortared.');
+  })
+})
+```
+
 ### Components Specs
+
+- TODO: delete these lines below?
+- `cd spec`
+- `mkdir components layouts pages`
+- `cd components`
+- `touch Header.spec.js Home.spec.js`
+- `cd ../pages`
+- `touch home.spec.js public.spec.js private.spec.js`
+
 - make `~/app/frontend/specs/components/Header.spec.js` look like this:
 ```
 import { mount } from '@vue/test-utils'
@@ -196,30 +225,6 @@ describe('Header', () => {
     expect(title.text()).toBe('Test App');
   })
 
-})
-```
-- make `~/app/frontend/specs/components/Home.spec.js` look like this:
-```
-import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
-import home from './../../components/Home.vue'
-
-describe('Home page', () => {
-  it('is a Vue instance', () => {
-    expect(mount(home).vm).toBeTruthy()
-  })
-})
-
-describe('Home page has correct copy', () => {
-  it('has correct h1 text', () => {
-    const wrapper = mount(home)
-    const h1 = wrapper.find('h1')
-    expect(h1.exists()).toBe(true)
-    expect(h1.text()).toContain('There was a wall.').and.toContain('It did not look important.')
-  })
-  it('has correct p text', () => {
-    expect(mount(home).find("p").text()).toContain('It was built of uncut rocks roughly mortared.');
-  })
 })
 ```
 
