@@ -155,7 +155,7 @@ export default antfu({
 ### Vitest Mocks
 - For our vitests to work, we'll need some mocks for some Nuxt things like `definePageMeta` and `ref` and for some Sidebase Nuxt-Auth stuff like `useAuth`.
 - `cd ~/app/frontend`
-- `mkdir spec/mocks -p`
+- `mkdir -p spec/mocks`
 - `touch spec/mocks/mocks.js`
 - make `~/app/frontend/spec/mocks/mocks.js` look like this:
 ```
