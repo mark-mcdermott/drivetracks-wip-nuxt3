@@ -448,6 +448,7 @@ describe('Footer', () => {
   <Footer />
 </template>
 ```
+- `cd ~/app/frontend`
 - `npm run dev` -> Homepage should have header and footer
 - `^ + c`
 - `npm run test spec/components/Header.spec.js` -> Header tests should pass
