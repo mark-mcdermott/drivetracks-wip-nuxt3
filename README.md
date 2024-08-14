@@ -296,29 +296,26 @@ import { describe, expect, it } from 'vitest'
 import Header from './../../components/Header.vue'
 
 describe('Header', () => {
-  const wrapper = mount(Header)
-  const h1 = wrapper.find("h1")
-
-  it('is a Vue instance', () => { expect(wrapper.vm).toBeTruthy() })
-
-  it('has correct title text', () => {
-    const title = wrapper.find(".nav-header")
-    expect(title.text()).toBe('Test App');
+  const header = mount(Header)
+  it('is a Vue instance', () => { expect(header.vm).toBeTruthy() })
+  it('has correct link text', () => {
+    expect(header.find('uibutton[to="/"]').text()).toContain("Home")
+    expect(header.find('uibutton[to="/public"]').text()).toContain("Public")
+    expect(header.find('uibutton[to="/private"]').text()).toContain("Private")
   })
-
 })
 ```
 - make `~/app/frontend/specs/components/Footer.spec.js` look like this:
 ```
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
-import Header from './../../components/Footer.vue'
+import Footer from './../../components/Footer.vue'
 
 describe('Footer', () => {
-  const wrapper = mount(Footer)
+  const footer = mount(Footer)
   it('has correct text', () => {
-    const title = wrapper.find("p")
-    expect(title.text()).toContain("© 2024. Made with Nuxt, Tailwind, UI Thing, Rails, Fly.io and S3.")
+    const p = footer.find("p")
+    expect(p.text()).toContain("© 2024. Made with Nuxt, Tailwind, UI Thing, Rails, Fly.io and S3.")
   })
 })
 ```
