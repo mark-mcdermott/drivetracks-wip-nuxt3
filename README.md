@@ -242,11 +242,23 @@ export default defineNuxtConfig({
   - you can hit enter for all the other questions
 - `npm i -D @iconify-json/lucide`
 
+### Layout
+- `cd ~/app/frontend`
+- `mkdir layouts`
+- `touch layouts/default.vue`
+- add this to `~/app/frontend/layouts/default.vue`:
+```
+<template>
+  <NuxtPage />
+</template>
+```
+
 ### Home Page
 - `cd ~/app/frontend`
 - `npx ui-thing@latest add container badge button gradient-divider`
-- `touch components/Home.vue`
-- make `~/app/frontend/components/Home.vue` look like this:
+- `mkdir pages`
+- `touch pages/index.vue`
+- add this to `~/app/frontend/pages/index.vue`:
 ```
 <template>
   <UiContainer class="relative flex flex-col items-center py-10 text-center lg:py-20">
@@ -267,35 +279,8 @@ export default defineNuxtConfig({
   </UiContainer>
 </template>
 ```
-- make `~/app/frontend/app.vue` look like this: 
-```
-<template>
-  <Home />
-</template>
-```
-- `npm run dev` -> Should be a decent looking homepage now
-- `^ + c`
-
-### Layout
-- `cd ~/app/frontend`
-- `mkdir layouts`
-- `touch layouts/default.vue`
-- add this to `~/app/frontend/layouts/default.vue`:
-```
-<template>
-  <NuxtPage />
-</template>
-```
-- `mkdir pages`
-- `touch pages/index.vue`
-- add this to `~/app/frontend/pages/index.vue`:
-```
-<template>
-  <Home />
-</template>
-```
 - `rm app.vue`
-- `npm run dev` -> Homepage should look same as above
+- `npm run dev` -> Should be a decent looking homepage now
 - `^ + c`
 
 ### Components Specs
