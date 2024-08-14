@@ -492,9 +492,8 @@ it('can mount some component', async () => {
 
 ### Subpages Specs
 - `cd ~/app/frontend`
-- `mkdir pages`
-- `touch pages/public.spec.js pages/private.spec.js`
-- make `~/app/frontend/specs/pages/public.spec.js` look like this:
+- `touch spec/e2e/public.spec.js spec/e2e/private.spec.js`
+- make `~/app/frontend/specs/e2e/public.spec.js` look like this:
 ```
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
