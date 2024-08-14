@@ -1017,7 +1017,7 @@ async function logout() {
             </UiNavigationMenuItem>
             <UiNavigationMenuItem v-if="status === 'authenticated'">
               <UiNavigationMenuLink as-child>
-                <UiButton to="/private" variant="ghost" size="sm">
+                <UiButton v-if="status === 'authenticated'" to="/private" variant="ghost" size="sm">
                   Private
                 </UiButton>
               </UiNavigationMenuLink>
