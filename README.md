@@ -490,9 +490,10 @@ it('can mount some component', async () => {
 - `npm run test spec/components/Header.spec.js` -> Header tests should pass
 - `npm run test spec/components/Footer.spec.js` -> Footer tests should pass
 
-### Page Specs
-- `cd ../pages`
-- `touch home.spec.js public.spec.js private.spec.js`
+### Subpages Specs
+- `cd ~/app/frontend`
+- `mkdir pages`
+- `touch pages/public.spec.js pages/private.spec.js`
 - make `~/app/frontend/specs/pages/public.spec.js` look like this:
 ```
 import { mount } from '@vue/test-utils'
