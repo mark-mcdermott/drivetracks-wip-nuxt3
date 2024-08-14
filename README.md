@@ -280,7 +280,7 @@ export default defineNuxtConfig({
 </template>
 ```
 - `rm app.vue`
-- `npm run dev` -> Should be a decent looking homepage now
+- `npm run dev` -> Should be a decent looking homepage now in Inter font with a h1, some body copy and two buttons
 - `^ + c`
 
 ### Components Specs
