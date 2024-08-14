@@ -908,7 +908,7 @@ const uuid = computed(() => {
             </UiNavigationMenuItem>
             <UiNavigationMenuItem>
               <UiNavigationMenuLink as-child>
-                <UiButton to="/private" variant="ghost" size="sm">
+                <UiButton v-if="status === 'authenticated'" to="/private" variant="ghost" size="sm">
                   Private
                 </UiButton>
               </UiNavigationMenuLink>
