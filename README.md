@@ -359,11 +359,38 @@ it('can mount some component', async () => {
 ```
 
 ### Updated Homepage Spec for Header/Footer
-- Let's add some header and footer checks on the homepage spec
+- Now that we'll have a header and footer on the homepage, let's add some header and footer checks on the homepage spec.
+- `touch spec/e2e/shared.js`
+- make `~/app/frontend/spec/e2e/shared.js` look like this:
+```
+import { expect } from 'vitest'
+
+export const testHeaderLinks = async (page) => {
+  const mainNav = await page.locator('nav.header-main-nav')
+  const loginNav = await page.locator('.header-login-nav')
+  const homeLink = await mainNav.locator('a[href="/"]')
+  const publicLink = await mainNav.locator('a[href="/public"]')
+  const privateLink = await mainNav.locator('a[href="/private"]')
+  const loginLink = await loginNav.locator('a[href="/login"]')
+  const signupLink = await loginNav.locator('a[href="/signup"]')
+  
+  expect(await homeLink.textContent()).toContain('Home')
+  expect(await publicLink.textContent()).toContain('Public')
+  expect(await privateLink.textContent()).toContain('Private')
+  expect(await loginLink.textContent()).toContain('Log in')
+  expect(await signupLink.textContent()).toContain('Sign up')
+}
+
+export const testFooterText = async (page) => {
+  const footerText = await page.locator('p.footer-text')
+  expect(await footerText.textContent()).toContain('© 2024. Made with Nuxt, Tailwind, UI Thing, Rails, Fly.io and S3.')
+}
+```
 - make `~/app/frontend/spec/e2e/home.spec.js` look like this:
 ```
 import { createPage, setup } from '@nuxt/test-utils/e2e'
 import { describe, expect, it } from 'vitest'
+import { testFooterText, testHeaderLinks } from './shared'
 
 describe('home page', async () => {
   await setup({
@@ -372,18 +399,7 @@ describe('home page', async () => {
 
   it('has correct header links', async () => {
     const homePage = await createPage('/')
-    const mainNav = await homePage.locator('nav.header-main-nav')
-    const loginNav = await homePage.locator('.header-login-nav')
-    const homeLink = await mainNav.locator('a[href="/"]')
-    const publicLink = await mainNav.locator('a[href="/public"]')
-    const privateLink = await mainNav.locator('a[href="/private"]')
-    const loginLink = await loginNav.locator('a[href="/login"]')
-    const signupLink = await loginNav.locator('a[href="/signup"]')
-    expect(await homeLink.textContent()).toContain('Home')
-    expect(await publicLink.textContent()).toContain('Public')
-    expect(await privateLink.textContent()).toContain('Private')
-    expect(await loginLink.textContent()).toContain('Log in')
-    expect(await signupLink.textContent()).toContain('Sign up')
+    await testHeaderLinks(homePage)
   })
 
   it('displays the correct h1 text', async () => {
@@ -413,9 +429,7 @@ describe('home page', async () => {
 
   it('has correct footer text', async () => {
     const homePage = await createPage('/')
-    const footer = await homePage.locator('footer')
-    const footerText = await homePage.locator('p.footer-text')
-    expect(await footerText.textContent()).toContain('© 2024. Made with Nuxt, Tailwind, UI Thing, Rails, Fly.io and S3.')
+    await testFooterText(homePage)
   })
 })
 ```
