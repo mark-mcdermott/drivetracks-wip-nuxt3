@@ -171,7 +171,7 @@ global.useAuth = vi.fn(() => { return { status: 'unauthenticated' } })
 - Let's do some test-driven development and write failing specs, build to spec and then make sure the tests pass.
 - `cd ~/app/frontend`
 - `mkdir spec/pages`
-- `touch spec/pages/index.js`
+- `touch spec/pages/index.spec.js`
 - make `~/app/frontend/specs/pages/index.spec.js` look like this:
 ```
 import { mount } from '@vue/test-utils'
@@ -282,16 +282,13 @@ export default defineNuxtConfig({
 - `rm app.vue`
 - `npm run dev` -> Should be a decent looking homepage now in Inter font with a h1, some body copy and two buttons
 - `^ + c`
+- `npm run test spec/pages/index.spec.js` -> homepage tests should pass now
 
-### Components Specs
-
-- TODO: delete these lines below?
-- `cd spec`
-- `mkdir components layouts pages`
-- `cd components`
-- `touch Header.spec.js Home.spec.js`
-- `cd ../pages`
-- `touch home.spec.js public.spec.js private.spec.js`
+### Header/Footer Specs
+- `cd ~/app/frontend`
+- `mkdir spec/components`
+- `cd spec/components`
+- `touch Header.spec.js Footer.spec.js`
 
 - make `~/app/frontend/specs/components/Header.spec.js` look like this:
 ```
@@ -303,9 +300,7 @@ describe('Header', () => {
   const wrapper = mount(Header)
   const h1 = wrapper.find("h1")
 
-  it('is a Vue instance', () => {
-    expect(wrapper.vm).toBeTruthy()
-  })
+  it('is a Vue instance', () => { expect(wrapper.vm).toBeTruthy() })
 
   it('has correct title text', () => {
     const title = wrapper.find(".nav-header")
@@ -314,38 +309,17 @@ describe('Header', () => {
 
 })
 ```
-
-### Page Specs
-- make `~/app/frontend/specs/pages/public.spec.js` look like this:
+- make `~/app/frontend/specs/components/Footer.spec.js` look like this:
 ```
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
-import publicPage from './../../pages/public.vue'
+import Header from './../../components/Footer.vue'
 
-describe('Public page has correct copy', () => {
-  it('has correct h1 text', () => {
-    expect(mount(publicPage).find("h1").text()).toBe('Public');
-  })
-  it('has correct p text', () => {
-    expect(mount(publicPage).find("p").text()).toContain("Looked at from one side, the wall enclosed a barren sixty-acre field called the Port of Anarres. On the field there were a couple of large gantry cranes, a rocket pad, three warehouses, a truck garage, and a dormitory. The dormitory looked durable, grimy, and mournful; it had no gardens, no children; plainly nobody lived there or was even meant to stay there long. It was in fact a quarantine. The wall shut in not only the landing field but also the ships that came down out of space, and the men that came on the ships, and the worlds they came from, and the rest of the universe. It enclosed the universe, leaving Anarres outside, free.");
-  })
-})
-```
-- make `~/app/frontend/specs/pages/private.spec.js` look like this:
-```
-import { mount } from '@vue/test-utils'
-import { describe, expect, it, vi } from 'vitest'
-import privatePage from './../../pages/private.vue'
-
-vi.stubGlobal("definePageMeta", () => {})
-vi.stubGlobal("ref", (initialValue) => { return { value: initialValue } })
-
-describe('Private page has correct copy', () => {
-  it('has correct h1 text', () => {
-    expect(mount(privatePage).find("h1").text()).toBe('Private');
-  })
-  it('has correct p text', () => {
-    expect(mount(privatePage).find("p").text()).toContain("A number of people were coming along the road towards the landing field, or standing around where the road cut through the wall. People often came out from the nearby city of Abbenay in hopes of seeing a spaceship, or simply to see the wall. After all, it was the only boundary wall on their world. Nowhere else could they see a sign that said No Trespassing. Adolescents, particularly, were drawn to it. They came up to the wall; they sat on it. There might be a gang to watch, offloading crates from track trucks at the warehouses. There might even be a freighter on the pad. Freighters came down only eight times a year, unannounced except to syndics actually working at the Port, so when the spectators were lucky enough to see one they were excited, at first. But there they sat, and there it sat, a squat black tower in a mess of movable cranes, away off across the field. And then a woman came over from one of the warehouse crews and said, “We’re shutting down for today, brothers.” She was wearing the Defense armband, a sight almost as rare as a spaceship. That was a bit of a thrill. But though her tone was mild, it was final. She was the foreman of this gang, and if provoked would be backed up by her syndics. And anyhow there wasn’t anything to see. The aliens, the offworlders, stayed hiding in their ship. No show.");
+describe('Footer', () => {
+  const wrapper = mount(Footer)
+  it('has correct text', () => {
+    const title = wrapper.find("p")
+    expect(title.text()).toContain("Made with Nuxt, Tailwind, UI Thing, Rails, Fly.io and S3")
   })
 })
 ```
@@ -477,6 +451,45 @@ describe('Private page has correct copy', () => {
 ```
 - `npm run dev` -> Homepage should have header and footer
 - `^ + c`
+- `npm run test spec/components/Header.spec.js` -> Header tests should pass
+- `npm run test spec/components/Footer.spec.js` -> Footer tests should pass
+
+### Page Specs
+- `cd ../pages`
+- `touch home.spec.js public.spec.js private.spec.js`
+- make `~/app/frontend/specs/pages/public.spec.js` look like this:
+```
+import { mount } from '@vue/test-utils'
+import { describe, expect, it } from 'vitest'
+import publicPage from './../../pages/public.vue'
+
+describe('Public page has correct copy', () => {
+  it('has correct h1 text', () => {
+    expect(mount(publicPage).find("h1").text()).toBe('Public');
+  })
+  it('has correct p text', () => {
+    expect(mount(publicPage).find("p").text()).toContain("Looked at from one side, the wall enclosed a barren sixty-acre field called the Port of Anarres. On the field there were a couple of large gantry cranes, a rocket pad, three warehouses, a truck garage, and a dormitory. The dormitory looked durable, grimy, and mournful; it had no gardens, no children; plainly nobody lived there or was even meant to stay there long. It was in fact a quarantine. The wall shut in not only the landing field but also the ships that came down out of space, and the men that came on the ships, and the worlds they came from, and the rest of the universe. It enclosed the universe, leaving Anarres outside, free.");
+  })
+})
+```
+- make `~/app/frontend/specs/pages/private.spec.js` look like this:
+```
+import { mount } from '@vue/test-utils'
+import { describe, expect, it, vi } from 'vitest'
+import privatePage from './../../pages/private.vue'
+
+vi.stubGlobal("definePageMeta", () => {})
+vi.stubGlobal("ref", (initialValue) => { return { value: initialValue } })
+
+describe('Private page has correct copy', () => {
+  it('has correct h1 text', () => {
+    expect(mount(privatePage).find("h1").text()).toBe('Private');
+  })
+  it('has correct p text', () => {
+    expect(mount(privatePage).find("p").text()).toContain("A number of people were coming along the road towards the landing field, or standing around where the road cut through the wall. People often came out from the nearby city of Abbenay in hopes of seeing a spaceship, or simply to see the wall. After all, it was the only boundary wall on their world. Nowhere else could they see a sign that said No Trespassing. Adolescents, particularly, were drawn to it. They came up to the wall; they sat on it. There might be a gang to watch, offloading crates from track trucks at the warehouses. There might even be a freighter on the pad. Freighters came down only eight times a year, unannounced except to syndics actually working at the Port, so when the spectators were lucky enough to see one they were excited, at first. But there they sat, and there it sat, a squat black tower in a mess of movable cranes, away off across the field. And then a woman came over from one of the warehouse crews and said, “We’re shutting down for today, brothers.” She was wearing the Defense armband, a sight almost as rare as a spaceship. That was a bit of a thrill. But though her tone was mild, it was final. She was the foreman of this gang, and if provoked would be backed up by her syndics. And anyhow there wasn’t anything to see. The aliens, the offworlders, stayed hiding in their ship. No show.");
+  })
+})
+```
 
 ### Subpages
 - `cd ~/app/frontend/pages`
