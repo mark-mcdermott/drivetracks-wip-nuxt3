@@ -172,7 +172,7 @@ global.useAuth = vi.fn(() => { return { status: 'unauthenticated' } })
 - `cd ~/app/frontend`
 - `mkdir spec/e2e`
 - `touch spec/e2e/home.spec.js`
-- make `~/app/frontend/specs/e2e/home.spec.js` look like this:
+- make `~/app/frontend/spec/e2e/home.spec.js` look like this:
 ```
 import { createPage, setup } from '@nuxt/test-utils/e2e'
 import { describe, expect, it } from 'vitest'
@@ -295,8 +295,11 @@ export default defineNuxtConfig({
 ```
 - `rm app.vue`
 - `npm run dev` -> Should be a decent looking homepage now in Inter font with a h1, some body copy and two buttons
-- `^ + c`
-- `npm run test spec/pages/index.spec.js` -> homepage tests should pass now
+- split your terminal to open a second terminal pane
+  - `cd ~/app/frontend`
+  - `npm run test spec/e2e/home.spec.js` -> homepage tests should pass now
+  - `^ + c` in second terminal
+- `^ + c` in first terminal
 
 ### Header/Footer Specs
 - `cd ~/app/frontend`
