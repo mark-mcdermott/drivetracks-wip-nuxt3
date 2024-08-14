@@ -177,7 +177,7 @@ global.useAuth = vi.fn(() => { return { status: 'unauthenticated' } })
 import { createPage, setup } from '@nuxt/test-utils/e2e'
 import { describe, expect, it } from 'vitest'
 
-describe('login page', async () => {
+describe('home page', async () => {
   await setup({
     host: 'http://localhost:3001',
   })
@@ -495,45 +495,69 @@ it('can mount some component', async () => {
 - `touch spec/e2e/public.spec.js spec/e2e/private.spec.js`
 - make `~/app/frontend/specs/e2e/public.spec.js` look like this:
 ```
-import { mount } from '@vue/test-utils'
+import { createPage, setup } from '@nuxt/test-utils/e2e'
 import { describe, expect, it } from 'vitest'
-import publicPage from './../../pages/public.vue'
 
-describe('Public page has correct copy', () => {
-  it('has correct h1 text', () => {
-    expect(mount(publicPage).find("h1").text()).toBe('Public');
+describe('public page', async () => {
+  await setup({
+    host: 'http://localhost:3001/public',
   })
-  it('has correct p text', () => {
-    expect(mount(publicPage).find("p").text()).toContain("Looked at from one side, the wall enclosed a barren sixty-acre field called the Port of Anarres. On the field there were a couple of large gantry cranes, a rocket pad, three warehouses, a truck garage, and a dormitory. The dormitory looked durable, grimy, and mournful; it had no gardens, no children; plainly nobody lived there or was even meant to stay there long. It was in fact a quarantine. The wall shut in not only the landing field but also the ships that came down out of space, and the men that came on the ships, and the worlds they came from, and the rest of the universe. It enclosed the universe, leaving Anarres outside, free.");
+
+  it('displays the correct h1 text', async () => {
+    const publicPage = await createPage('/')
+    const h1 = await publicPage.locator('.page h1')
+    expect(await h1.isVisible()).toBe(true)
+    expect(await h1.textContent()).toContain('Public')
+  })
+
+  it('displays the correct first p tag text', async () => {
+    const publicPage = await createPage('/')
+    const firstP = await publicPage.locator('.page p').nth(0)  // First p tag
+    expect(await firstP.isVisible()).toBe(true)
+    expect(await firstP.textContent()).toContain('Looked at from one side, the wall enclosed a barren sixty-acre field called the Port of Anarres. On the field there were a couple of large gantry cranes, a rocket pad, three warehouses, a truck garage, and a dormitory. The dormitory looked durable, grimy, and mournful; it had no gardens, no children; plainly nobody lived there or was even meant to stay there long. It was in fact a quarantine. The wall shut in not only the landing field but also the ships that came down out of space, and the men that came on the ships, and the worlds they came from, and the rest of the universe. It enclosed the universe, leaving Anarres outside, free.')
+  })
+
+  it('displays the correct second p tag text', async () => {
+    const publicPage = await createPage('/')
+    const secondP = await publicPage.locator('.page p').nth(1)  // Second p tag
+    expect(await secondP.isVisible()).toBe(true)
+    expect(await secondP.textContent()).toContain('Looked at from the other side, the wall enclosed Anarres: the whole planet was inside it, a great prison camp, cut off from other worlds and other men, in quarantine.')
   })
 })
 ```
 - make `~/app/frontend/specs/pages/private.spec.js` look like this:
 ```
-import { mount } from '@vue/test-utils'
-import { describe, expect, it, vi } from 'vitest'
-import privatePage from './../../pages/private.vue'
+import { createPage, setup } from '@nuxt/test-utils/e2e'
+import { describe, expect, it } from 'vitest'
 
-vi.stubGlobal("definePageMeta", () => {})
-vi.stubGlobal("ref", (initialValue) => { return { value: initialValue } })
-
-describe('Private page has correct copy', () => {
-  it('has correct h1 text', () => {
-    expect(mount(privatePage).find("h1").text()).toBe('Private');
+describe('private page', async () => {
+  await setup({
+    host: 'http://localhost:3001/private',
   })
-  it('has correct p text', () => {
-    expect(mount(privatePage).find("p").text()).toContain("A number of people were coming along the road towards the landing field, or standing around where the road cut through the wall. People often came out from the nearby city of Abbenay in hopes of seeing a spaceship, or simply to see the wall. After all, it was the only boundary wall on their world. Nowhere else could they see a sign that said No Trespassing. Adolescents, particularly, were drawn to it. They came up to the wall; they sat on it. There might be a gang to watch, offloading crates from track trucks at the warehouses. There might even be a freighter on the pad. Freighters came down only eight times a year, unannounced except to syndics actually working at the Port, so when the spectators were lucky enough to see one they were excited, at first. But there they sat, and there it sat, a squat black tower in a mess of movable cranes, away off across the field. And then a woman came over from one of the warehouse crews and said, “We’re shutting down for today, brothers.” She was wearing the Defense armband, a sight almost as rare as a spaceship. That was a bit of a thrill. But though her tone was mild, it was final. She was the foreman of this gang, and if provoked would be backed up by her syndics. And anyhow there wasn’t anything to see. The aliens, the offworlders, stayed hiding in their ship. No show.");
+
+  it('displays the correct h1 text', async () => {
+    const privatePage = await createPage('/')
+    const h1 = await privatePage.locator('.page h1')
+    expect(await h1.isVisible()).toBe(true)
+    expect(await h1.textContent()).toContain('Private')
+  })
+
+  it('displays the correct first p tag text', async () => {
+    const privatePage = await createPage('/')
+    const p = await privatePage.locator('.page p').nth(0)  // First p tag
+    expect(await p.isVisible()).toBe(true)
+    expect(await p.textContent()).toContain('A number of people were coming along the road towards the landing field, or standing around where the road cut through the wall. People often came out from the nearby city of Abbenay in hopes of seeing a spaceship, or simply to see the wall. After all, it was the only boundary wall on their world. Nowhere else could they see a sign that said No Trespassing. Adolescents, particularly, were drawn to it. They came up to the wall; they sat on it. There might be a gang to watch, offloading crates from track trucks at the warehouses. There might even be a freighter on the pad. Freighters came down only eight times a year, unannounced except to syndics actually working at the Port, so when the spectators were lucky enough to see one they were excited, at first. But there they sat, and there it sat, a squat black tower in a mess of movable cranes, away off across the field. And then a woman came over from one of the warehouse crews and said, “We’re shutting down for today, brothers.” She was wearing the Defense armband, a sight almost as rare as a spaceship. That was a bit of a thrill. But though her tone was mild, it was final. She was the foreman of this gang, and if provoked would be backed up by her syndics. And anyhow there wasn’t anything to see. The aliens, the offworlders, stayed hiding in their ship. No show.')
   })
 })
 ```
 
 ### Subpages
-- `cd ~/app/frontend/pages`
-- `touch public.vue private.vue`
+- `cd ~/app/frontend`
+- `touch pages/public.vue pages/private.vue`
 - make `~/app/frontend/pages/public.vue` look like this:
 ```
 <template>
-  <UiContainer class="relative flex flex-col py-10 lg:py-20">
+  <UiContainer class="page relative flex flex-col py-10 lg:py-20">
     <div
       class="absolute inset-0 z-[-2] h-full w-full bg-transparent bg-[linear-gradient(to_right,_theme(colors.border)_1px,_transparent_1px),linear-gradient(to_bottom,_theme(colors.border)_1px,_transparent_1px)] bg-[size:80px_80px] [mask-image:radial-gradient(#000,_transparent_80%)]"
     />
@@ -556,7 +580,7 @@ describe('Private page has correct copy', () => {
 - make `~/app/frontend/pages/private.vue` look like this:
 ```
 <template>
-  <UiContainer class="relative flex flex-col py-10 lg:py-20">
+  <UiContainer class="page relative flex flex-col py-10 lg:py-20">
     <div
       class="absolute inset-0 z-[-2] h-full w-full bg-transparent bg-[linear-gradient(to_right,_theme(colors.border)_1px,_transparent_1px),linear-gradient(to_bottom,_theme(colors.border)_1px,_transparent_1px)] bg-[size:80px_80px] [mask-image:radial-gradient(#000,_transparent_80%)]"
     />
