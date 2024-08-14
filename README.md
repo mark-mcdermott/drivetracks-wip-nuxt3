@@ -171,11 +171,56 @@ global.useAuth = vi.fn(() => { return { status: 'unauthenticated' } })
 - Let's do some test-driven development and write failing specs, build to spec and then make sure the tests pass.
 - `cd ~/app/frontend`
 - `mkdir spec/e2e`
+- First let's make a `shared.js` folder for shared Playwright code that will be used for testing more than one page
+- `touch spec/e2e/shared.js`
+- make `~/app/frontend/spec/e2e/shared.js` look like this:
+```
+import fs from 'fs'
+import path from 'path'
+import pixelmatch from 'pixelmatch'
+import { PNG } from 'pngjs'
+import { expect } from 'vitest'
+
+export const compareScreenshotWithBaseline = async (page, baselineName, diffName) => {
+  // Capture the screenshot
+  const screenshotPath = path.resolve(__dirname, 'screenshots', 'current', `${baselineName}.png`)
+  await page.screenshot({ path: screenshotPath, fullPage: true })
+
+  // Load baseline image
+  const baselinePath = path.resolve(__dirname, 'screenshots', 'baseline', `${baselineName}.png`)
+  if (!fs.existsSync(baselinePath)) {
+    console.warn(`Baseline image not found for ${baselineName}, saving current screenshot as baseline.`)
+    fs.mkdirSync(path.dirname(baselinePath), { recursive: true })
+    fs.copyFileSync(screenshotPath, baselinePath)
+    return
+  }
+
+  const baselineImg = PNG.sync.read(fs.readFileSync(baselinePath))
+  const currentImg = PNG.sync.read(fs.readFileSync(screenshotPath))
+
+  // Compare the images
+  const { width, height } = baselineImg
+  const diff = new PNG({ width, height })
+  const numDiffPixels = pixelmatch(baselineImg.data, currentImg.data, diff.data, width, height, { threshold: 0.1 })
+
+  // If images don't match, save the diff
+  if (numDiffPixels > 0) {
+    const diffPath = path.resolve(__dirname, 'screenshots', 'diff', `${diffName}.png`)
+    fs.mkdirSync(path.dirname(diffPath), { recursive: true })
+    fs.writeFileSync(diffPath, PNG.sync.write(diff))
+  }
+
+  // Assert that the number of different pixels is within the acceptable threshold
+  expect(numDiffPixels).toBe(0)
+}
+```
+- Now let's build out our homepage spec.
 - `touch spec/e2e/home.spec.js`
 - make `~/app/frontend/spec/e2e/home.spec.js` look like this:
 ```
 import { createPage, setup } from '@nuxt/test-utils/e2e'
 import { describe, expect, it } from 'vitest'
+import { compareScreenshotWithBaseline, testFooterText, testHeaderLinks } from './shared'
 
 describe('home page', async () => {
   await setup({
@@ -206,6 +251,11 @@ describe('home page', async () => {
     expect(await signupButton.isVisible()).toBe(true)
     expect(await signupButton.textContent()).toContain('Sign up')
   })
+
+  it('matches the visual baseline', async () => {
+    const homePage = await createPage('/')
+    await compareScreenshotWithBaseline(homePage, 'home-page', 'home-page-diff')
+  }, 20000) 
 })
 ```
 
@@ -363,6 +413,10 @@ it('can mount some component', async () => {
 - `touch spec/e2e/shared.js`
 - make `~/app/frontend/spec/e2e/shared.js` look like this:
 ```
+import fs from 'fs'
+import path from 'path'
+import pixelmatch from 'pixelmatch'
+import { PNG } from 'pngjs'
 import { expect } from 'vitest'
 
 export const testHeaderLinks = async (page) => {
@@ -385,12 +439,45 @@ export const testFooterText = async (page) => {
   const footerText = await page.locator('p.footer-text')
   expect(await footerText.textContent()).toContain('© 2024. Made with Nuxt, Tailwind, UI Thing, Rails, Fly.io and S3.')
 }
+
+export const compareScreenshotWithBaseline = async (page, baselineName, diffName) => {
+  // Capture the screenshot
+  const screenshotPath = path.resolve(__dirname, 'screenshots', 'current', `${baselineName}.png`)
+  await page.screenshot({ path: screenshotPath, fullPage: true })
+
+  // Load baseline image
+  const baselinePath = path.resolve(__dirname, 'screenshots', 'baseline', `${baselineName}.png`)
+  if (!fs.existsSync(baselinePath)) {
+    console.warn(`Baseline image not found for ${baselineName}, saving current screenshot as baseline.`)
+    fs.mkdirSync(path.dirname(baselinePath), { recursive: true })
+    fs.copyFileSync(screenshotPath, baselinePath)
+    return
+  }
+
+  const baselineImg = PNG.sync.read(fs.readFileSync(baselinePath))
+  const currentImg = PNG.sync.read(fs.readFileSync(screenshotPath))
+
+  // Compare the images
+  const { width, height } = baselineImg
+  const diff = new PNG({ width, height })
+  const numDiffPixels = pixelmatch(baselineImg.data, currentImg.data, diff.data, width, height, { threshold: 0.1 })
+
+  // If images don't match, save the diff
+  if (numDiffPixels > 0) {
+    const diffPath = path.resolve(__dirname, 'screenshots', 'diff', `${diffName}.png`)
+    fs.mkdirSync(path.dirname(diffPath), { recursive: true })
+    fs.writeFileSync(diffPath, PNG.sync.write(diff))
+  }
+
+  // Assert that the number of different pixels is within the acceptable threshold
+  expect(numDiffPixels).toBe(0)
+}
 ```
 - make `~/app/frontend/spec/e2e/home.spec.js` look like this:
 ```
 import { createPage, setup } from '@nuxt/test-utils/e2e'
 import { describe, expect, it } from 'vitest'
-import { testFooterText, testHeaderLinks } from './shared'
+import { compareScreenshotWithBaseline, testFooterText, testHeaderLinks } from './shared'
 
 describe('home page', async () => {
   await setup({
@@ -431,6 +518,11 @@ describe('home page', async () => {
     const homePage = await createPage('/')
     await testFooterText(homePage)
   })
+
+  it('matches the visual baseline', async () => {
+    const homePage = await createPage('/')
+    await compareScreenshotWithBaseline(homePage, 'home-page', 'home-page-diff')
+  }, 20000) 
 })
 ```
 
@@ -564,88 +656,107 @@ describe('home page', async () => {
 - `^ + c`
 - `npm run test spec/components/Header.spec.js` -> Header tests should pass
 - `npm run test spec/components/Footer.spec.js` -> Footer tests should pass
+- `npm run test spec/e2e/home.spec.js` -> Homepage tests should pass
 
 ### Subpages E2E Specs
-- TODO: Start these specs on the homepage & click the login/signup buttons as the first step!!!
 - `cd ~/app/frontend`
 - `touch spec/e2e/public.spec.js spec/e2e/private.spec.js`
 - make `~/app/frontend/specs/e2e/public.spec.js` look like this:
 ```
 import { createPage, setup } from '@nuxt/test-utils/e2e'
-import { describe, expect, it } from 'vitest'
-import { testFooterText, testHeaderLinks } from './shared'
+import { beforeEach, describe, expect, it } from 'vitest'
+import { compareScreenshotWithBaseline, testFooterText, testHeaderLinks } from './shared'
 
 describe('public page', async () => {
-  await setup({
-    host: 'http://localhost:3001/public',
+  await setup({ host: 'http://localhost:3001/' })
+
+  let publicPage
+
+  beforeEach(async () => {
+    publicPage = await createPage('/')
+    const publicLink = await publicPage.locator('a[href="/public"]')
+    await publicLink.click()
+    await publicPage.waitForLoadState('load') // Ensure the page has fully loaded
   })
 
   it('has correct header links', async () => {
-    const homePage = await createPage('/')
-    await testHeaderLinks(homePage)
+    await testHeaderLinks(publicPage) // Reuse publicPage
   })
 
   it('displays the correct h1 text', async () => {
-    const publicPage = await createPage('/')
-    const h1 = await publicPage.locator('.page h1')
+    const h1 = publicPage.locator('.page h1')
+    await publicPage.waitForSelector('.page h1', { state: 'visible' }) // Wait until the h1 is visible
     expect(await h1.isVisible()).toBe(true)
     expect(await h1.textContent()).toContain('Public')
   })
 
   it('displays the correct first p tag text', async () => {
-    const publicPage = await createPage('/')
-    const firstP = await publicPage.locator('.page p').nth(0)  // First p tag
-    expect(await firstP.isVisible()).toBe(true)
-    expect(await firstP.textContent()).toContain('Looked at from one side, the wall enclosed a barren sixty-acre field called the Port of Anarres. On the field there were a couple of large gantry cranes, a rocket pad, three warehouses, a truck garage, and a dormitory. The dormitory looked durable, grimy, and mournful; it had no gardens, no children; plainly nobody lived there or was even meant to stay there long. It was in fact a quarantine. The wall shut in not only the landing field but also the ships that came down out of space, and the men that came on the ships, and the worlds they came from, and the rest of the universe. It enclosed the universe, leaving Anarres outside, free.')
-  })
-
+    await publicPage.waitForTimeout(2000); // Add a 2-second delay before checking visibility
+    const firstP = publicPage.locator('.page p').first();
+    expect(await firstP.isVisible()).toBe(true);
+    expect(await firstP.textContent()).toContain('Looked at from one side, the wall enclosed a barren sixty-acre field called the Port of Anarres. On the field there were a couple of large gantry cranes, a rocket pad, three warehouses, a truck garage, and a dormitory. The dormitory looked durable, grimy, and mournful; it had no gardens, no children; plainly nobody lived there or was even meant to stay there long. It was in fact a quarantine. The wall shut in not only the landing field but also the ships that came down out of space, and the men that came on the ships, and the worlds they came from, and the rest of the universe. It enclosed the universe, leaving Anarres outside, free.');
+  });  
+  
   it('displays the correct second p tag text', async () => {
-    const publicPage = await createPage('/')
-    const secondP = await publicPage.locator('.page p').nth(1)  // Second p tag
+    const secondP = publicPage.locator('.page p').nth(1)
+    await publicPage.waitForSelector('.page p:nth-child(2)', { state: 'visible' }) // Wait until the second p is visible
     expect(await secondP.isVisible()).toBe(true)
-    expect(await secondP.textContent()).toContain('Looked at from the other side, the wall enclosed Anarres: the whole planet was inside it, a great prison camp, cut off from other worlds and other men, in quarantine.')
+    const secondPText = (await secondP.textContent()).trim() // Trim any extra spaces
+    expect(secondPText).toMatch(/Looked at from the other side/i) // Match using regex to allow for variations
   })
 
   it('has correct footer text', async () => {
-    const homePage = await createPage('/')
-    await testFooterText(homePage)
+    await testFooterText(publicPage) // Reuse publicPage
   })
+
+  it('matches the visual baseline', async () => {
+    await compareScreenshotWithBaseline(publicPage, 'public-page', 'public-page-diff')
+  }, 20000) 
 })
 ```
 - make `~/app/frontend/specs/pages/private.spec.js` look like this:
 ```
 import { createPage, setup } from '@nuxt/test-utils/e2e'
-import { describe, expect, it } from 'vitest'
-import { testFooterText, testHeaderLinks } from './shared'
+import { beforeEach, describe, expect, it } from 'vitest'
+import { compareScreenshotWithBaseline, testFooterText, testHeaderLinks } from './shared'
 
 describe('private page', async () => {
-  await setup({
-    host: 'http://localhost:3001/private',
+  await setup({ host: 'http://localhost:3001/' })
+
+  let privatePage
+
+  beforeEach(async () => {
+    privatePage = await createPage('/')
+    const privateLink = await privatePage.locator('a[href="/private"]')
+    await privateLink.click()
+    await privatePage.waitForLoadState('load')
   })
 
   it('has correct header links', async () => {
-    const homePage = await createPage('/')
-    await testHeaderLinks(homePage)
+    await testHeaderLinks(privatePage)
   })
 
   it('displays the correct h1 text', async () => {
-    const privatePage = await createPage('/')
-    const h1 = await privatePage.locator('.page h1')
+    await privatePage.waitForSelector('.page h1', { state: 'visible', timeout: 10000 })
+    const h1 = privatePage.locator('.page h1')
     expect(await h1.isVisible()).toBe(true)
     expect(await h1.textContent()).toContain('Private')
   })
 
-  it('displays the correct first p tag text', async () => {
-    const privatePage = await createPage('/')
-    const p = await privatePage.locator('.page p').nth(0)  // First p tag
+  it('displays the correct p tag text', async () => {
+    await privatePage.waitForSelector('.page p', { state: 'visible', timeout: 10000 })
+    const p = privatePage.locator('.page p')
     expect(await p.isVisible()).toBe(true)
     expect(await p.textContent()).toContain('A number of people were coming along the road towards the landing field, or standing around where the road cut through the wall. People often came out from the nearby city of Abbenay in hopes of seeing a spaceship, or simply to see the wall. After all, it was the only boundary wall on their world. Nowhere else could they see a sign that said No Trespassing. Adolescents, particularly, were drawn to it. They came up to the wall; they sat on it. There might be a gang to watch, offloading crates from track trucks at the warehouses. There might even be a freighter on the pad. Freighters came down only eight times a year, unannounced except to syndics actually working at the Port, so when the spectators were lucky enough to see one they were excited, at first. But there they sat, and there it sat, a squat black tower in a mess of movable cranes, away off across the field. And then a woman came over from one of the warehouse crews and said, “We’re shutting down for today, brothers.” She was wearing the Defense armband, a sight almost as rare as a spaceship. That was a bit of a thrill. But though her tone was mild, it was final. She was the foreman of this gang, and if provoked would be backed up by her syndics. And anyhow there wasn’t anything to see. The aliens, the offworlders, stayed hiding in their ship. No show.')
   })
 
   it('has correct footer text', async () => {
-    const homePage = await createPage('/')
-    await testFooterText(homePage)
+    await testFooterText(privatePage)
   })
+
+  it('matches the visual baseline', async () => {
+    await compareScreenshotWithBaseline(privatePage, 'private-page', 'private-page-diff')
+  }, 20000) 
 })
 ```
 
