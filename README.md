@@ -1230,8 +1230,7 @@ async function register() {
 - `cd ~/app/frontend`
 - `npx ui-thing@latest add card table`
 - `mkdir pages/users`
-- `cd pages/users`
-- `touch index.vue new.vue \[id\].vue`
+- `touch pages/users/index.vue pages/users/new.vue pages/users/\[id\].vue`
 - make `~/app/frontend/pages/users/index.vue` look like this:
 ```
 <script setup lang="ts">
