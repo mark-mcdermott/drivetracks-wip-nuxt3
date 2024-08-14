@@ -199,12 +199,10 @@ describe('home page', async () => {
 
   it('displays the correct buttons with hrefs and text', async () => {
     const homePage = await createPage('/')
-
     const loginButton = await homePage.locator('.hero-buttons a[href="/login"]')
+    const signupButton = await homePage.locator('.hero-buttons a[href="/signup"]')
     expect(await loginButton.isVisible()).toBe(true)
     expect(await loginButton.textContent()).toContain('Log in')
-
-    const signupButton = await homePage.locator('.hero-buttons a[href="/signup"]')
     expect(await signupButton.isVisible()).toBe(true)
     expect(await signupButton.textContent()).toContain('Sign up')
   })
@@ -357,6 +355,68 @@ it('can mount some component', async () => {
     expect(component.text()).toMatchInlineSnapshot(
         '"© 2024. Made with Nuxt, Tailwind, UI Thing, Rails, Fly.io and S3."'
     )
+})
+```
+
+### Updated Homepage Spec for Header/Footer
+- Let's add some header and footer checks on the homepage spec
+- make `~/app/frontend/spec/e2e/home.spec.js` look like this:
+```
+import { createPage, setup } from '@nuxt/test-utils/e2e'
+import { describe, expect, it } from 'vitest'
+
+describe('home page', async () => {
+  await setup({
+    host: 'http://localhost:3001',
+  })
+
+  it('has correct header links', async () => {
+    const homePage = await createPage('/')
+    const mainNav = await homePage.locator('nav.header-main-nav')
+    const loginNav = await homePage.locator('.header-login-nav')
+    const homeLink = await mainNav.locator('a[href="/"]')
+    const publicLink = await mainNav.locator('a[href="/public"]')
+    const privateLink = await mainNav.locator('a[href="/private"]')
+    const loginLink = await loginNav.locator('a[href="/login"]')
+    const signupLink = await loginNav.locator('a[href="/signup"]')
+    expect(await homeLink.textContent()).toContain('Home')
+    expect(await publicLink.textContent()).toContain('Public')
+    expect(await privateLink.textContent()).toContain('Private')
+    expect(await loginLink.textContent()).toContain('Log in')
+    expect(await signupLink.textContent()).toContain('Sign up')
+  })
+
+  it('displays the correct h1 text', async () => {
+    const homePage = await createPage('/')
+    const h1 = await homePage.locator('h1')
+    expect(await h1.isVisible()).toBe(true)
+    expect(await h1.textContent()).toContain('There was a wall.').and.toContain('It did not look important.')
+  })
+
+  it('displays the correct p text', async () => {
+    const homePage = await createPage('/')
+    const p = await homePage.locator('p.hero-text')
+    expect(await p.isVisible()).toBe(true)
+    expect(await p.textContent()).toContain('It was built of uncut rocks roughly mortared.')
+    expect(await p.textContent()).toContain('an idea of boundary. But the idea was real.')
+  })
+
+  it('displays the correct buttons with hrefs and text', async () => {
+    const homePage = await createPage('/')
+    const loginButton = await homePage.locator('.hero-buttons a[href="/login"]')
+    const signupButton = await homePage.locator('.hero-buttons a[href="/signup"]')
+    expect(await loginButton.isVisible()).toBe(true)
+    expect(await loginButton.textContent()).toContain('Log in')
+    expect(await signupButton.isVisible()).toBe(true)
+    expect(await signupButton.textContent()).toContain('Sign up')
+  })
+
+  it('has correct footer text', async () => {
+    const homePage = await createPage('/')
+    const footer = await homePage.locator('footer')
+    const footerText = await homePage.locator('p.footer-text')
+    expect(await footerText.textContent()).toContain('© 2024. Made with Nuxt, Tailwind, UI Thing, Rails, Fly.io and S3.')
+  })
 })
 ```
 
