@@ -72,7 +72,7 @@ node_modules
 - `cd ~/app/frontend`
   - like in the backend `fly launch` line above, your fly.io frontend app name has to be unique in their system, so you may have to run this a few times with different names after the `--name ` part until you find a unique one that works
   - `fly launch --name app-frontend`
-    - hit enter when it asks you questions
+    - hit enter (for "no") when it asks a question about wanting to tweak the settings
     - copy the frontend app url it gives you at the end of all the output and paste it into your `.env` file at the `frontend url:` line
 - in a browser, go to your fly.io frontend app url. You should see the default Nuxt placeholder homepage.
 
