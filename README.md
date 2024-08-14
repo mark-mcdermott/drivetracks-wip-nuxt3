@@ -170,29 +170,43 @@ global.useAuth = vi.fn(() => { return { status: 'unauthenticated' } })
 ### Homepage Spec
 - Let's do some test-driven development and write failing specs, build to spec and then make sure the tests pass.
 - `cd ~/app/frontend`
-- `mkdir spec/pages`
-- `touch spec/pages/index.spec.js`
-- make `~/app/frontend/specs/pages/index.spec.js` look like this:
+- `mkdir spec/e2e`
+- `touch spec/e2e/home.spec.js`
+- make `~/app/frontend/specs/e2e/home.spec.js` look like this:
 ```
-import { mount } from '@vue/test-utils'
+import { createPage, setup } from '@nuxt/test-utils/e2e'
 import { describe, expect, it } from 'vitest'
-import home from './../../pages/index.vue'
 
-describe('Home page', () => {
-  it('is a Vue instance', () => {
-    expect(mount(home).vm).toBeTruthy()
+describe('login page', async () => {
+  await setup({
+    host: 'http://localhost:3001',
   })
-})
 
-describe('Home page has correct copy', () => {
-  it('has correct h1 text', () => {
-    const wrapper = mount(home)
-    const h1 = wrapper.find('h1')
-    expect(h1.exists()).toBe(true)
-    expect(h1.text()).toContain('There was a wall.').and.toContain('It did not look important.')
+  it('displays the correct h1 text', async () => {
+    const homePage = await createPage('/')
+    const h1 = await homePage.locator('h1')
+    expect(await h1.isVisible()).toBe(true)
+    expect(await h1.textContent()).toContain('There was a wall.').and.toContain('It did not look important.')
   })
-  it('has correct p text', () => {
-    expect(mount(home).find("p").text()).toContain('It was built of uncut rocks roughly mortared.');
+
+  it('displays the correct p text', async () => {
+    const homePage = await createPage('/')
+    const p = await homePage.locator('p.hero-text')
+    expect(await p.isVisible()).toBe(true)
+    expect(await p.textContent()).toContain('It was built of uncut rocks roughly mortared.')
+    expect(await p.textContent()).toContain('an idea of boundary. But the idea was real.')
+  })
+
+  it('displays the correct buttons with hrefs and text', async () => {
+    const homePage = await createPage('/')
+
+    const loginButton = await homePage.locator('.hero-buttons a[href="/login"]')
+    expect(await loginButton.isVisible()).toBe(true)
+    expect(await loginButton.textContent()).toContain('Log in')
+
+    const signupButton = await homePage.locator('.hero-buttons a[href="/signup"]')
+    expect(await signupButton.isVisible()).toBe(true)
+    expect(await signupButton.textContent()).toContain('Sign up')
   })
 })
 ```
@@ -262,15 +276,15 @@ export default defineNuxtConfig({
 ```
 <template>
   <UiContainer class="relative flex flex-col items-center py-10 text-center lg:py-20">
-    <h1 class="mb-4 mt-7 text-4xl font-bold lg:mb-6 lg:mt-5 lg:text-center lg:text-5xl xl:text-6xl">
+    <h1 class="hero-h-1 mb-4 mt-7 text-4xl font-bold lg:mb-6 lg:mt-5 lg:text-center lg:text-5xl xl:text-6xl">
       There was a wall.<br>It did not look important.
     </h1>
-    <p class="mx-auto max-w-[768px] tracking-tight text-lg text-muted-foreground lg:text-center lg:text-xl">
+    <p class="hero-text mx-auto max-w-[768px] tracking-tight text-lg text-muted-foreground lg:text-center lg:text-xl">
       It was built of uncut rocks roughly mortared. An adult could look right over it, and even a child could climb it. Where it crossed the roadway, instead of having a gate it degenerated into mere geometry, a line, an idea of boundary. But the idea was real.
     </p>
-    <div class="mt-8 grid w-full grid-cols-1 items-center gap-3 sm:flex sm:justify-center lg:mt-10">
+    <div class="hero-buttons mt-8 grid w-full grid-cols-1 items-center gap-3 sm:flex sm:justify-center lg:mt-10">
       <UiButton to="/login" size="lg" variant="outline">
-        Login
+        Log in
       </UiButton>
       <UiButton to="/signup" size="lg">
         Sign up
