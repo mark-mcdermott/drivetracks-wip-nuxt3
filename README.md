@@ -289,7 +289,6 @@ export default defineNuxtConfig({
 - `mkdir spec/components`
 - `cd spec/components`
 - `touch Header.spec.js Footer.spec.js`
-
 - make `~/app/frontend/specs/components/Header.spec.js` look like this:
 ```
 import { mount } from '@vue/test-utils'
