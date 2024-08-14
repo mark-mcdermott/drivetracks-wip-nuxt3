@@ -566,6 +566,7 @@ describe('home page', async () => {
 - `npm run test spec/components/Footer.spec.js` -> Footer tests should pass
 
 ### Subpages E2E Specs
+- TODO: Start these specs on the homepage & click the login/signup buttons as the first step!!!
 - `cd ~/app/frontend`
 - `touch spec/e2e/public.spec.js spec/e2e/private.spec.js`
 - make `~/app/frontend/specs/e2e/public.spec.js` look like this:
@@ -703,6 +704,9 @@ describe('private page', async () => {
   - `^ + c` in second terminal
   - close second terminal
 - `^ + c` in first terminal
+
+### Login/Signup E2E Specs
+- TODO!!!
 
 ### Auth
 - `cd ~/app/frontend`
