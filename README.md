@@ -167,7 +167,7 @@ global.ref = vi.fn((initialValue) => { return { value: initialValue } })
 global.useAuth = vi.fn(() => { return { status: 'unauthenticated' } })
 ```
 
-### Homepage Spec
+### Homepage E2E Spec
 - Let's do some test-driven development and write failing specs, build to spec and then make sure the tests pass.
 - `cd ~/app/frontend`
 - `mkdir spec/e2e`
@@ -300,7 +300,7 @@ export default defineNuxtConfig({
   - close second terminal
 - `^ + c` in first terminal
 
-### Header/Footer Specs
+### Header/Footer Component Specs
 - `cd ~/app/frontend`
 - `mkdir spec/components`
 - `cd spec/components`
@@ -565,17 +565,23 @@ describe('home page', async () => {
 - `npm run test spec/components/Header.spec.js` -> Header tests should pass
 - `npm run test spec/components/Footer.spec.js` -> Footer tests should pass
 
-### Subpages Specs
+### Subpages E2E Specs
 - `cd ~/app/frontend`
 - `touch spec/e2e/public.spec.js spec/e2e/private.spec.js`
 - make `~/app/frontend/specs/e2e/public.spec.js` look like this:
 ```
 import { createPage, setup } from '@nuxt/test-utils/e2e'
 import { describe, expect, it } from 'vitest'
+import { testFooterText, testHeaderLinks } from './shared'
 
 describe('public page', async () => {
   await setup({
     host: 'http://localhost:3001/public',
+  })
+
+  it('has correct header links', async () => {
+    const homePage = await createPage('/')
+    await testHeaderLinks(homePage)
   })
 
   it('displays the correct h1 text', async () => {
@@ -598,16 +604,27 @@ describe('public page', async () => {
     expect(await secondP.isVisible()).toBe(true)
     expect(await secondP.textContent()).toContain('Looked at from the other side, the wall enclosed Anarres: the whole planet was inside it, a great prison camp, cut off from other worlds and other men, in quarantine.')
   })
+
+  it('has correct footer text', async () => {
+    const homePage = await createPage('/')
+    await testFooterText(homePage)
+  })
 })
 ```
 - make `~/app/frontend/specs/pages/private.spec.js` look like this:
 ```
 import { createPage, setup } from '@nuxt/test-utils/e2e'
 import { describe, expect, it } from 'vitest'
+import { testFooterText, testHeaderLinks } from './shared'
 
 describe('private page', async () => {
   await setup({
     host: 'http://localhost:3001/private',
+  })
+
+  it('has correct header links', async () => {
+    const homePage = await createPage('/')
+    await testHeaderLinks(homePage)
   })
 
   it('displays the correct h1 text', async () => {
@@ -622,6 +639,11 @@ describe('private page', async () => {
     const p = await privatePage.locator('.page p').nth(0)  // First p tag
     expect(await p.isVisible()).toBe(true)
     expect(await p.textContent()).toContain('A number of people were coming along the road towards the landing field, or standing around where the road cut through the wall. People often came out from the nearby city of Abbenay in hopes of seeing a spaceship, or simply to see the wall. After all, it was the only boundary wall on their world. Nowhere else could they see a sign that said No Trespassing. Adolescents, particularly, were drawn to it. They came up to the wall; they sat on it. There might be a gang to watch, offloading crates from track trucks at the warehouses. There might even be a freighter on the pad. Freighters came down only eight times a year, unannounced except to syndics actually working at the Port, so when the spectators were lucky enough to see one they were excited, at first. But there they sat, and there it sat, a squat black tower in a mess of movable cranes, away off across the field. And then a woman came over from one of the warehouse crews and said, “We’re shutting down for today, brothers.” She was wearing the Defense armband, a sight almost as rare as a spaceship. That was a bit of a thrill. But though her tone was mild, it was final. She was the foreman of this gang, and if provoked would be backed up by her syndics. And anyhow there wasn’t anything to see. The aliens, the offworlders, stayed hiding in their ship. No show.')
+  })
+
+  it('has correct footer text', async () => {
+    const homePage = await createPage('/')
+    await testFooterText(homePage)
   })
 })
 ```
