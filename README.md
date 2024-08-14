@@ -291,32 +291,54 @@ export default defineNuxtConfig({
 - `touch Header.spec.js Footer.spec.js`
 - make `~/app/frontend/specs/components/Header.spec.js` look like this:
 ```
-import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
-import Header from './../../components/Header.vue'
+import { Header } from '#components';
+import { mountSuspended } from '@nuxt/test-utils/runtime';
+import { beforeAll, describe, expect, it } from 'vitest';
 
-describe('Header', () => {
-  const header = mount(Header)
-  it('is a Vue instance', () => { expect(header.vm).toBeTruthy() })
-  it('has correct link text', () => {
-    expect(header.find('uibutton[to="/"]').text()).toContain("Home")
-    expect(header.find('uibutton[to="/public"]').text()).toContain("Public")
-    expect(header.find('uibutton[to="/private"]').text()).toContain("Private")
+describe('Header component', () => {
+
+  let header;
+  beforeAll(async () => {
+    header = await mountSuspended(Header)
+    await header.vm.$nextTick()
   })
+
+  it('has a main navigation', async () => {
+    const mainNav = await header.find('nav.header-main-nav')
+    expect(mainNav.exists()).toBe(true)
+  })
+
+  it('contains correct main navigation links', async () => {
+    const mainNav = await header.find('nav.header-main-nav')
+    expect(mainNav.find('a[href="/"]').text()).toContain('Home')
+    expect(mainNav.find('a[href="/public"]').text()).toContain('Public')
+    expect(mainNav.find('a[href="/private"]').text()).toContain('Private')
+  })
+
+  it('has a login navigation', async () => {
+    const loginNav = await header.find('.header-login-nav')
+    expect(loginNav.exists()).toBe(true)
+  })
+
+  it('contains correct login navigation links', async () => {
+    const loginNav = await header.find('.header-login-nav')
+    expect(loginNav.find('a[href="/login"]').text()).toContain('Log in')
+    expect(loginNav.find('a[href="/signup"]').text()).toContain('Sign up')
+  })
+
 })
 ```
 - make `~/app/frontend/specs/components/Footer.spec.js` look like this:
 ```
-import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
-import Footer from './../../components/Footer.vue'
+import { Footer } from '#components';
+import { mountSuspended } from '@nuxt/test-utils/runtime';
+import { expect, it } from "vitest";
 
-describe('Footer', () => {
-  const footer = mount(Footer)
-  it('has correct text', () => {
-    const p = footer.find("p")
-    expect(p.text()).toContain("© 2024. Made with Nuxt, Tailwind, UI Thing, Rails, Fly.io and S3.")
-  })
+it('can mount some component', async () => {
+    const component = await mountSuspended(Footer)
+    expect(component.text()).toMatchInlineSnapshot(
+        '"© 2024. Made with Nuxt, Tailwind, UI Thing, Rails, Fly.io and S3."'
+    )
 })
 ```
 
@@ -342,7 +364,7 @@ describe('Footer', () => {
     <UiContainer class="flex h-16 items-center justify-between md:h-20">
       <div class="flex items-center gap-10">
         <Logo />
-        <UiNavigationMenu as="nav" class="hidden items-center justify-start gap-8 md:flex">
+        <UiNavigationMenu as="nav" class="header-main-nav hidden items-center justify-start gap-8 md:flex">
           <UiNavigationMenuList class="gap-2">
             <UiNavigationMenuItem>
               <UiNavigationMenuLink as-child>
@@ -403,11 +425,11 @@ describe('Footer', () => {
           </UiSheetTrigger>
         </UiSheet>
       </div>
-      <div class="hidden items-center gap-3 md:flex">
-        <UiButton to="#" variant="ghost" size="sm">
+      <div class="header-login-nav hidden items-center gap-3 md:flex">
+        <UiButton to="/login" variant="ghost" size="sm">
           Log in
         </UiButton>
-        <UiButton to="#" size="sm">
+        <UiButton to="/signup" size="sm">
           Sign up
         </UiButton>
       </div>
