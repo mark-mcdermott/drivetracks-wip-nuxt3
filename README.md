@@ -299,6 +299,7 @@ export default defineNuxtConfig({
   - `cd ~/app/frontend`
   - `npm run test spec/e2e/home.spec.js` -> homepage tests should pass now
   - `^ + c` in second terminal
+  - close second terminal
 - `^ + c` in first terminal
 
 ### Header/Footer Specs
@@ -599,7 +600,13 @@ describe('private page', async () => {
 ```
 - `cd ~/app/frontend`
 - `npm run dev` -> home, public & private links work (private page is not yet locked)
-- `^ + c`
+- split your terminal to open a second terminal pane
+  - `cd ~/app/frontend`
+  - `npm run test spec/e2e/public.spec.js` -> public tests should pass now
+  - `npm run test spec/e2e/private.spec.js` -> private tests should pass now
+  - `^ + c` in second terminal
+  - close second terminal
+- `^ + c` in first terminal
 
 ### Auth
 - `cd ~/app/frontend`
