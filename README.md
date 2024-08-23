@@ -354,8 +354,7 @@ export default defineNuxtConfig({
 ### Header/Footer Component Specs
 - `cd ~/app/frontend`
 - `mkdir spec/components`
-- `cd spec/components`
-- `touch Header.spec.js Footer.spec.js`
+- `touch spec/components/Header.spec.js spec/components/Footer.spec.js`
 - make `~/app/frontend/specs/components/Header.spec.js` look like this:
 ```
 import { Header } from '#components';
