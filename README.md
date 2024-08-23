@@ -539,7 +539,7 @@ describe('home page', async () => {
 - `cd ~/app/frontend`
 - `npx ui-thing@latest add container navigation-menu sheet scroll-area collapsible`
 - `cd components`
-- `touch Logo.vue Header.vue Footer.vue`
+- `touch components/Logo.vue components/Header.vue components/Footer.vue`
 - make `~/app/frontend/components/Logo.vue` look like this:
 ```
 <template>
