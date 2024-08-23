@@ -170,6 +170,7 @@ global.useAuth = vi.fn(() => { return { status: 'unauthenticated' } })
 ### Homepage E2E Spec
 - Let's do some test-driven development and write failing specs, build to spec and then make sure the tests pass.
 - `cd ~/app/frontend`
+- `npm install pixelmatch`
 - `mkdir spec/e2e`
 - First let's make a `shared.js` folder for shared Playwright code that will be used for testing more than one page
 - `touch spec/e2e/shared.js`
