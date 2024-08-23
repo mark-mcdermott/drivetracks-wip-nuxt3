@@ -349,6 +349,12 @@ export default defineNuxtConfig({
 - split your terminal to open a second terminal pane
   - `cd ~/app/frontend`
   - `npm run test spec/e2e/home.spec.js` -> homepage tests should pass now
+  - note that on first run, pixelmatch screenshot comparison creates some folders/files:
+    - `~/app/frontend/spec/e2e/screenshots`
+    - `~/app/frontend/spec/e2e/screenshots/baseline`
+    - `~/app/frontend/spec/e2e/screenshots/current`
+    - `~/app/frontend/spec/e2e/screenshots/baseline/home-page.png`
+    - `~/app/frontend/spec/e2e/screenshots/current/home-page.png`
   - `^ + c` in second terminal
   - close second terminal
 - `^ + c` in first terminal
