@@ -316,7 +316,7 @@ export default defineNuxtConfig({
 </template>
 ```
 
-### Home Page
+### Standalone Homepage (No Header/Footer Yet)
 - `cd ~/app/frontend`
 - `npx ui-thing@latest add container badge button gradient-divider`
 - `mkdir pages`
@@ -344,6 +344,8 @@ export default defineNuxtConfig({
 ```
 - `rm app.vue`
 - `npm run dev` -> Should be a decent looking homepage now in Inter font with a h1, some body copy and two buttons
+
+### Run Standalone Homepage Tests
 - split your terminal to open a second terminal pane
   - `cd ~/app/frontend`
   - `npm run test spec/e2e/home.spec.js` -> homepage tests should pass now
