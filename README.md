@@ -355,6 +355,8 @@ export default defineNuxtConfig({
     - `~/app/frontend/spec/e2e/screenshots/current`
     - `~/app/frontend/spec/e2e/screenshots/baseline/home-page.png`
     - `~/app/frontend/spec/e2e/screenshots/current/home-page.png`
+    - the first run's screenshot comparison isn't very useful because the baseline & current screenshots will always be the same
+  - `npm run test spec/e2e/home.spec.js` -> pixelmatch updates current screenshot and does a useful comparison this time, all tests should still be passing
   - `^ + c` in second terminal
   - close second terminal
 - `^ + c` in first terminal
