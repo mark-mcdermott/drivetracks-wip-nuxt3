@@ -120,15 +120,46 @@ node_modules
 - install VSCode `Vitest` extension
 - `cd ~/app/frontend`
 - `npm install --save-dev @nuxt/test-utils vitest @vue/test-utils happy-dom eslint-plugin-vitest unplugin-auto-import unplugin-vue-components`
+- add `"@nuxt/test-utils/module"` to `~/app/frontend/nuxt.config.ts` so it looks like this:
+```
+export default defineNuxtConfig({
+  runtimeConfig: { public: { apiBase: "http://localhost:3000" } },
+  devServer: { port: 3001 },
+  devtools: { enabled: true },
+  modules: ["@nuxtjs/tailwindcss", "@nuxtjs/color-mode", "@vueuse/nuxt", "@nuxt/test-utils/module"],
+
+  tailwindcss: {
+    exposeConfig: true,
+  },
+
+  colorMode: {
+    classSuffix: "",
+  },
+
+  imports: {
+    imports: [
+      {
+        from: "tailwind-variants",
+        name: "tv",
+      },
+      {
+        from: "tailwind-variants",
+        name: "VariantProps",
+        type: true,
+      },
+    ],
+  },
+});
+```
 - `touch vitest.config.ts`
 - make `~/app/frontend/vitest.config.ts` look like this:
 ```
 import vue from '@vitejs/plugin-vue'
 import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
-import { defineConfig } from 'vitest/config'
+import { defineVitestConfig } from "@nuxt/test-utils/config"
 
-export default defineConfig({
+export default defineVitestConfig({
   plugins: [
     vue({ template: { compilerOptions: { isCustomElement: tag => ['Logo', 'UiButton', 'Home', 'UiContainer', 'UiNavigationMenuLink', 'UiNavigationMenuItem', 'UiNavigationMenuList', 'UiNavigationMenu', 'Icon', 'UiSheetTitle', 'UiSheetDescription', 'UiSheetX', 'UiGradientDivider', 'UiScrollArea', 'UiSheetContent', 'UiSheetTrigger', 'UiSheet', 'UiAvatar', 'UiDropdownMenuTrigger', 'UiDropdownMenuItem', 'UiDropdownMenuSeparator', 'UiDropdownMenuContent', 'UiDropdownMenu', 'NuxtLink'].includes(tag) } } }),
     AutoImport({ imports: ['vue', 'vue-router'] }),
@@ -537,6 +568,7 @@ describe('home page', async () => {
 
 ### Header & Footer
 - `cd ~/app/frontend`
+- `npx nuxi module add icon`
 - `npx ui-thing@latest add container navigation-menu sheet scroll-area collapsible`
 - `cd components`
 - `touch components/Logo.vue components/Header.vue components/Footer.vue`
@@ -836,7 +868,7 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   runtimeConfig: { public: { apiBase: 'http://localhost:3000' } },
   devServer: { port: 3001 },
-  modules: ['@nuxtjs/tailwindcss', '@nuxtjs/color-mode', '@vueuse/nuxt', 'nuxt-icon', '@sidebase/nuxt-auth'],
+  modules: ['@nuxtjs/tailwindcss', '@nuxtjs/color-mode', '@vueuse/nuxt', '@nuxt-icon', '@sidebase/nuxt-auth'],
   imports: {
     imports: [
       { from: 'tailwind-variants', name: 'tv' },
