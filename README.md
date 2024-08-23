@@ -412,7 +412,6 @@ it('can mount some component', async () => {
 
 ### Updated Homepage Spec for Header/Footer
 - Now that we'll have a header and footer on the homepage, let's add some header and footer checks on the homepage spec.
-- `touch spec/e2e/shared.js`
 - make `~/app/frontend/spec/e2e/shared.js` look like this:
 ```
 import fs from 'fs'
