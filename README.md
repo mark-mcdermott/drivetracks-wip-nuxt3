@@ -119,11 +119,11 @@ AWS details:
 - open `~/app/frontend/nuxt.config.ts`
 - `npm run lint:fix` -> you will see it add a trailing comma to fix the ESLint violation
 
-### Vitest
+### Vitest & Playwright Tests
 - We'll use Nuxt testing as [described in the Nuxt docs](https://nuxt.com/docs/getting-started/testing), which uses `@nuxt/test-utils`, [Vitest](https://vitest.dev) and [Playwright](https://playwright.dev).
 - install VSCode `Vitest` extension
 - `cd ~/app/frontend`
-- `npm install --save-dev @nuxt/test-utils vitest @vue/test-utils happy-dom eslint-plugin-vitest unplugin-auto-import unplugin-vue-components pixelmatch`
+- `npm install --save-dev @nuxt/test-utils vitest @vue/test-utils happy-dom eslint-plugin-vitest unplugin-auto-import unplugin-vue-components playwright-core pixelmatch`
 - add `modules: ["@nuxt/test-utils/module"],` to `~/app/frontend/nuxt.config.ts` so it looks like this:
 ```
 export default defineNuxtConfig({
@@ -137,23 +137,6 @@ export default defineNuxtConfig({
 import { defineVitestConfig } from '@nuxt/test-utils/config'
 
 export default defineVitestConfig({ })
-```
-- TODO: below is old, delete?
-- make `~/app/frontend/vitest.config.ts` look like this:
-```
-import vue from '@vitejs/plugin-vue'
-import AutoImport from 'unplugin-auto-import/vite'
-import Components from 'unplugin-vue-components/vite'
-import { defineVitestConfig } from "@nuxt/test-utils/config"
-
-export default defineVitestConfig({
-  plugins: [
-    vue({ template: { compilerOptions: { isCustomElement: tag => ['Logo', 'UiButton', 'Home', 'UiContainer', 'UiNavigationMenuLink', 'UiNavigationMenuItem', 'UiNavigationMenuList', 'UiNavigationMenu', 'Icon', 'UiSheetTitle', 'UiSheetDescription', 'UiSheetX', 'UiGradientDivider', 'UiScrollArea', 'UiSheetContent', 'UiSheetTrigger', 'UiSheet', 'UiAvatar', 'UiDropdownMenuTrigger', 'UiDropdownMenuItem', 'UiDropdownMenuSeparator', 'UiDropdownMenuContent', 'UiDropdownMenu', 'NuxtLink'].includes(tag) } } }),
-    AutoImport({ imports: ['vue', 'vue-router'] }),
-    Components({ dirs: ['components' ], directoryAsNamespace: true }),
-  ],
-  test: { environment: 'happy-dom', setupFiles: ['./spec/mocks/mocks.js'] },
-})
 ```
 - add `plugins: ['vitest'],` to `~/app/frontend/eslint.config.js` so it looks like this:
 ```
@@ -183,114 +166,6 @@ import { vi } from 'vitest';
 global.definePageMeta = vi.fn(() => { });
 global.ref = vi.fn((initialValue) => { return { value: initialValue } })
 global.useAuth = vi.fn(() => { return { status: 'unauthenticated' } })
-```
-
-### Homepage E2E Spec
-- Let's do some test-driven development and write failing specs, build to spec and then make sure the tests pass.
-- `cd ~/app/frontend`
-- `mkdir spec/e2e`
-- First let's make a `shared.js` folder for shared Playwright code that will be used for testing more than one page
-- `touch spec/e2e/shared.js`
-- make `~/app/frontend/spec/e2e/shared.js` look like this:
-```
-import fs from 'fs'
-import path from 'path'
-import pixelmatch from 'pixelmatch'
-import { PNG } from 'pngjs'
-import { expect } from 'vitest'
-
-export const compareScreenshotWithBaseline = async (page, baselineName, diffName) => {
-  // Capture the screenshot
-  const screenshotPath = path.resolve(__dirname, 'screenshots', 'current', `${baselineName}.png`)
-  await page.screenshot({ path: screenshotPath, fullPage: true })
-
-  // Load baseline image
-  const baselinePath = path.resolve(__dirname, 'screenshots', 'baseline', `${baselineName}.png`)
-  if (!fs.existsSync(baselinePath)) {
-    console.warn(`Baseline image not found for ${baselineName}, saving current screenshot as baseline.`)
-    fs.mkdirSync(path.dirname(baselinePath), { recursive: true })
-    fs.copyFileSync(screenshotPath, baselinePath)
-    return
-  }
-
-  const baselineImg = PNG.sync.read(fs.readFileSync(baselinePath))
-  const currentImg = PNG.sync.read(fs.readFileSync(screenshotPath))
-
-  // Compare the images
-  const { width, height } = baselineImg
-  const diff = new PNG({ width, height })
-  const numDiffPixels = pixelmatch(baselineImg.data, currentImg.data, diff.data, width, height, { threshold: 0.1 })
-
-  // If images don't match, save the diff
-  if (numDiffPixels > 0) {
-    const diffPath = path.resolve(__dirname, 'screenshots', 'diff', `${diffName}.png`)
-    fs.mkdirSync(path.dirname(diffPath), { recursive: true })
-    fs.writeFileSync(diffPath, PNG.sync.write(diff))
-  }
-
-  // Assert that the number of different pixels is within the acceptable threshold
-  expect(numDiffPixels).toBe(0)
-}
-```
-- Now let's build out our homepage spec.
-- `touch spec/e2e/home.spec.js`
-- make `~/app/frontend/spec/e2e/home.spec.js` look like this:
-```
-import { describe, test, expect } from 'vitest'
-import { setup } from '@nuxt/test-utils/e2e'
-import { createPage } from "@nuxt/test-utils";
-
-describe('My test', async () => {
-  await setup({ browser: true })
-  test('my test', async () => {
-    const page = await createPage("/");
-    const html = await page.innerHTML("body");
-    expect(html).toContain("My page!");
-  })
-})
-```
-TODO: below is old, delete?
-- make `~/app/frontend/spec/e2e/home.spec.js` look like this:
-```
-import { createPage, setup } from '@nuxt/test-utils/e2e'
-import { describe, expect, it } from 'vitest'
-import { compareScreenshotWithBaseline, testFooterText, testHeaderLinks } from './shared'
-
-describe('home page', async () => {
-  await setup({
-    host: 'http://localhost:3001',
-  })
-
-  it('displays the correct h1 text', async () => {
-    const homePage = await createPage('/')
-    const h1 = await homePage.locator('h1')
-    expect(await h1.isVisible()).toBe(true)
-    expect(await h1.textContent()).toContain('There was a wall.').and.toContain('It did not look important.')
-  })
-
-  it('displays the correct p text', async () => {
-    const homePage = await createPage('/')
-    const p = await homePage.locator('p.hero-text')
-    expect(await p.isVisible()).toBe(true)
-    expect(await p.textContent()).toContain('It was built of uncut rocks roughly mortared.')
-    expect(await p.textContent()).toContain('an idea of boundary. But the idea was real.')
-  })
-
-  it('displays the correct buttons with hrefs and text', async () => {
-    const homePage = await createPage('/')
-    const loginButton = await homePage.locator('.hero-buttons a[href="/login"]')
-    const signupButton = await homePage.locator('.hero-buttons a[href="/signup"]')
-    expect(await loginButton.isVisible()).toBe(true)
-    expect(await loginButton.textContent()).toContain('Log in')
-    expect(await signupButton.isVisible()).toBe(true)
-    expect(await signupButton.textContent()).toContain('Sign up')
-  })
-
-  it('matches the visual baseline', async () => {
-    const homePage = await createPage('/')
-    await compareScreenshotWithBaseline(homePage, 'home-page', 'home-page-diff')
-  }, 20000) 
-})
 ```
 
 ### Placeholder Hello World Homepage
@@ -365,6 +240,98 @@ npm run dev -> "Hello World" in sans serif font Inter
   - you can hit enter for all the other questions
 - `npm i -D @iconify-json/lucide`
 
+### Homepage E2E Spec
+- Let's do some test-driven development and write failing specs, build to spec and then make sure the tests pass.
+- `cd ~/app/frontend`
+- `mkdir spec/e2e`
+- First let's make a `shared.js` folder for shared Playwright code that will be used for testing more than one page
+- `touch spec/e2e/shared.js`
+- make `~/app/frontend/spec/e2e/shared.js` look like this:
+```
+import fs from 'fs'
+import path from 'path'
+import pixelmatch from 'pixelmatch'
+import { PNG } from 'pngjs'
+import { expect } from 'vitest'
+
+export const compareScreenshotWithBaseline = async (page, baselineName, diffName) => {
+  // Capture the screenshot
+  const screenshotPath = path.resolve(__dirname, 'screenshots', 'current', `${baselineName}.png`)
+  await page.screenshot({ path: screenshotPath, fullPage: true })
+
+  // Load baseline image
+  const baselinePath = path.resolve(__dirname, 'screenshots', 'baseline', `${baselineName}.png`)
+  if (!fs.existsSync(baselinePath)) {
+    console.warn(`Baseline image not found for ${baselineName}, saving current screenshot as baseline.`)
+    fs.mkdirSync(path.dirname(baselinePath), { recursive: true })
+    fs.copyFileSync(screenshotPath, baselinePath)
+    return
+  }
+
+  const baselineImg = PNG.sync.read(fs.readFileSync(baselinePath))
+  const currentImg = PNG.sync.read(fs.readFileSync(screenshotPath))
+
+  // Compare the images
+  const { width, height } = baselineImg
+  const diff = new PNG({ width, height })
+  const numDiffPixels = pixelmatch(baselineImg.data, currentImg.data, diff.data, width, height, { threshold: 0.1 })
+
+  // If images don't match, save the diff
+  if (numDiffPixels > 0) {
+    const diffPath = path.resolve(__dirname, 'screenshots', 'diff', `${diffName}.png`)
+    fs.mkdirSync(path.dirname(diffPath), { recursive: true })
+    fs.writeFileSync(diffPath, PNG.sync.write(diff))
+  }
+
+  // Assert that the number of different pixels is within the acceptable threshold
+  expect(numDiffPixels).toBe(0)
+}
+```
+- Now let's build out our homepage spec.
+- `touch spec/e2e/home.spec.js`
+- make `~/app/frontend/spec/e2e/home.spec.js` look like this:
+```
+import { createPage } from '@nuxt/test-utils'
+import { setup } from '@nuxt/test-utils/e2e'
+import { describe, expect, it } from 'vitest'
+import { compareScreenshotWithBaseline } from './shared'
+
+describe('homepage', async () => {
+  await setup({ browser: true })
+
+  it('displays h1 with correct text', async () => {
+    const page = await createPage('/')
+    const h1 = await page.locator('h1')
+    const h1Text = await h1.textContent()
+    expect(await h1.isVisible()).toBe(true)
+    expect(h1Text).toContain('There was a wall.').and.toContain('It did not look important.')
+  })
+
+  it('displays p with correct text', async () => {
+    const page = await createPage('/')
+    const p = await page.locator('p')
+    const pText = await p.textContent('p')
+    expect(await p.isVisible()).toBe(true)
+    expect(pText).toContain('It was built of uncut rocks roughly mortared. An adult could look right over it, and even a child could climb it. Where it crossed the roadway, instead of having a gate it degenerated into mere geometry, a line, an idea of boundary. But the idea was real.')
+  })
+
+  it('displays the correct buttons with hrefs and text', async () => {
+    const homePage = await createPage('/')
+    const loginButton = await homePage.locator('.hero-buttons a[href="/login"]')
+    const signupButton = await homePage.locator('.hero-buttons a[href="/signup"]')
+    expect(await loginButton.isVisible()).toBe(true)
+    expect(await loginButton.textContent()).toContain('Log in')
+    expect(await signupButton.isVisible()).toBe(true)
+    expect(await signupButton.textContent()).toContain('Sign up')
+  })
+
+  it('matches the visual baseline', async () => {
+    const homePage = await createPage('/')
+    await compareScreenshotWithBaseline(homePage, 'home-page', 'home-page-diff')
+  }, 20000)
+})
+```
+
 ### Non-Placeholder Homepage (No Header/Footer Yet)
 - Here we'll replace our "Hello World" placeholder homepage with a lorem-type content in a h1, some body copy and some buttons. We'll use our UI Thing kit, which uses tailwind, to make it look pretty nice.
 - `cd ~/app/frontend`
@@ -392,7 +359,7 @@ npm run dev -> "Hello World" in sans serif font Inter
 ```
 - `npm run dev` -> Should be some decent looking homepage content now with a h1, some body copy and two buttons
 
-### Run Standalone Homepage Tests
+### Run Non-Placeholder Homepage Tests
 - split your terminal to open a second terminal pane
   - `cd ~/app/frontend`
   - `npm run test spec/e2e/home.spec.js` -> homepage tests should pass now
@@ -411,8 +378,8 @@ npm run dev -> "Hello World" in sans serif font Inter
 ### Header/Footer Component Specs
 - `cd ~/app/frontend`
 - `mkdir spec/components`
-- `touch spec/components/Header.spec.js spec/components/Footer.spec.js`
-- make `~/app/frontend/specs/components/Header.spec.js` look like this:
+- `touch spec/components/Header.nuxt.spec.js spec/components/Footer.nuxt.spec.js`
+- make `~/app/frontend/specs/components/Header.nuxt.spec.js` look like this:
 ```
 import { Header } from '#components';
 import { mountSuspended } from '@nuxt/test-utils/runtime';
@@ -451,7 +418,7 @@ describe('Header component', () => {
 
 })
 ```
-- make `~/app/frontend/specs/components/Footer.spec.js` look like this:
+- make `~/app/frontend/specs/components/Footer.nuxt.spec.js` look like this:
 ```
 import { Footer } from '#components';
 import { mountSuspended } from '@nuxt/test-utils/runtime';
@@ -467,103 +434,54 @@ it('can mount some component', async () => {
 
 ### Updated Homepage Spec for Header/Footer
 - Now that we'll have a header and footer on the homepage, let's add some header and footer checks on the homepage spec.
-- make `~/app/frontend/spec/e2e/shared.js` look like this:
-```
-import fs from 'fs'
-import path from 'path'
-import pixelmatch from 'pixelmatch'
-import { PNG } from 'pngjs'
-import { expect } from 'vitest'
-
-export const testHeaderLinks = async (page) => {
-  const mainNav = await page.locator('nav.header-main-nav')
-  const loginNav = await page.locator('.header-login-nav')
-  const homeLink = await mainNav.locator('a[href="/"]')
-  const publicLink = await mainNav.locator('a[href="/public"]')
-  const privateLink = await mainNav.locator('a[href="/private"]')
-  const loginLink = await loginNav.locator('a[href="/login"]')
-  const signupLink = await loginNav.locator('a[href="/signup"]')
-  
-  expect(await homeLink.textContent()).toContain('Home')
-  expect(await publicLink.textContent()).toContain('Public')
-  expect(await privateLink.textContent()).toContain('Private')
-  expect(await loginLink.textContent()).toContain('Log in')
-  expect(await signupLink.textContent()).toContain('Sign up')
-}
-
-export const testFooterText = async (page) => {
-  const footerText = await page.locator('p.footer-text')
-  expect(await footerText.textContent()).toContain('© 2024. Made with Nuxt, Tailwind, UI Thing, Rails, Fly.io and S3.')
-}
-
-export const compareScreenshotWithBaseline = async (page, baselineName, diffName) => {
-  // Capture the screenshot
-  const screenshotPath = path.resolve(__dirname, 'screenshots', 'current', `${baselineName}.png`)
-  await page.screenshot({ path: screenshotPath, fullPage: true })
-
-  // Load baseline image
-  const baselinePath = path.resolve(__dirname, 'screenshots', 'baseline', `${baselineName}.png`)
-  if (!fs.existsSync(baselinePath)) {
-    console.warn(`Baseline image not found for ${baselineName}, saving current screenshot as baseline.`)
-    fs.mkdirSync(path.dirname(baselinePath), { recursive: true })
-    fs.copyFileSync(screenshotPath, baselinePath)
-    return
-  }
-
-  const baselineImg = PNG.sync.read(fs.readFileSync(baselinePath))
-  const currentImg = PNG.sync.read(fs.readFileSync(screenshotPath))
-
-  // Compare the images
-  const { width, height } = baselineImg
-  const diff = new PNG({ width, height })
-  const numDiffPixels = pixelmatch(baselineImg.data, currentImg.data, diff.data, width, height, { threshold: 0.1 })
-
-  // If images don't match, save the diff
-  if (numDiffPixels > 0) {
-    const diffPath = path.resolve(__dirname, 'screenshots', 'diff', `${diffName}.png`)
-    fs.mkdirSync(path.dirname(diffPath), { recursive: true })
-    fs.writeFileSync(diffPath, PNG.sync.write(diff))
-  }
-
-  // Assert that the number of different pixels is within the acceptable threshold
-  expect(numDiffPixels).toBe(0)
-}
-```
 - make `~/app/frontend/spec/e2e/home.spec.js` look like this:
 ```
-import { createPage, setup } from '@nuxt/test-utils/e2e'
+import { createPage } from '@nuxt/test-utils'
+import { setup } from '@nuxt/test-utils/e2e'
 import { describe, expect, it } from 'vitest'
-import { compareScreenshotWithBaseline, testFooterText, testHeaderLinks } from './shared'
+import { compareScreenshotWithBaseline } from './shared'
 
-describe('home page', async () => {
-  await setup({
-    host: 'http://localhost:3001',
-  })
+describe('homepage', async () => {
+  await setup({ browser: true })
 
   it('has correct header links', async () => {
-    const homePage = await createPage('/')
-    await testHeaderLinks(homePage)
+    const page = await createPage('/')
+    const mainNav = await page.locator('header nav.header-main-nav')
+    const loginNav = await page.locator('header .header-login-nav')
+    const homeLink = await mainNav.locator('a[href="/"]')
+    const publicLink = await mainNav.locator('a[href="/public"]')
+    const privateLink = await mainNav.locator('a[href="/private"]')
+    const loginLink = await loginNav.locator('a[href="/login"]')
+    const signupLink = await loginNav.locator('a[href="/signup"]')
+
+    expect(await homeLink.textContent()).toContain('Home')
+    expect(await publicLink.textContent()).toContain('Public')
+    expect(await privateLink.textContent()).toContain('Private')
+    expect(await loginLink.textContent()).toContain('Log in')
+    expect(await signupLink.textContent()).toContain('Sign up')
   })
 
-  it('displays the correct h1 text', async () => {
-    const homePage = await createPage('/')
-    const h1 = await homePage.locator('h1')
+  it('displays h1 with correct text', async () => {
+    const page = await createPage('/')
+    const h1 = await page.locator('main h1')
+    const h1Text = await h1.innerHTML()
     expect(await h1.isVisible()).toBe(true)
-    expect(await h1.textContent()).toContain('There was a wall.').and.toContain('It did not look important.')
+    expect(h1Text).toContain('There was a wall.').and.toContain('It did not look important.')
   })
 
-  it('displays the correct p text', async () => {
-    const homePage = await createPage('/')
-    const p = await homePage.locator('p.hero-text')
+  it('displays p with correct text', async () => {
+    const page = await createPage('/')
+    const p = await page.locator('main p')
+    const pText = await p.innerHTML('p')
     expect(await p.isVisible()).toBe(true)
-    expect(await p.textContent()).toContain('It was built of uncut rocks roughly mortared.')
-    expect(await p.textContent()).toContain('an idea of boundary. But the idea was real.')
+    expect(pText).toContain('It was built of uncut rocks roughly mortared. An adult could look right over it, and even a child could climb it. Where it crossed the roadway, instead of having a gate it degenerated into mere geometry, a line, an idea of boundary. But the idea was real.')
   })
 
   it('displays the correct buttons with hrefs and text', async () => {
     const homePage = await createPage('/')
-    const loginButton = await homePage.locator('.hero-buttons a[href="/login"]')
-    const signupButton = await homePage.locator('.hero-buttons a[href="/signup"]')
+    const main = await homePage.locator('main')
+    const loginButton = await main.locator('.hero-buttons a[href="/login"]')
+    const signupButton = await main.locator('.hero-buttons a[href="/signup"]')
     expect(await loginButton.isVisible()).toBe(true)
     expect(await loginButton.textContent()).toContain('Log in')
     expect(await signupButton.isVisible()).toBe(true)
@@ -571,22 +489,25 @@ describe('home page', async () => {
   })
 
   it('has correct footer text', async () => {
-    const homePage = await createPage('/')
-    await testFooterText(homePage)
+    const page = await createPage('/')
+    const p = await page.locator('footer p')
+    const pText = await p.textContent()
+    expect(await p.isVisible()).toBe(true)
+    expect(pText).toContain('© 2024. Made with Nuxt, Tailwind, UI Thing, Rails, Fly.io and S3.')
   })
 
   it('matches the visual baseline', async () => {
     const homePage = await createPage('/')
     await compareScreenshotWithBaseline(homePage, 'home-page', 'home-page-diff')
-  }, 20000) 
+  }, 20000)
 })
 ```
+- now that we've changed the way our homepage looks, we'll have to delete our pixelmatch baseline homepage image, which is `~/app/frontend/spec/e2e/screenshots/baseline/home-page.png`
 
 ### Header & Footer
 - `cd ~/app/frontend`
 - `npx nuxi module add icon`
 - `npx ui-thing@latest add container navigation-menu sheet scroll-area collapsible`
-- `cd components`
 - `touch components/Logo.vue components/Header.vue components/Footer.vue`
 - make `~/app/frontend/components/Logo.vue` look like this:
 ```
@@ -698,7 +619,7 @@ describe('home page', async () => {
   </footer>
 </template>
 ```
-- make `~/app/frontend/layouts/default.vue` look like this:
+- make `~/app/frontend/app.vue` look like this:
 ```
 <template>
   <Header />
@@ -708,7 +629,6 @@ describe('home page', async () => {
   <Footer />
 </template>
 ```
-- `cd ~/app/frontend`
 - `npm run dev` -> Homepage should have header and footer
 - `^ + c`
 - `npm run test spec/components/Header.spec.js` -> Header tests should pass
@@ -717,6 +637,68 @@ describe('home page', async () => {
 
 ### Subpages E2E Specs
 - `cd ~/app/frontend`
+- make `~/app/frontend/spec/e2e/shared.js` look like this:
+```
+import fs from 'fs'
+import path from 'path'
+import pixelmatch from 'pixelmatch'
+import { PNG } from 'pngjs'
+import { expect } from 'vitest'
+
+export const testHeaderLinks = async (page) => {
+  const mainNav = await page.locator('nav.header-main-nav')
+  const loginNav = await page.locator('.header-login-nav')
+  const homeLink = await mainNav.locator('a[href="/"]')
+  const publicLink = await mainNav.locator('a[href="/public"]')
+  const privateLink = await mainNav.locator('a[href="/private"]')
+  const loginLink = await loginNav.locator('a[href="/login"]')
+  const signupLink = await loginNav.locator('a[href="/signup"]')
+  
+  expect(await homeLink.textContent()).toContain('Home')
+  expect(await publicLink.textContent()).toContain('Public')
+  expect(await privateLink.textContent()).toContain('Private')
+  expect(await loginLink.textContent()).toContain('Log in')
+  expect(await signupLink.textContent()).toContain('Sign up')
+}
+
+export const testFooterText = async (page) => {
+  const footerText = await page.locator('p.footer-text')
+  expect(await footerText.textContent()).toContain('© 2024. Made with Nuxt, Tailwind, UI Thing, Rails, Fly.io and S3.')
+}
+
+export const compareScreenshotWithBaseline = async (page, baselineName, diffName) => {
+  // Capture the screenshot
+  const screenshotPath = path.resolve(__dirname, 'screenshots', 'current', `${baselineName}.png`)
+  await page.screenshot({ path: screenshotPath, fullPage: true })
+
+  // Load baseline image
+  const baselinePath = path.resolve(__dirname, 'screenshots', 'baseline', `${baselineName}.png`)
+  if (!fs.existsSync(baselinePath)) {
+    console.warn(`Baseline image not found for ${baselineName}, saving current screenshot as baseline.`)
+    fs.mkdirSync(path.dirname(baselinePath), { recursive: true })
+    fs.copyFileSync(screenshotPath, baselinePath)
+    return
+  }
+
+  const baselineImg = PNG.sync.read(fs.readFileSync(baselinePath))
+  const currentImg = PNG.sync.read(fs.readFileSync(screenshotPath))
+
+  // Compare the images
+  const { width, height } = baselineImg
+  const diff = new PNG({ width, height })
+  const numDiffPixels = pixelmatch(baselineImg.data, currentImg.data, diff.data, width, height, { threshold: 0.1 })
+
+  // If images don't match, save the diff
+  if (numDiffPixels > 0) {
+    const diffPath = path.resolve(__dirname, 'screenshots', 'diff', `${diffName}.png`)
+    fs.mkdirSync(path.dirname(diffPath), { recursive: true })
+    fs.writeFileSync(diffPath, PNG.sync.write(diff))
+  }
+
+  // Assert that the number of different pixels is within the acceptable threshold
+  expect(numDiffPixels).toBe(0)
+}
+```
 - `touch spec/e2e/public.spec.js spec/e2e/private.spec.js`
 - make `~/app/frontend/specs/e2e/public.spec.js` look like this:
 ```
