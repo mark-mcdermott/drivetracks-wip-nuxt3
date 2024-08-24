@@ -467,8 +467,9 @@ describe('homepage', async () => {
   }, 20000)
 })
 ```
-- Let's run our homepage spec again to make sure it still works.
-- `npm run test spec/e2e/index.spec.js` -> should pass
+- Let's run our homepage spec again to make sure it fails.
+- `npm run test spec/e2e/index.spec.js` -> should fail
+- `^ + c`
 
 ### Header/Footer Component Specs
 - `cd ~/app/frontend`
