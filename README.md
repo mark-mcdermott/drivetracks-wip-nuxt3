@@ -345,22 +345,6 @@ describe('homepage', async () => {
 - `npm run dev` -> Should be some ok looking homepage content now with a h1, some body copy and two buttons
 - `npm run test spec/e2e/index.nuxt.spec.js` -> test should pass now
 
-### Run Non-Placeholder Homepage Tests
-- split your terminal to open a second terminal pane
-  - `cd ~/app/frontend`
-  - `npm run test spec/e2e/home.spec.js` -> homepage tests should pass now
-  - note that on first run, pixelmatch screenshot comparison creates some folders/files:
-    - `~/app/frontend/spec/e2e/screenshots`
-    - `~/app/frontend/spec/e2e/screenshots/baseline`
-    - `~/app/frontend/spec/e2e/screenshots/current`
-    - `~/app/frontend/spec/e2e/screenshots/baseline/home-page.png`
-    - `~/app/frontend/spec/e2e/screenshots/current/home-page.png`
-    - the first run's screenshot comparison isn't very useful because the baseline & current screenshots will always be the same
-  - `npm run test spec/e2e/home.spec.js` -> pixelmatch updates current screenshot and does a useful comparison this time, all tests should still be passing
-  - `^ + c` in second terminal
-  - close second terminal
-- `^ + c` in first terminal
-
 ### Header/Footer Component Specs
 - `cd ~/app/frontend`
 - `mkdir spec/components`
