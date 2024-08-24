@@ -399,7 +399,7 @@ describe('homepage', async () => {
 ### Add Failing Header/Footer Checks To Homepage Spec
 - Our next big step is to add a header and footer to the site. But before that we'll update our homepage spec (which will then fail until the header/footer are build - which is what we want) and build out some component specs for the header and footer.
 - `cd ~/app/frontend`
-- Now we'll adjust out homepage `index.spec.js` test to pull the header/footer tests from `shared.js`:
+- Let's adjust our homepage `index.spec.js` test check for the header links and the footer test we're about to add. Let's also adjust some of the selectors in the checks we already had to nest them inside `main` so instead of just looking for a `p` tag, not it will look for `main p` to be more specific and not catch the footer text when we're looking for the body text.
 ```
 import { createPage } from '@nuxt/test-utils'
 import { setup } from '@nuxt/test-utils/e2e'
@@ -427,7 +427,6 @@ describe('homepage', async () => {
   })
 
   it('displays h1 with correct text', async () => {
-    const page = await createPage('/')
     const h1 = await page.locator('main h1')
     const h1Text = await h1.innerHTML()
     expect(await h1.isVisible()).toBe(true)
@@ -435,7 +434,6 @@ describe('homepage', async () => {
   })
 
   it('displays p with correct text', async () => {
-    const page = await createPage('/')
     const p = await page.locator('main p')
     const pText = await p.innerHTML('p')
     expect(await p.isVisible()).toBe(true)
@@ -443,8 +441,7 @@ describe('homepage', async () => {
   })
 
   it('displays the correct buttons with hrefs and text', async () => {
-    const homePage = await createPage('/')
-    const main = await homePage.locator('main')
+    const main = await page.locator('main')
     const loginButton = await main.locator('.hero-buttons a[href="/login"]')
     const signupButton = await main.locator('.hero-buttons a[href="/signup"]')
     expect(await loginButton.isVisible()).toBe(true)
