@@ -464,7 +464,7 @@ describe('homepage', async () => {
   }, 20000)
 })
 ```
-- Let's run our homepage spec again to make sure it fails.
+- Let's run our homepage spec and make sure it fails.
 - `npm run test spec/e2e/index.spec.js` -> should fail
 - `^ + c`
 
