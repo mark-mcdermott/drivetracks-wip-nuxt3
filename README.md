@@ -798,6 +798,7 @@ describe('homepage', async () => {
 
 ### Subpages E2E Specs
 - We're going to add a couple subpages, one at `/public` and another at `/private`. But we'll write some specs for them first.
+- `cd ~/app/frontend`
 - `touch spec/e2e/public.spec.js spec/e2e/private.spec.js`
 - make `~/app/frontend/specs/e2e/public.spec.js` look like this:
 ```
