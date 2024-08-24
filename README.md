@@ -365,7 +365,7 @@ describe('homepage', async () => {
   }, 20000)
 })
 ```
-- run the failing test with `npm run test spec/e2e/index.spec.js` -> it should fail
+- run the failing test with `npm run test spec/e2e/index.nuxt.spec.js` -> it should fail
 - `^ + c` to kill the test server
 
 ### Non-Placeholder Homepage Content
