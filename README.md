@@ -600,10 +600,8 @@ describe('homepage', async () => {
 ```
 - `npm run dev` -> Homepage should have header and footer
 - `^ + c`
-- `npm run test spec/components/Header.nuxt.spec.js` -> Header tests should pass
-- `npm run test spec/components/Footer.nuxt.spec.js` -> Footer tests should pass
 - now that we've changed the way our homepage looks, we'll have to delete our pixelmatch baseline homepage image, which is `~/app/frontend/spec/e2e/screenshots/baseline/home-page.png` so it will take a new baseline image to compare to
-- `npm run test spec/e2e/index.spec.js` -> Homepage tests should pass
+- `npm run test -> header, footer and homepage tests should all pass
 
 ### Subpages E2E Specs
 - `cd ~/app/frontend`
