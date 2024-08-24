@@ -366,12 +366,10 @@ npm run dev -> "Hello World" in sans serif font Inter
 - `npm i -D @iconify-json/lucide`
 
 ### Non-Placeholder Homepage (No Header/Footer Yet)
-- Here we'll replace our "Hello World" placeholder homepage with an actual homepage with some placeholder content and using our re-usable UI Thing 
+- Here we'll replace our "Hello World" placeholder homepage with a lorem-type content in a h1, some body copy and some buttons. We'll use our UI Thing kit, which uses tailwind, to make it look pretty nice.
 - `cd ~/app/frontend`
 - `npx ui-thing@latest add container badge button gradient-divider`
-- `mkdir pages`
-- `touch pages/index.vue`
-- add this to `~/app/frontend/pages/index.vue`:
+- make `~/app/frontend/pages/index.vue` look like this:
 ```
 <template>
   <UiContainer class="relative flex flex-col items-center py-10 text-center lg:py-20">
@@ -392,8 +390,7 @@ npm run dev -> "Hello World" in sans serif font Inter
   </UiContainer>
 </template>
 ```
-- `rm app.vue`
-- `npm run dev` -> Should be a decent looking homepage now in Inter font with a h1, some body copy and two buttons
+- `npm run dev` -> Should be some decent looking homepage content now with a h1, some body copy and two buttons
 
 ### Run Standalone Homepage Tests
 - split your terminal to open a second terminal pane
