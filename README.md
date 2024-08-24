@@ -366,6 +366,7 @@ describe('homepage', async () => {
 })
 ```
 - run the failing test with `npm run test spec/e2e/index.spec.js` -> it should fail
+- `^ + c` to kill the test server
 
 ### Non-Placeholder Homepage Content
 - Here we'll replace our "Hello World" placeholder homepage with a lorem-type content in a h1, some body copy and some buttons. We'll use our UI Thing kit, which uses tailwind, to make it look pretty nice.
