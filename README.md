@@ -277,14 +277,19 @@ export const compareScreenshotWithBaseline = async (page, baselineName, diffName
 ```
 import { createPage } from '@nuxt/test-utils'
 import { setup } from '@nuxt/test-utils/e2e'
-import { describe, expect, it } from 'vitest'
+import { beforeAll, describe, expect, it } from 'vitest'
 import { compareScreenshotWithBaseline } from './shared'
 
 describe('homepage', async () => {
   await setup({ browser: true })
 
+  let page
+
+  beforeAll(async () => {
+    page = await createPage('/')
+  })
+
   it('displays h1 with correct text', async () => {
-    const page = await createPage('/')
     const h1 = await page.locator('h1')
     const h1Text = await h1.textContent()
     expect(await h1.isVisible()).toBe(true)
@@ -292,7 +297,6 @@ describe('homepage', async () => {
   })
 
   it('displays p with correct text', async () => {
-    const page = await createPage('/')
     const p = await page.locator('p')
     const pText = await p.textContent('p')
     expect(await p.isVisible()).toBe(true)
@@ -300,8 +304,7 @@ describe('homepage', async () => {
   })
 
   it('displays the correct buttons with hrefs and text', async () => {
-    const homePage = await createPage('/')
-    const loginButton = await homePage.locator('.hero-buttons a[href="/login"]')
+    const loginButton = await page.locator('.hero-buttons a[href="/login"]')
     const signupButton = await homePage.locator('.hero-buttons a[href="/signup"]')
     expect(await loginButton.isVisible()).toBe(true)
     expect(await loginButton.textContent()).toContain('Log in')
@@ -310,8 +313,7 @@ describe('homepage', async () => {
   })
 
   it('matches the visual baseline', async () => {
-    const homePage = await createPage('/')
-    await compareScreenshotWithBaseline(homePage, 'home-page', 'home-page-diff')
+    await compareScreenshotWithBaseline(page, 'page-home', 'page-home-diff')
   }, 20000)
 })
 ```
@@ -408,31 +410,23 @@ it('can mount some component', async () => {
 ```
 import { createPage } from '@nuxt/test-utils'
 import { setup } from '@nuxt/test-utils/e2e'
-import { describe, expect, it } from 'vitest'
-import { compareScreenshotWithBaseline } from './shared'
+import { beforeAll, describe, expect, it } from 'vitest'
+import { compareScreenshotWithBaseline, testFooterText, testHeaderLinks } from './shared'
 
 describe('homepage', async () => {
   await setup({ browser: true })
 
-  it('has correct header links', async () => {
-    const page = await createPage('/')
-    const mainNav = await page.locator('header nav.header-main-nav')
-    const loginNav = await page.locator('header .header-login-nav')
-    const homeLink = await mainNav.locator('a[href="/"]')
-    const publicLink = await mainNav.locator('a[href="/public"]')
-    const privateLink = await mainNav.locator('a[href="/private"]')
-    const loginLink = await loginNav.locator('a[href="/login"]')
-    const signupLink = await loginNav.locator('a[href="/signup"]')
+  let page
 
-    expect(await homeLink.textContent()).toContain('Home')
-    expect(await publicLink.textContent()).toContain('Public')
-    expect(await privateLink.textContent()).toContain('Private')
-    expect(await loginLink.textContent()).toContain('Log in')
-    expect(await signupLink.textContent()).toContain('Sign up')
+  beforeAll(async () => {
+    page = await createPage('/')
+  })
+
+  it('has correct header links', async () => {
+    testHeaderLinks(page)
   })
 
   it('displays h1 with correct text', async () => {
-    const page = await createPage('/')
     const h1 = await page.locator('main h1')
     const h1Text = await h1.innerHTML()
     expect(await h1.isVisible()).toBe(true)
@@ -440,7 +434,6 @@ describe('homepage', async () => {
   })
 
   it('displays p with correct text', async () => {
-    const page = await createPage('/')
     const p = await page.locator('main p')
     const pText = await p.innerHTML('p')
     expect(await p.isVisible()).toBe(true)
@@ -448,8 +441,7 @@ describe('homepage', async () => {
   })
 
   it('displays the correct buttons with hrefs and text', async () => {
-    const homePage = await createPage('/')
-    const main = await homePage.locator('main')
+    const main = await page.locator('main')
     const loginButton = await main.locator('.hero-buttons a[href="/login"]')
     const signupButton = await main.locator('.hero-buttons a[href="/signup"]')
     expect(await loginButton.isVisible()).toBe(true)
@@ -459,16 +451,11 @@ describe('homepage', async () => {
   })
 
   it('has correct footer text', async () => {
-    const page = await createPage('/')
-    const p = await page.locator('footer p')
-    const pText = await p.textContent()
-    expect(await p.isVisible()).toBe(true)
-    expect(pText).toContain('© 2024. Made with Nuxt, Tailwind, UI Thing, Rails, Fly.io and S3.')
+    testFooterText(page)
   })
 
   it('matches the visual baseline', async () => {
-    const homePage = await createPage('/')
-    await compareScreenshotWithBaseline(homePage, 'home-page', 'home-page-diff')
+    await compareScreenshotWithBaseline(page, 'page-home', 'page-home-diff')
   }, 20000)
 })
 ```
@@ -728,100 +715,112 @@ describe('homepage', async () => {
 - `touch spec/e2e/public.spec.js spec/e2e/private.spec.js`
 - make `~/app/frontend/specs/e2e/public.spec.js` look like this:
 ```
-import { createPage, setup } from '@nuxt/test-utils/e2e'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { createPage } from '@nuxt/test-utils'
+import { setup } from '@nuxt/test-utils/e2e'
+import { beforeAll, describe, expect, it } from 'vitest'
 import { compareScreenshotWithBaseline, testFooterText, testHeaderLinks } from './shared'
 
-describe('public page', async () => {
-  await setup({ host: 'http://localhost:3001/' })
+describe('public', async () => {
+  await setup({ browser: true })
 
-  let publicPage
+  let page
 
-  beforeEach(async () => {
-    publicPage = await createPage('/')
-    const publicLink = await publicPage.locator('a[href="/public"]')
+  beforeAll(async () => {
+    page = await createPage('/public')
+  })
+
+  it('links correctly from homepage', async () => {
+    const homePage = await createPage('/')
+    const publicLink = await homePage.locator('a[href="/public"]')
     await publicLink.click()
-    await publicPage.waitForLoadState('load') // Ensure the page has fully loaded
+    await page.waitForLoadState('load')
+    expect(page.url()).toContain('/public')
   })
 
   it('has correct header links', async () => {
-    await testHeaderLinks(publicPage) // Reuse publicPage
+    testHeaderLinks(page)
   })
 
   it('displays the correct h1 text', async () => {
-    const h1 = publicPage.locator('.page h1')
-    await publicPage.waitForSelector('.page h1', { state: 'visible' }) // Wait until the h1 is visible
+    const h1 = page.locator('.page h1')
+    await page.waitForSelector('.page h1', { state: 'visible' })
     expect(await h1.isVisible()).toBe(true)
     expect(await h1.textContent()).toContain('Public')
   })
 
   it('displays the correct first p tag text', async () => {
-    await publicPage.waitForTimeout(2000); // Add a 2-second delay before checking visibility
-    const firstP = publicPage.locator('.page p').first();
-    expect(await firstP.isVisible()).toBe(true);
-    expect(await firstP.textContent()).toContain('Looked at from one side, the wall enclosed a barren sixty-acre field called the Port of Anarres. On the field there were a couple of large gantry cranes, a rocket pad, three warehouses, a truck garage, and a dormitory. The dormitory looked durable, grimy, and mournful; it had no gardens, no children; plainly nobody lived there or was even meant to stay there long. It was in fact a quarantine. The wall shut in not only the landing field but also the ships that came down out of space, and the men that came on the ships, and the worlds they came from, and the rest of the universe. It enclosed the universe, leaving Anarres outside, free.');
-  });  
-  
+    await page.waitForTimeout(2000)
+    const firstP = page.locator('.page p').first()
+    expect(await firstP.isVisible()).toBe(true)
+    expect(await firstP.textContent()).toContain('Looked at from one side, the wall enclosed a barren sixty-acre field called the Port of Anarres. On the field there were a couple of large gantry cranes, a rocket pad, three warehouses, a truck garage, and a dormitory. The dormitory looked durable, grimy, and mournful; it had no gardens, no children; plainly nobody lived there or was even meant to stay there long. It was in fact a quarantine. The wall shut in not only the landing field but also the ships that came down out of space, and the men that came on the ships, and the worlds they came from, and the rest of the universe. It enclosed the universe, leaving Anarres outside, free.')
+  })
+
   it('displays the correct second p tag text', async () => {
-    const secondP = publicPage.locator('.page p').nth(1)
-    await publicPage.waitForSelector('.page p:nth-child(2)', { state: 'visible' }) // Wait until the second p is visible
+    const secondP = page.locator('.page p').nth(1)
+    await page.waitForSelector('.page p:nth-child(2)', { state: 'visible' })
     expect(await secondP.isVisible()).toBe(true)
-    const secondPText = (await secondP.textContent()).trim() // Trim any extra spaces
-    expect(secondPText).toMatch(/Looked at from the other side/i) // Match using regex to allow for variations
+    const secondPText = (await secondP.textContent()).trim()
+    expect(secondPText).toMatch(/Looked at from the other side/i)
   })
 
   it('has correct footer text', async () => {
-    await testFooterText(publicPage) // Reuse publicPage
+    await testFooterText(page)
   })
 
   it('matches the visual baseline', async () => {
-    await compareScreenshotWithBaseline(publicPage, 'public-page', 'public-page-diff')
-  }, 20000) 
+    await compareScreenshotWithBaseline(page, 'page-public', 'page-public-diff')
+  }, 20000)
 })
 ```
 - make `~/app/frontend/specs/pages/private.spec.js` look like this:
 ```
-import { createPage, setup } from '@nuxt/test-utils/e2e'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { createPage } from '@nuxt/test-utils'
+import { setup } from '@nuxt/test-utils/e2e'
+import { beforeAll, describe, expect, it } from 'vitest'
 import { compareScreenshotWithBaseline, testFooterText, testHeaderLinks } from './shared'
 
 describe('private page', async () => {
-  await setup({ host: 'http://localhost:3001/' })
+  await setup({ browser: true })
 
-  let privatePage
+  let page
 
-  beforeEach(async () => {
-    privatePage = await createPage('/')
-    const privateLink = await privatePage.locator('a[href="/private"]')
+  beforeAll(async () => {
+    page = await createPage('/private')
+  })
+
+  it('links correctly from homepage', async () => {
+    const homePage = await createPage('/')
+    const privateLink = await homePage.locator('a[href="/private"]')
     await privateLink.click()
-    await privatePage.waitForLoadState('load')
+    await page.waitForLoadState('load')
+    expect(page.url()).toContain('/private')
   })
 
   it('has correct header links', async () => {
-    await testHeaderLinks(privatePage)
+    await testHeaderLinks(page)
   })
 
   it('displays the correct h1 text', async () => {
-    await privatePage.waitForSelector('.page h1', { state: 'visible', timeout: 10000 })
-    const h1 = privatePage.locator('.page h1')
+    await page.waitForSelector('.page h1', { state: 'visible', timeout: 10000 })
+    const h1 = page.locator('.page h1')
     expect(await h1.isVisible()).toBe(true)
     expect(await h1.textContent()).toContain('Private')
   })
 
   it('displays the correct p tag text', async () => {
-    await privatePage.waitForSelector('.page p', { state: 'visible', timeout: 10000 })
-    const p = privatePage.locator('.page p')
+    await page.waitForSelector('.page p', { state: 'visible', timeout: 10000 })
+    const p = page.locator('.page p')
     expect(await p.isVisible()).toBe(true)
     expect(await p.textContent()).toContain('A number of people were coming along the road towards the landing field, or standing around where the road cut through the wall. People often came out from the nearby city of Abbenay in hopes of seeing a spaceship, or simply to see the wall. After all, it was the only boundary wall on their world. Nowhere else could they see a sign that said No Trespassing. Adolescents, particularly, were drawn to it. They came up to the wall; they sat on it. There might be a gang to watch, offloading crates from track trucks at the warehouses. There might even be a freighter on the pad. Freighters came down only eight times a year, unannounced except to syndics actually working at the Port, so when the spectators were lucky enough to see one they were excited, at first. But there they sat, and there it sat, a squat black tower in a mess of movable cranes, away off across the field. And then a woman came over from one of the warehouse crews and said, “We’re shutting down for today, brothers.” She was wearing the Defense armband, a sight almost as rare as a spaceship. That was a bit of a thrill. But though her tone was mild, it was final. She was the foreman of this gang, and if provoked would be backed up by her syndics. And anyhow there wasn’t anything to see. The aliens, the offworlders, stayed hiding in their ship. No show.')
   })
 
   it('has correct footer text', async () => {
-    await testFooterText(privatePage)
+    await testFooterText(page)
   })
 
   it('matches the visual baseline', async () => {
-    await compareScreenshotWithBaseline(privatePage, 'private-page', 'private-page-diff')
-  }, 20000) 
+    await compareScreenshotWithBaseline(page, 'page-private', 'page-private-diff')
+  }, 20000)
 })
 ```
 
