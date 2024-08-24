@@ -404,7 +404,7 @@ it('can mount some component', async () => {
 
 ### Updated Homepage Spec for Header/Footer
 - Now that we'll have a header and footer on the homepage, let's add some header and footer checks on the homepage spec.
-- make `~/app/frontend/spec/e2e/home.spec.js` look like this:
+- make `~/app/frontend/spec/e2e/index.spec.js` look like this:
 ```
 import { createPage } from '@nuxt/test-utils'
 import { setup } from '@nuxt/test-utils/e2e'
