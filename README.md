@@ -348,8 +348,8 @@ describe('homepage', async () => {
 ### Header/Footer Component Specs
 - `cd ~/app/frontend`
 - `mkdir spec/components`
-- `touch spec/components/Header.nuxt.spec.js spec/components/Footer.nuxt.spec.js`
-- make `~/app/frontend/specs/components/Header.nuxt.spec.js` look like this:
+- `touch spec/components/Header.spec.js spec/components/Footer.nuxt.spec.js`
+- make `~/app/frontend/specs/components/Header.spec.js` look like this:
 ```
 import { Header } from '#components';
 import { mountSuspended } from '@nuxt/test-utils/runtime';
