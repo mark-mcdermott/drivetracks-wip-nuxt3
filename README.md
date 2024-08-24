@@ -525,66 +525,13 @@ it('can mount some component', async () => {
     )
 })
 ```
-
-### Updated Homepage Spec for Header/Footer
-- Now that we'll have a header and footer on the homepage, let's add some header and footer checks on the homepage spec.
-- make `~/app/frontend/spec/e2e/index.spec.js` look like this:
-```
-import { createPage } from '@nuxt/test-utils'
-import { setup } from '@nuxt/test-utils/e2e'
-import { beforeAll, describe, expect, it } from 'vitest'
-import { compareScreenshotWithBaseline, testFooterText, testHeaderLinks } from './shared'
-
-describe('homepage', async () => {
-  await setup({ browser: true })
-
-  let page
-
-  beforeAll(async () => {
-    page = await createPage('/')
-  })
-
-  it('has correct header links', async () => {
-    testHeaderLinks(page)
-  })
-
-  it('displays h1 with correct text', async () => {
-    const h1 = await page.locator('main h1')
-    const h1Text = await h1.innerHTML()
-    expect(await h1.isVisible()).toBe(true)
-    expect(h1Text).toContain('There was a wall.').and.toContain('It did not look important.')
-  })
-
-  it('displays p with correct text', async () => {
-    const p = await page.locator('main p')
-    const pText = await p.innerHTML('p')
-    expect(await p.isVisible()).toBe(true)
-    expect(pText).toContain('It was built of uncut rocks roughly mortared. An adult could look right over it, and even a child could climb it. Where it crossed the roadway, instead of having a gate it degenerated into mere geometry, a line, an idea of boundary. But the idea was real.')
-  })
-
-  it('displays the correct buttons with hrefs and text', async () => {
-    const main = await page.locator('main')
-    const loginButton = await main.locator('.hero-buttons a[href="/login"]')
-    const signupButton = await main.locator('.hero-buttons a[href="/signup"]')
-    expect(await loginButton.isVisible()).toBe(true)
-    expect(await loginButton.textContent()).toContain('Log in')
-    expect(await signupButton.isVisible()).toBe(true)
-    expect(await signupButton.textContent()).toContain('Sign up')
-  })
-
-  it('has correct footer text', async () => {
-    testFooterText(page)
-  })
-
-  it('matches the visual baseline', async () => {
-    await compareScreenshotWithBaseline(page, 'page-home', 'page-home-diff')
-  }, 20000)
-})
-```
-- Since we've changed our homepage spec, let's run it again to make sure it's still working.
-- `npm run test spec/e2e/index.spec.js` -> should pass
+- `npm run test spec/components/Header.nuxt.spec.js` -> should fail
+- `^ + c`
+- `npm run test spec/components/Footer.nuxt.spec.js` -> should fail
+- `^ + c`
 
 ### Header & Footer
+- Let's finally build out our header and footer components.
 - `cd ~/app/frontend`
 - `npx nuxi module add icon`
 - `npx ui-thing@latest add container navigation-menu sheet scroll-area collapsible`
