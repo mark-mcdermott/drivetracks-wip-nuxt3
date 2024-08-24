@@ -890,7 +890,7 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   runtimeConfig: { public: { apiBase: 'http://localhost:3000' } },
   devServer: { port: 3001 },
-  modules: ['@nuxtjs/tailwindcss', '@nuxtjs/color-mode', '@vueuse/nuxt', '@nuxt-icon', '@sidebase/nuxt-auth'],
+  modules: ['@nuxtjs/tailwindcss', '@nuxtjs/color-mode', '@vueuse/nuxt', 'nuxt-icon', '@nuxt-icon', '@sidebase/nuxt-auth'],
   imports: {
     imports: [
       { from: 'tailwind-variants', name: 'tv' },
