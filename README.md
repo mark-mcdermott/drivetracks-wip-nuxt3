@@ -469,6 +469,7 @@ describe('homepage', async () => {
 - `^ + c`
 
 ### Header/Footer Component Specs
+- Now let's build some component specs for the header and footer we're about to build.
 - `cd ~/app/frontend`
 - `mkdir spec/components`
 - `touch spec/components/Header.nuxt.spec.js spec/components/Footer.nuxt.spec.js`
