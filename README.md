@@ -966,21 +966,41 @@ describe('private page', async () => {
 - `npm run test spec/e2e/private.spec.js` -> private tests should pass now
 
 ### Install Sidebase Nuxt-Auth
+- Next we'll setup our signup/login functionality with `@sidebase/nuxt-auth`
 - `cd ~/app/frontend`
 - `npx nuxi@latest module add @sidebase/nuxt-auth`
 - `npm install`
+
+### Setup Sidebase Nuxt-Auth
+- Sidebase Nuxt Auth keeps its settings under `auth` in `nuxt.config.ts`. Here we'll lock down all pages by default with `globalAppMiddleware: { isEnabled: true }` and we also specify all our auth endpoints.
 - make `~/app/frontend/nuxt.config.js` look like this:
 ```
 const development = process.env.NODE_ENV !== 'production'
 export default defineNuxtConfig({
   devtools: { enabled: true },
-  runtimeConfig: { public: { apiBase: 'http://localhost:3000' } },
+  runtimeConfig: { public: { apiBase: "http://localhost:3000" } },
   devServer: { port: 3001 },
-  modules: ['@nuxtjs/tailwindcss', '@nuxtjs/color-mode', '@vueuse/nuxt', 'nuxt-icon', '@nuxt-icon', '@sidebase/nuxt-auth'],
+  modules: [
+    "@nuxt/test-utils/module",
+    "@nuxtjs/tailwindcss",
+    "@nuxtjs/color-mode",
+    "@vueuse/nuxt",
+    "nuxt-icon",
+    "@sidebase/nuxt-auth",
+  ],
+  tailwindcss: { exposeConfig: true },
+  colorMode: { classSuffix: "" },
   imports: {
     imports: [
-      { from: 'tailwind-variants', name: 'tv' },
-      { from: 'tailwind-variants', name: 'VariantProps', type: true },
+      {
+        from: "tailwind-variants",
+        name: "tv",
+      },
+      {
+        from: "tailwind-variants",
+        name: "VariantProps",
+        type: true,
+      },
     ],
   },
   auth: {
@@ -998,8 +1018,8 @@ export default defineNuxtConfig({
         getSession: { path: '/session', method: 'get' },
       },
     },
-  },
-})
+  }
+});
 ```
 
 ### Update Header Spec For Logged In/Out Functionality
@@ -1008,7 +1028,8 @@ export default defineNuxtConfig({
 ### Update Page Specs For Logged In/Out Functionality
 - TODO!!!
 
-### Lock The Private Page
+### Unlock The Public Page
+- Because we have `globalAppMiddleware: { isEnabled: true }` in `nuxt.config.ts`, if a user is logged out, all pages redirect to the homepage. To override this behaivor on specific pages and make them public, we add `definePageMeta({ auth: false })` in the page's `script` section.
 - `cd ~/app/frontend`
 - to the top of `~/app/frontend/pages/public.vue` add:
 ```
@@ -1020,6 +1041,7 @@ definePageMeta({ auth: false })
 - `^ + c`
 
 ### Hide The Private Page Link
+- Right now if you are logged out and click the link to the private page, you're redirected to the homepage, which is what we want. But we also don't even want the link to the private page to show at all for users who are logged out. Sidebase Nuxt Auth gives us a `useAuth()` method which has a `status` property. With `status`, we can add conditional vue logic in templates like `v-if="status === 'authenticated'"` which will only render it's tag if the user is logged in.
 - `cd ~/app/frontend`
 - make `~/app/frontend/components/Header.vue` look like this:
 ```
