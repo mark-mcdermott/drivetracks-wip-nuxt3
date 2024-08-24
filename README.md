@@ -18,6 +18,7 @@
 # To Create This Project From Scratch
 
 ## Init App
+- Our app is made to be in one github repo with two main folders - a `frontend` and `backend` folder.
 - `cd ~`
 - `mkdir app`
 - `cd app`
@@ -62,6 +63,7 @@ AWS details:
 ```
 
 ### Init On fly.io
+- We'll host our app on [Fly.io](https://fly.io). It's not free, but relatively cheap. We'll actually have two apps one fly.io, one for the backend and one for the frontend. And since we use postgres for the database, fly.io automatically will create a third fly.io app for that, but we don't have to mess with the fly.io database app much or think about it too much for now.
 - make sure you have a [fly.io](https://fly.io) account and have the [fly.io CLI program](https://fly.io/docs/flyctl/install) installed. Follow their docs if you run into trouble, I haven't done those parts in awhile.
 - `cd ~/app/backend`
   - let's init our backend fly.io app. The name part has to be unique in their system I think, so if you run the below line as is, it will probably tell you your app name is already chosen and you'll have to keep trying with more obscure app names until you find a unique one that works.
