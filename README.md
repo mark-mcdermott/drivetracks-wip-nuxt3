@@ -132,9 +132,7 @@ export default defineNuxtConfig({
 ```
 import { defineVitestConfig } from '@nuxt/test-utils/config'
 
-export default defineVitestConfig({
-  // any custom Vitest config you require
-})
+export default defineVitestConfig({ })
 ```
 - TODO: below is old, delete?
 - make `~/app/frontend/vitest.config.ts` look like this:
