@@ -31,10 +31,10 @@
 ```
 .DS_Store
 node_modules
-.env
+.secrets
 ```
-- `touch .env`
-- make `~/app/.env` look like this:
+- `touch .secrets`
+- make `~/app/.secrets` look like this:
 ```
 # fly.io url details:
 #   frontend url: 
@@ -67,13 +67,13 @@ node_modules
   - let's init our backend fly.io app. The name part has to be unique in their system I think, so if you run the below line as is, it will probably tell you your app name is already chosen and you'll have to keep trying with more obscure app names until you find a unique one that works.
   - `fly launch --name app-backend`
     - hit enter (for "no") when it asks a question about wanting to tweak the settings
-    - watch the output and look for the `Postgres cluster` details, which end with the line, `Save your credentials in a secure place -- you won't be able to see them again!` When you see it, copy and paste it to the corresponding section in your `~/app/.env` file and make sure all the lines are commented out with `#`s.
-    - at the end of all the output it will say, `Visit your newly deployed app at https://<your backend app name>.fly.dev/` - copy/paste the backend app name url it gives you to the `backend url:` part of your `.env` file
+    - watch the output and look for the `Postgres cluster` details, which end with the line, `Save your credentials in a secure place -- you won't be able to see them again!` When you see it, copy and paste it to the corresponding section in your `~/app/.secrets` file and make sure all the lines are commented out with `#`s.
+    - at the end of all the output it will say, `Visit your newly deployed app at https://<your backend app name>.fly.dev/` - copy/paste the backend app name url it gives you to the `backend url:` part of your `.secrets` file
 - `cd ~/app/frontend`
   - like in the backend `fly launch` line above, your fly.io frontend app name has to be unique in their system, so you may have to run this a few times with different names after the `--name ` part until you find a unique one that works
   - `fly launch --name app-frontend`
     - hit enter (for "no") when it asks a question about wanting to tweak the settings
-    - copy the frontend app url it gives you at the end of all the output and paste it into your `.env` file at the `frontend url:` line
+    - copy the frontend app url it gives you at the end of all the output and paste it into your `.secrets` file at the `frontend url:` line
 - in a browser, go to your fly.io frontend app url. You should see the default Nuxt placeholder homepage.
 
 ## Frontend 
@@ -1586,7 +1586,7 @@ Now we'll create our AWS S3 account so we can store our user avatar images there
 - at top right, select a region if currently says `global` (I use the `us-east-1` region). If all the region options are grayed out, ignore this for now and we'll set it later.
 - at top right click your name
   - next to Account ID, click the copy icon (two overlapping squares)
-  - paste your Account ID in your `~/app/.env` file (It pastes without the dashes. Leave it that way - you need it without the dashes.)
+  - paste your Account ID in your `~/app/.secrets` file (It pastes without the dashes. Leave it that way - you need it without the dashes.)
 
 #### AWS User Policy
 - in searchbar at top, enter `iam` and select IAM
@@ -1614,13 +1614,13 @@ Now we'll create our AWS S3 account so we can store our user avatar images there
 ```
   - click Next towards bottom right
   - for Policy Name, enter `app-s3-user-policy`
-  - paste your policy name in your `.env` file
+  - paste your policy name in your `.secrets` file
   - click Create Policy towards the bottom right
 
 #### AWS User
 - click `Users` under Access Management in the left sidebar
   - click `Create User` towards the top right
-  - enter name, something like `app-s3-user` (add this to your `.env` file - you'll need it later)
+  - enter name, something like `app-s3-user` (add this to your `.secrets` file - you'll need it later)
   - click Next
   - under Permissions Options click `Attach policies directly`
   - in the search bar under Permissions Policies, enter `app-s3-user-policy` -> this should then show the policy we just created above (`app-s3-user-policy`) under Policy Name
@@ -1635,13 +1635,13 @@ Now we'll create our AWS S3 account so we can store our user avatar images there
     - Next
     - Description tag value: enter tag name, like `app-user-access-key`
     - click `Create access key` towards the bottom right
-    - paste both the Access Key and the Secret Access Key into your `.env` file - this is important!
+    - paste both the Access Key and the Secret Access Key into your `.secrets` file - this is important!
     - click Done
 
 #### AWS S3 Bucket
 - in searchbar at top, enter `s3` and select S3
 - Create Bucket
-  - for Bucket Name, enter something like `app-s3-bucket-development` (below when you click Create Bucket, it may tell you this bucket already exists and you will have to make it more unique. Regardless, add this to your `.env` file - you'll need it later. Also, make sure it ends in `-development`.)
+  - for Bucket Name, enter something like `app-s3-bucket-development` (below when you click Create Bucket, it may tell you this bucket already exists and you will have to make it more unique. Regardless, add this to your `.secrets` file - you'll need it later. Also, make sure it ends in `-development`.)
   - under Object Ownership, click ACLs Enabled
   - under Block Public Access settings
     - uncheck the first option, `Block All Public Access`
@@ -1679,7 +1679,7 @@ Now we'll create our AWS S3 account so we can store our user avatar images there
     ]
 }
 ```
-  - Update all the `<aws acct id without dashes>`, `<iam username>` and `<bucket name>` parts in the policy now in the text editor area under Policy with the account number, user name and bucket name you jotted down above in your `~/app/.env` file.
+  - Update all the `<aws acct id without dashes>`, `<iam username>` and `<bucket name>` parts in the policy now in the text editor area under Policy with the account number, user name and bucket name you jotted down above in your `~/app/.secrets` file.
   - click Save Changes towards the bottom right
   - in the Cross-Origin Resource Sharing (CORS) section, click `Edit` (to the right of "Cross-origin resource sharing (CORS)")
   - under Cross-origin Resource Sharing (CORS) add this:
@@ -1704,20 +1704,20 @@ Now we'll create our AWS S3 account so we can store our user avatar images there
 ]
 ```
   - click Save Changes towards the bottom right
-- now repeat the entire step above again, but make a production s3 bucket named something like `app-s3-bucket-production` and note the production bucket name in your `.env` file
+- now repeat the entire step above again, but make a production s3 bucket named something like `app-s3-bucket-production` and note the production bucket name in your `.secrets` file
 - now that we know our bucket names, let's update the our user policy with the bucket name
   - in the searchbar at the top of the page, type `iam` and select `IAM`
   - click `Policies` in the left sidebar under Access Management
   - in the searchbar under Policies, type `app-s3-user-policy` -> click `app-s3-user-policy` under Policy Name
   - click Edit towards the top right
-  - in the Policy Editor text editor area, change the line `"Resource": ["arn:aws:s3:::<development bucket name>", "arn:aws:s3:::<production bucket name>"]` replace `<development bucket name>` and `<production bucket name>` with your development bucket name and production bucket name, respectively, in your `.env` file
+  - in the Policy Editor text editor area, change the line `"Resource": ["arn:aws:s3:::<development bucket name>", "arn:aws:s3:::<production bucket name>"]` replace `<development bucket name>` and `<production bucket name>` with your development bucket name and production bucket name, respectively, in your `.secrets` file
   - click Next towards the bottom right
   - click Save Changes towards the bottom right
 - see what region you're logged into
   - click the AWS logo in the top left
   - in the top right there will be a region dropdown - click it
   - look at the highlighted region in the dropdown and look for the region string to the right of it - something like `us-east-1`
-  - paste your region string in your `~/app/.env` file in the `aws region` line
+  - paste your region string in your `~/app/.secrets` file in the `aws region` line
 - we're now done with our S3 setup and our AWS dashboard, at least for now. So let's go back to our terminal where we're building out our rails backend
 
 ### Rubocop
@@ -2120,7 +2120,7 @@ end
 - `cd ~/app/backend`
 - `rails active_storage:install`
 - `rails db:migrate`
-- open your `~/app/.env`. You'll need the `access key ID`, `secret access key`, `region` and `bucket` in the next step.
+- open your `~/app/.secrets`. You'll need the `access key ID`, `secret access key`, `region` and `bucket` in the next step.
 - `EDITOR="code --wait" rails credentials:edit`
   - uncomment the first three lines (the AWS lines)
   - add your `access key ID` and `secret access key` so the file will look something like this (with the x's replaced with your values):
