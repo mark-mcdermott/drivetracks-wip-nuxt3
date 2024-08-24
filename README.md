@@ -320,7 +320,7 @@ export const compareScreenshotWithBaseline = async (page, baselineName, diffName
 }
 ```
 - Now let's build out our homepage spec.
-- `touch spec/e2e/index.nuxt.spec.js`
+- `touch spec/e2e/index.spec.js`
 - make `~/app/frontend/spec/e2e/index.spec.js` look like this:
 ```
 import { createPage } from '@nuxt/test-utils'
@@ -365,7 +365,7 @@ describe('homepage', async () => {
   }, 20000)
 })
 ```
-- run the failing test with `npm run test spec/e2e/index.nuxt.spec.js` -> it should fail
+- run the failing test with `npm run test spec/e2e/index.spec.js` -> it should fail
 - `^ + c` to kill the test server
 
 ### Non-Placeholder Homepage Content
@@ -394,7 +394,7 @@ describe('homepage', async () => {
 </template>
 ```
 - `npm run dev` -> Should be some ok looking homepage content now with a h1, some body copy and two buttons
-- `npm run test spec/e2e/index.nuxt.spec.js` -> test should pass now
+- `npm run test spec/e2e/index.spec.js` -> test should pass now
 
 ### Header/Footer Component Specs
 - `cd ~/app/frontend`
