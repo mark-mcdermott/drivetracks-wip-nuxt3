@@ -220,15 +220,14 @@ npm run dev -> "Hello World" in sans serif font Inter
 - We'll use [UI Thing](https://ui-thing.behonbaker.com), for our UI kit. A UI kit is a collection of re-usable [shadcn-ui](https://ui.shadcn.com/) components and component blocks. Specifically, UI Thing is a port of [shadc-vue](https://www.shadcn-vue.com/) for Nuxt. We'll setup UI Thing now because our non-placeholder homepage we build in the next section uses it.
 - `cd ~/app/frontend`
 - `npx ui-thing@latest init`
-  - hit `y` to proceed
   - pick a theme color when prompted
-  - you can hit enter for all the other questions
+  - you can hit enter for all the other questions including for npm
 - `npm i -D @iconify-json/lucide`
 
 ### Homepage E2E Spec
 - Let's do some test-driven development and write failing specs, build to spec and then make sure the tests pass.
 - `cd ~/app/frontend`
-- `mkdir spec/e2e`
+- `mkdir -p spec/e2e`
 - First let's make a `shared.js` folder for shared Playwright code that will be used for testing more than one page
 - `touch spec/e2e/shared.js`
 - make `~/app/frontend/spec/e2e/shared.js` look like this:
