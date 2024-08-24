@@ -711,6 +711,8 @@ describe('homepage', async () => {
   }, 20000)
 })
 ```
+- Let's run our homepage spec again to make sure it still works.
+- `npm run test spec/e2e/index.spec.js` -> should pass
 - Now we'll make specs for our `/public` and `/private` pages.
 - `touch spec/e2e/public.spec.js spec/e2e/private.spec.js`
 - make `~/app/frontend/specs/e2e/public.spec.js` look like this:
