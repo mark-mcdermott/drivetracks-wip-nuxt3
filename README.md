@@ -320,7 +320,7 @@ export const compareScreenshotWithBaseline = async (page, baselineName, diffName
 }
 ```
 - Now let's build out our homepage spec.
-- `touch spec/e2e/home.nuxt.spec.js`
+- `touch spec/e2e/index.nuxt.spec.js`
 - make `~/app/frontend/spec/e2e/index.spec.js` look like this:
 ```
 import { createPage } from '@nuxt/test-utils'
