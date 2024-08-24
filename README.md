@@ -36,29 +36,29 @@ node_modules
 - `touch .secrets`
 - make `~/app/.secrets` look like this:
 ```
-# fly.io url details:
-#   frontend url: 
-#   backend url: 
+fly.io url details:
+  frontend url: 
+  backend url: 
 
-# fly.io postgres cluster details
-#   name:
-#   Username:
-#   Password:
-#   Hostname:
-#   Flycast:
-#   Proxy port:
-#   Postgres port:
-#   Connection string:
+fly.io postgres cluster details
+  name: 
+  Username: 
+  Password: 
+  Hostname: 
+  Flycast: 
+  Proxy port: 
+  Postgres port: 
+  Connection string: 
 
-# AWS details:
-#   aws acct id:
-#   aws region:
-#   s3 user policy:
-#   s3 user:
-#   s3 user access key:
-#   s3 user secret access key:
-#   s3 bucket dev:
-#   s3 bucket prod:
+AWS details:
+  aws acct id: 
+  aws region: 
+  s3 user policy: 
+  s3 user: 
+  s3 user access key: 
+  s3 user secret access key: 
+  s3 bucket dev: 
+  s3 bucket prod: 
 ```
 
 ### Init On fly.io
