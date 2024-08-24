@@ -508,6 +508,8 @@ describe('homepage', async () => {
   }, 20000)
 })
 ```
+- Since we've changed our homepage spec, let's run it again to make sure it's still working.
+- `npm run test spec/e2e/index.spec.js` -> should pass
 
 ### Header & Footer
 - `cd ~/app/frontend`
