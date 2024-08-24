@@ -394,7 +394,7 @@ describe('homepage', async () => {
 </template>
 ```
 - `npm run dev` -> Should be some ok looking homepage content now with a h1, some body copy and two buttons
-- `npm run test spec/e2e/index.spec.js` -> test should pass now
+- `npm run test spec/e2e/index.nuxt.spec.js` -> test should pass now
 
 ### Header/Footer Component Specs
 - `cd ~/app/frontend`
