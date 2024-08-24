@@ -273,7 +273,7 @@ export const compareScreenshotWithBaseline = async (page, baselineName, diffName
 ```
 - Now let's build out our homepage spec.
 - `touch spec/e2e/home.nuxt.spec.js`
-- make `~/app/frontend/spec/e2e/index.nuxt.spec.js` look like this:
+- make `~/app/frontend/spec/e2e/index.spec.js` look like this:
 ```
 import { createPage } from '@nuxt/test-utils'
 import { setup } from '@nuxt/test-utils/e2e'
@@ -315,7 +315,7 @@ describe('homepage', async () => {
   }, 20000)
 })
 ```
-- run the failing test with `npm run test spec/e2e/index.nuxt.spec.js` -> it should fail
+- run the failing test with `npm run test spec/e2e/index.spec.js` -> it should fail
 
 ### Non-Placeholder Homepage Content
 - Here we'll replace our "Hello World" placeholder homepage with a lorem-type content in a h1, some body copy and some buttons. We'll use our UI Thing kit, which uses tailwind, to make it look pretty nice.
@@ -343,13 +343,13 @@ describe('homepage', async () => {
 </template>
 ```
 - `npm run dev` -> Should be some ok looking homepage content now with a h1, some body copy and two buttons
-- `npm run test spec/e2e/index.nuxt.spec.js` -> test should pass now
+- `npm run test spec/e2e/index.spec.js` -> test should pass now
 
 ### Header/Footer Component Specs
 - `cd ~/app/frontend`
 - `mkdir spec/components`
-- `touch spec/components/Header.spec.js spec/components/Footer.spec.js`
-- make `~/app/frontend/specs/components/Header.spec.js` look like this:
+- `touch spec/components/Header.nuxt.spec.js spec/components/Footer.nuxt.spec.js`
+- make `~/app/frontend/specs/components/Header.nuxt.spec.js` look like this:
 ```
 import { Header } from '#components';
 import { mountSuspended } from '@nuxt/test-utils/runtime';
@@ -388,7 +388,7 @@ describe('Header component', () => {
 
 })
 ```
-- make `~/app/frontend/specs/components/Footer.spec.js` look like this:
+- make `~/app/frontend/specs/components/Footer.nuxt.spec.js` look like this:
 ```
 import { Footer } from '#components';
 import { mountSuspended } from '@nuxt/test-utils/runtime';
@@ -600,8 +600,8 @@ describe('homepage', async () => {
 ```
 - `npm run dev` -> Homepage should have header and footer
 - `^ + c`
-- `npm run test spec/components/Header.spec.js` -> Header tests should pass
-- `npm run test spec/components/Footer.spec.js` -> Footer tests should pass
+- `npm run test spec/components/Header.nuxt.spec.js` -> Header tests should pass
+- `npm run test spec/components/Footer.nuxt.spec.js` -> Footer tests should pass
 - now that we've changed the way our homepage looks, we'll have to delete our pixelmatch baseline homepage image, which is `~/app/frontend/spec/e2e/screenshots/baseline/home-page.png` so it will take a new baseline image to compare to
 - `npm run test spec/e2e/index.spec.js` -> Homepage tests should pass
 
