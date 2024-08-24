@@ -120,36 +120,12 @@ AWS details:
 - install VSCode `Vitest` extension
 - `cd ~/app/frontend`
 - `npm install --save-dev @nuxt/test-utils vitest @vue/test-utils happy-dom eslint-plugin-vitest unplugin-auto-import unplugin-vue-components pixelmatch`
-- add `"@nuxt/test-utils/module"` to `~/app/frontend/nuxt.config.ts` so it looks like this:
+- add `modules: ["@nuxt/test-utils/module"],` to `~/app/frontend/nuxt.config.ts` so it looks like this:
 ```
 export default defineNuxtConfig({
-  runtimeConfig: { public: { apiBase: "http://localhost:3000" } },
-  devServer: { port: 3001 },
   devtools: { enabled: true },
-  modules: ["@nuxtjs/tailwindcss", "@nuxtjs/color-mode", "@vueuse/nuxt", "@nuxt/test-utils/module"],
-
-  tailwindcss: {
-    exposeConfig: true,
-  },
-
-  colorMode: {
-    classSuffix: "",
-  },
-
-  imports: {
-    imports: [
-      {
-        from: "tailwind-variants",
-        name: "tv",
-      },
-      {
-        from: "tailwind-variants",
-        name: "VariantProps",
-        type: true,
-      },
-    ],
-  },
-});
+  modules: ["@nuxt/test-utils/module"],
+})
 ```
 - `touch vitest.config.ts`
 - make `~/app/frontend/vitest.config.ts` look like this:
@@ -323,6 +299,9 @@ export default defineNuxtConfig({
   runtimeConfig: { public: { apiBase: 'http://localhost:3000' }},
   devServer: { port: 3001 },
   devtools: { enabled: true },
+  modules: ["@nuxt/test-utils/module"],
+})
+
 })
 ```
 - `npm run dev` -> should see Nuxt starter app at http://localhost:3001
