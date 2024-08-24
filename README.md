@@ -910,6 +910,7 @@ describe('private page', async () => {
   }, 20000)
 })
 ```
+- `npm run test` -> the public & private tests should fail
 
 ### Subpages
 - Now let's build out our `/public` and `/private` pages.
