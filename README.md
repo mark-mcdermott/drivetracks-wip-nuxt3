@@ -159,10 +159,10 @@ export default antfu({
 - make `~/app/frontend/nuxt.config.ts` look like this:
 ```
 export default defineNuxtConfig({
+  devtools: { enabled: true },
   runtimeConfig: { public: { apiBase: 'http://localhost:3000' }},
   devServer: { port: 3001 },
-  devtools: { enabled: true },
-  modules: ['@nuxt/icon', '@nuxt/test-utils/module'],
+  modules: ['@nuxt/test-utils/module'],
 })
 ```
 - `npm run dev` -> should see Nuxt starter app at http://localhost:3001
