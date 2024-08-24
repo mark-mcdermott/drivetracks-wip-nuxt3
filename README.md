@@ -604,6 +604,8 @@ describe('homepage', async () => {
 - `npm run test -> header, footer and homepage tests should all pass
 
 ### Subpages E2E Specs
+- We're going to add a couple subpages, `/public` and `/private`. We'll write some specs first.
+- As part of the subpages specs, we'll move the header/footer tests we've already written into `shared.js` so they can be run on multiple pages' tests without rewriting them multiple times.
 - `cd ~/app/frontend`
 - make `~/app/frontend/spec/e2e/shared.js` look like this:
 ```
