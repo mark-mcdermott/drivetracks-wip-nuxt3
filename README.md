@@ -119,6 +119,11 @@ AWS details:
 - open `~/app/frontend/nuxt.config.ts`
 - `npm run lint:fix` -> you will see it add a trailing comma to fix the ESLint violation
 
+### Nuxt Icon
+As of this writing (8/24), there are some weird issues around whether you're using `@nuxt/icon` or `nuxt/icon` for icons. To get this out of the way, we'll install the `@nuxt/icon` module really quick.
+- `cd ~/app/frontend`
+- `npx nuxi module add icon`
+
 ### Vitest & Playwright Tests
 - We'll use Nuxt testing as [described in the Nuxt docs](https://nuxt.com/docs/getting-started/testing), which uses `@nuxt/test-utils`, [Vitest](https://vitest.dev) and [Playwright](https://playwright.dev).
 - install VSCode `Vitest` extension
