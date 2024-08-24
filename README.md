@@ -353,7 +353,7 @@ describe('homepage', async () => {
 
   it('displays the correct buttons with hrefs and text', async () => {
     const loginButton = await page.locator('.hero-buttons a[href="/login"]')
-    const signupButton = await homePage.locator('.hero-buttons a[href="/signup"]')
+    const signupButton = await page.locator('.hero-buttons a[href="/signup"]')
     expect(await loginButton.isVisible()).toBe(true)
     expect(await loginButton.textContent()).toContain('Log in')
     expect(await signupButton.isVisible()).toBe(true)
