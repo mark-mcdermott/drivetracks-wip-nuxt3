@@ -214,6 +214,15 @@ npm run dev -> Homepage still looks like it did before
     "strings": true
 }
 ```
+- For the record, installing the tailwind module added itself to our module list in  `~/app/frontend/nuxt.config.ts`, which now looks something like this now:
+```
+export default defineNuxtConfig({
+  devtools: { enabled: true },
+  runtimeConfig: { public: { apiBase: 'http://localhost:3000' }},
+  devServer: { port: 3001 },
+  modules: ['@nuxt/test-utils/module', '@nuxtjs/tailwindcss'],
+})
+```
 npm run dev -> "Hello World" in sans serif font Inter
 ^ + c
 
@@ -224,6 +233,44 @@ npm run dev -> "Hello World" in sans serif font Inter
   - pick a theme color when prompted
   - you can hit enter for all the other questions including for npm
 - `npm i -D @iconify-json/lucide`
+- For the record, the UI Thing install added a handful of packages and modules and added some extra configurations to our `~/app/frontend/nuxt.config.ts`, which now looks something like this:
+```
+export default defineNuxtConfig({
+  devtools: { enabled: true },
+  runtimeConfig: { public: { apiBase: "http://localhost:3000" } },
+  devServer: { port: 3001 },
+
+  modules: [
+    "@nuxt/test-utils/module",
+    "@nuxtjs/tailwindcss",
+    "@nuxtjs/color-mode",
+    "@vueuse/nuxt",
+    "nuxt-icon",
+  ],
+
+  tailwindcss: {
+    exposeConfig: true,
+  },
+
+  colorMode: {
+    classSuffix: "",
+  },
+
+  imports: {
+    imports: [
+      {
+        from: "tailwind-variants",
+        name: "tv",
+      },
+      {
+        from: "tailwind-variants",
+        name: "VariantProps",
+        type: true,
+      },
+    ],
+  },
+});
+```
 
 ### Homepage E2E Spec
 - Let's do some test-driven development and write failing specs, build to spec and then make sure the tests pass.
