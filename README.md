@@ -310,10 +310,11 @@ export default defineNuxtConfig({
   </div>
 </template>
 ```
-- `npm run dev` -> "Hello World" in Times New Roman
+- `npm run dev` -> "Hello World" in serif font Times New Roman
 - `^ + c`
 
 ### Tailwind
+- We'll use [Nuxt Tailwind](https://tailwindcss.nuxtjs.org) for modern, scaleable css.
 - install the VSCode extension `vscode-tailwind-magic`
 - `cd ~/app/frontend`
 - `npx nuxi@latest module add tailwindcss`
@@ -326,8 +327,11 @@ export default defineNuxtConfig({
     "strings": true
 }
 ```
+npm run dev -> "Hello World" in sans serif font Inter
+^ + c
 
 ### UI Thing
+- We'll use [UI Thing](https://ui-thing.behonbaker.com), collection of re-usable [shadcn-ui](https://ui.shadcn.com/) components and component blocks. Specifically, it's a port of [shadc-vue](https://www.shadcn-vue.com/) for Nuxt.
 - `cd ~/app/frontend`
 - `npx ui-thing@latest init`
   - hit `y` to proceed
@@ -354,6 +358,8 @@ export default defineNuxtConfig({
   <NuxtPage />
 </template>
 ```
+npm run dev -> Homepage still looks like it did before
+^ + c
 
 ### Standalone Homepage (No Header/Footer Yet)
 - `cd ~/app/frontend`
