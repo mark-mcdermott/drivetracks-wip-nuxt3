@@ -79,6 +79,7 @@ AWS details:
 ## Frontend 
 
 ### ESLint AutoSave
+- We'll use [ESLint](https://eslint.org) to keep our JavaScript clean looking. Specifically, we'll use [antfu's eslint-config](https://github.com/antfu/eslint-config) which are nice presets including auto-fix on save and a nice one line CLI install tool.
 - install VSCode extension `ESLint`
 - `cd ~/app`
 - `npm init` (hit enter for all prompts)
@@ -117,6 +118,7 @@ AWS details:
 - `npm run lint:fix` -> you will see it add a trailing comma to fix the ESLint violation
 
 ### Vitest
+- We'll use Nuxt testing as [described in the Nuxt docs](https://nuxt.com/docs/getting-started/testing), which uses `@nuxt/test-utils`, [Vitest](https://vitest.dev) and [Playwright](https://playwright.dev).
 - install VSCode `Vitest` extension
 - `cd ~/app/frontend`
 - `npm install --save-dev @nuxt/test-utils vitest @vue/test-utils happy-dom eslint-plugin-vitest unplugin-auto-import unplugin-vue-components pixelmatch`
