@@ -395,10 +395,9 @@ describe('homepage', async () => {
 ```
 - `npm run dev` -> Should be some ok looking homepage content now with a h1, some body copy and two buttons
 - `npm run test spec/e2e/index.spec.js` -> test should pass now
-- Our next big step is to add a header and footer to the site. But before that we'll update our homepage spec (which will then fail until the header/footer are build - which is what we want) and build out some component specs for the header and footer.
 
 ### Add Failing Header/Footer Checks To Homepage Spec
-- As part of the subpages specs, we'll move the header/footer tests we've already written into `shared.js` so they can be run on multiple pages' tests without rewriting them multiple times.
+- Our next big step is to add a header and footer to the site. But before that we'll update our homepage spec (which will then fail until the header/footer are build - which is what we want) and build out some component specs for the header and footer.
 - `cd ~/app/frontend`
 - Now we'll adjust out homepage `index.spec.js` test to pull the header/footer tests from `shared.js`:
 ```
