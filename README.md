@@ -601,7 +601,7 @@ describe('homepage', async () => {
 - `npm run dev` -> Homepage should have header and footer
 - `^ + c`
 - now that we've changed the way our homepage looks, we'll have to delete our pixelmatch baseline homepage image, which is `~/app/frontend/spec/e2e/screenshots/baseline/home-page.png` so it will take a new baseline image to compare to
-- `npm run test -> header, footer and homepage tests should all pass`
+- `npm run test` -> header, footer and homepage tests should all pass
 
 ### Subpages E2E Specs
 - We're going to add a couple subpages, `/public` and `/private`. We'll write some specs first.
