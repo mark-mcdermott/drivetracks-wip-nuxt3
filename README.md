@@ -472,7 +472,6 @@ describe('homepage', async () => {
   }, 20000)
 })
 ```
-- now that we've changed the way our homepage looks, we'll have to delete our pixelmatch baseline homepage image, which is `~/app/frontend/spec/e2e/screenshots/baseline/home-page.png`
 
 ### Header & Footer
 - `cd ~/app/frontend`
@@ -603,7 +602,8 @@ describe('homepage', async () => {
 - `^ + c`
 - `npm run test spec/components/Header.spec.js` -> Header tests should pass
 - `npm run test spec/components/Footer.spec.js` -> Footer tests should pass
-- `npm run test spec/e2e/home.spec.js` -> Homepage tests should pass
+- now that we've changed the way our homepage looks, we'll have to delete our pixelmatch baseline homepage image, which is `~/app/frontend/spec/e2e/screenshots/baseline/home-page.png` so it will take a new baseline image to compare to
+- `npm run test spec/e2e/index.spec.js` -> Homepage tests should pass
 
 ### Subpages E2E Specs
 - `cd ~/app/frontend`
