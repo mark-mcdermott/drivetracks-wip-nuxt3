@@ -153,21 +153,6 @@ export default antfu({
 ```
 - `npm run test` -> vitest should run (it will try to run, but there are no tests yet)
 
-### Vitest Mocks
-- For our vitests to work, we'll need some mocks for some Nuxt things like `definePageMeta` and `ref` and for some Sidebase Nuxt-Auth stuff like `useAuth`.
-- `cd ~/app/frontend`
-- `mkdir -p spec/mocks`
-- `touch spec/mocks/mocks.js`
-- make `~/app/frontend/spec/mocks/mocks.js` look like this:
-```
-import { vi } from 'vitest';
-
-// mocks 
-global.definePageMeta = vi.fn(() => { });
-global.ref = vi.fn((initialValue) => { return { value: initialValue } })
-global.useAuth = vi.fn(() => { return { status: 'unauthenticated' } })
-```
-
 ### Placeholder Hello World Homepage
 - `cd ~/app/frontend`
 - make `~/app/frontend/nuxt.config.ts` look like this:
