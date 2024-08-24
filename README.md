@@ -293,7 +293,7 @@ describe('home page', async () => {
 })
 ```
 
-### Barebones Hello World
+### Placeholder Hello World Homepage
 - `cd ~/app/frontend`
 - make `~/app/frontend/nuxt.config.ts` look like this:
 ```
@@ -317,7 +317,7 @@ export default defineNuxtConfig({
 - `npm run dev` -> "Hello World" in serif font Times New Roman
 - `^ + c`
 
-### Nuxt Pages
+### Nuxt /pages Folder
 - Right now our app lives in `~/frontend/app.vue` and just says "Hello World". Nuxt can use a folder called `/pages` for any content pages and automatically creates urls for the based on their filenames. `/pages/index.vue` will be available at `/`, `pages/about.vue` will be available at `/about`, `pages/contact.vue` will be available at `/contact`, etc. Here we'll make our `/pages/index.vue` file and then to make the `/pages` folder work, we'll add `<NuxtPage />` to `app.vue` and remove the "Hello World" part from `app.vue`
 - `cd ~/app/frontend`
 - `mkdir pages`
@@ -340,7 +340,7 @@ npm run dev -> Homepage still looks like it did before
 ^ + c
 
 ### Tailwind
-- We'll use [Nuxt Tailwind](https://tailwindcss.nuxtjs.org) for modern, scaleable css.
+- We'll use [Nuxt Tailwind](https://tailwindcss.nuxtjs.org) for modern, scaleable css. We'll setup tailwind now because UI Thing we set up in the next step needs it.
 - install the VSCode extension `vscode-tailwind-magic`
 - `cd ~/app/frontend`
 - `npx nuxi@latest module add tailwindcss`
@@ -357,7 +357,7 @@ npm run dev -> "Hello World" in sans serif font Inter
 ^ + c
 
 ### UI Thing
-- We'll use [UI Thing](https://ui-thing.behonbaker.com), collection of re-usable [shadcn-ui](https://ui.shadcn.com/) components and component blocks. Specifically, it's a port of [shadc-vue](https://www.shadcn-vue.com/) for Nuxt.
+- We'll use [UI Thing](https://ui-thing.behonbaker.com), for our UI kit. A UI kit is a collection of re-usable [shadcn-ui](https://ui.shadcn.com/) components and component blocks. Specifically, UI Thing is a port of [shadc-vue](https://www.shadcn-vue.com/) for Nuxt. We'll setup UI Thing now because our non-placeholder homepage we build in the next section uses it.
 - `cd ~/app/frontend`
 - `npx ui-thing@latest init`
   - hit `y` to proceed
@@ -365,7 +365,8 @@ npm run dev -> "Hello World" in sans serif font Inter
   - you can hit enter for all the other questions
 - `npm i -D @iconify-json/lucide`
 
-### Standalone Homepage (No Header/Footer Yet)
+### Non-Placeholder Homepage (No Header/Footer Yet)
+- Here we'll replace our "Hello World" placeholder homepage with an actual homepage with some placeholder content and using our re-usable UI Thing 
 - `cd ~/app/frontend`
 - `npx ui-thing@latest add container badge button gradient-divider`
 - `mkdir pages`
