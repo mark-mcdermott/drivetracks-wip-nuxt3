@@ -533,7 +533,6 @@ it('can mount some component', async () => {
 ### Header & Footer
 - Let's finally build out our header and footer components.
 - `cd ~/app/frontend`
-- `npx nuxi module add icon`
 - `npx ui-thing@latest add container navigation-menu sheet scroll-area collapsible`
 - `touch components/Logo.vue components/Header.vue components/Footer.vue`
 - make `~/app/frontend/components/Logo.vue` look like this:
