@@ -874,13 +874,9 @@ describe('private page', async () => {
 ```
 - `cd ~/app/frontend`
 - `npm run dev` -> home, public & private links work (private page is not yet locked)
-- split your terminal to open a second terminal pane
-  - `cd ~/app/frontend`
-  - `npm run test spec/e2e/public.spec.js` -> public tests should pass now
-  - `npm run test spec/e2e/private.spec.js` -> private tests should pass now
-  - `^ + c` in second terminal
-  - close second terminal
-- `^ + c` in first terminal
+- `^ + c`
+- `npm run test spec/e2e/public.spec.js` -> public tests should pass now
+- `npm run test spec/e2e/private.spec.js` -> private tests should pass now
 
 ### Install Sidebase Nuxt-Auth
 - `cd ~/app/frontend`
