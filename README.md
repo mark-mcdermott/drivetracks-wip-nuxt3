@@ -403,11 +403,17 @@ describe('homepage', async () => {
 ```
 import { createPage } from '@nuxt/test-utils'
 import { setup } from '@nuxt/test-utils/e2e'
-import { describe, expect, it } from 'vitest'
+import { beforeAll, describe, expect, it } from 'vitest'
 import { compareScreenshotWithBaseline, testFooterText, testHeaderLinks } from './shared'
 
 describe('homepage', async () => {
   await setup({ browser: true })
+
+  let page
+
+  beforeAll(async () => {
+    page = await createPage('/public')
+  })
 
   it('has correct header links', async () => {
     const page = await createPage('/')
@@ -657,7 +663,7 @@ it('can mount some component', async () => {
 ```
 - `npm run dev` -> Homepage should have header and footer
 - `^ + c`
-- now that we've changed the way our homepage looks, we'll have to delete our pixelmatch baseline homepage image, which is `~/app/frontend/spec/e2e/screenshots/baseline/page-home.png` so it will take a new baseline image to compare to
+- now that we've changed the way our homepage looks, we'll have to delete our pixelmatch baseline homepage image, which is `~/app/frontend/spec/e2e/screenshots/baseline/page-home.png` so it will take a new baseline image screenshot to compare to going forward.
 - `npm run test` -> header, footer and homepage tests should all pass
 
 ### Move Homepage Spec Header/Footer Checks Into Shared.js
