@@ -1138,6 +1138,7 @@ const uuid = computed(() => {
 - `^ + c`
 
 ### Add User Dropdown To Nav
+- If a user is logged in we want their avatar to show in the main nav and if they click it, a dropdown menu will show which has a link to their profile and a link to log out.
 - `cd ~/app/frontend`
 - `npx ui-thing@latest add avatar dropdown-menu`
 - make `~/app/frontend/components/Header.vue` look like this:
