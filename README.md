@@ -133,7 +133,7 @@ As of this writing (8/24), there are some weird issues around whether you're usi
 ```
 export default defineNuxtConfig({
   devtools: { enabled: true },
-  modules: ["@nuxt/test-utils/module"],
+  modules: ['@nuxt/icon', '@nuxt/test-utils/module'],
 })
 ```
 - `touch vitest.config.ts`
@@ -160,13 +160,14 @@ export default antfu({
 
 ### Placeholder Hello World Homepage
 - `cd ~/app/frontend`
+- We'll run our Nuxt frontend on port 3001 and our Rails backend on port 3000.
 - make `~/app/frontend/nuxt.config.ts` look like this:
 ```
 export default defineNuxtConfig({
   runtimeConfig: { public: { apiBase: 'http://localhost:3000' }},
   devServer: { port: 3001 },
   devtools: { enabled: true },
-  modules: ["@nuxt/test-utils/module"],
+  modules: ['@nuxt/icon', '@nuxt/test-utils/module'],
 })
 ```
 - `npm run dev` -> should see Nuxt starter app at http://localhost:3001
