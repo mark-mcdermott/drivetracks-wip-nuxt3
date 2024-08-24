@@ -460,7 +460,7 @@ describe('homepage', async () => {
 
   it('matches the visual baseline', async () => {
     const homePage = await createPage('/')
-    await compareScreenshotWithBaseline(homePage, 'home-page', 'home-page-diff')
+    await compareScreenshotWithBaseline(homePage, 'page-home', 'page-home-diff')
   }, 20000)
 })
 ```
@@ -657,7 +657,7 @@ it('can mount some component', async () => {
 ```
 - `npm run dev` -> Homepage should have header and footer
 - `^ + c`
-- now that we've changed the way our homepage looks, we'll have to delete our pixelmatch baseline homepage image, which is `~/app/frontend/spec/e2e/screenshots/baseline/home-page.png` so it will take a new baseline image to compare to
+- now that we've changed the way our homepage looks, we'll have to delete our pixelmatch baseline homepage image, which is `~/app/frontend/spec/e2e/screenshots/baseline/page-home.png` so it will take a new baseline image to compare to
 - `npm run test` -> header, footer and homepage tests should all pass
 
 ### Move Homepage Spec Header/Footer Checks Into Shared.js
@@ -775,7 +775,7 @@ describe('homepage', async () => {
 
   it('matches the visual baseline', async () => {
     const homePage = await createPage('/')
-    await compareScreenshotWithBaseline(homePage, 'home-page', 'home-page-diff')
+    await compareScreenshotWithBaseline(homePage, 'page-home', 'page-home-diff')
   }, 20000)
 })
 ```
