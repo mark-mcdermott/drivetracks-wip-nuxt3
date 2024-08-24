@@ -826,6 +826,7 @@ describe('private page', async () => {
 ```
 
 ### Subpages
+- Now let's build out our `/public` and `/private` pages.
 - `cd ~/app/frontend`
 - `touch pages/public.vue pages/private.vue`
 - make `~/app/frontend/pages/public.vue` look like this:
