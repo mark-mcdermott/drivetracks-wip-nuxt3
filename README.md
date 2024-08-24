@@ -119,7 +119,7 @@ node_modules
 ### Vitest
 - install VSCode `Vitest` extension
 - `cd ~/app/frontend`
-- `npm install --save-dev @nuxt/test-utils vitest @vue/test-utils happy-dom eslint-plugin-vitest unplugin-auto-import unplugin-vue-components`
+- `npm install --save-dev @nuxt/test-utils vitest @vue/test-utils happy-dom eslint-plugin-vitest unplugin-auto-import unplugin-vue-components pixelmatch`
 - add `"@nuxt/test-utils/module"` to `~/app/frontend/nuxt.config.ts` so it looks like this:
 ```
 export default defineNuxtConfig({
@@ -152,6 +152,15 @@ export default defineNuxtConfig({
 });
 ```
 - `touch vitest.config.ts`
+- make `~/app/frontend/vitest.config.ts` look like this:
+```
+import { defineVitestConfig } from '@nuxt/test-utils/config'
+
+export default defineVitestConfig({
+  // any custom Vitest config you require
+})
+```
+- TODO: below is old, delete?
 - make `~/app/frontend/vitest.config.ts` look like this:
 ```
 import vue from '@vitejs/plugin-vue'
@@ -201,7 +210,6 @@ global.useAuth = vi.fn(() => { return { status: 'unauthenticated' } })
 ### Homepage E2E Spec
 - Let's do some test-driven development and write failing specs, build to spec and then make sure the tests pass.
 - `cd ~/app/frontend`
-- `npm install --save-dev @nuxt/test-utils vitest @vue/test-utils happy-dom playwright-core pixelmatch`
 - `mkdir spec/e2e`
 - First let's make a `shared.js` folder for shared Playwright code that will be used for testing more than one page
 - `touch spec/e2e/shared.js`
@@ -248,6 +256,22 @@ export const compareScreenshotWithBaseline = async (page, baselineName, diffName
 ```
 - Now let's build out our homepage spec.
 - `touch spec/e2e/home.spec.js`
+- make `~/app/frontend/spec/e2e/home.spec.js` look like this:
+```
+import { describe, test, expect } from 'vitest'
+import { setup } from '@nuxt/test-utils/e2e'
+import { createPage } from "@nuxt/test-utils";
+
+describe('My test', async () => {
+  await setup({ browser: true })
+  test('my test', async () => {
+    const page = await createPage("/");
+    const html = await page.innerHTML("body");
+    expect(html).toContain("My page!");
+  })
+})
+```
+TODO: below is old, delete?
 - make `~/app/frontend/spec/e2e/home.spec.js` look like this:
 ```
 import { createPage, setup } from '@nuxt/test-utils/e2e'
