@@ -792,6 +792,9 @@ describe('homepage', async () => {
   }, 20000)
 })
 ```
+- Before we do anything else, let's rerun our homepage spec to make sure we didn't break it in the refactor.
+- `npm run test spec/e2e/index.spec.js` -> should pass
+- `^ + c`
 
 ### Subpages E2E Specs
 - We're going to add a couple subpages, `/public` and `/private`. We'll write some specs first.
