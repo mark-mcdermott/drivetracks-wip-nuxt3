@@ -395,6 +395,81 @@ describe('homepage', async () => {
 ```
 - `npm run dev` -> Should be some ok looking homepage content now with a h1, some body copy and two buttons
 - `npm run test spec/e2e/index.spec.js` -> test should pass now
+- Our next big step is to add a header and footer to the site. But before that we'll update our homepage spec (which will then fail until the header/footer are build - which is what we want) and build out some component specs for the header and footer.
+
+### Add Failing Header/Footer Checks To Homepage Spec
+- As part of the subpages specs, we'll move the header/footer tests we've already written into `shared.js` so they can be run on multiple pages' tests without rewriting them multiple times.
+- `cd ~/app/frontend`
+- Now we'll adjust out homepage `index.spec.js` test to pull the header/footer tests from `shared.js`:
+```
+import { createPage } from '@nuxt/test-utils'
+import { setup } from '@nuxt/test-utils/e2e'
+import { describe, expect, it } from 'vitest'
+import { compareScreenshotWithBaseline, testFooterText, testHeaderLinks } from './shared'
+
+describe('homepage', async () => {
+  await setup({ browser: true })
+
+  it('has correct header links', async () => {
+    const page = await createPage('/')
+    const mainNav = await page.locator('header nav.header-main-nav')
+    const loginNav = await page.locator('header .header-login-nav')
+    const homeLink = await mainNav.locator('a[href="/"]')
+    const publicLink = await mainNav.locator('a[href="/public"]')
+    const privateLink = await mainNav.locator('a[href="/private"]')
+    const loginLink = await loginNav.locator('a[href="/login"]')
+    const signupLink = await loginNav.locator('a[href="/signup"]')
+
+    expect(await homeLink.textContent()).toContain('Home')
+    expect(await publicLink.textContent()).toContain('Public')
+    expect(await privateLink.textContent()).toContain('Private')
+    expect(await loginLink.textContent()).toContain('Log in')
+    expect(await signupLink.textContent()).toContain('Sign up')
+  })
+
+  it('displays h1 with correct text', async () => {
+    const page = await createPage('/')
+    const h1 = await page.locator('main h1')
+    const h1Text = await h1.innerHTML()
+    expect(await h1.isVisible()).toBe(true)
+    expect(h1Text).toContain('There was a wall.').and.toContain('It did not look important.')
+  })
+
+  it('displays p with correct text', async () => {
+    const page = await createPage('/')
+    const p = await page.locator('main p')
+    const pText = await p.innerHTML('p')
+    expect(await p.isVisible()).toBe(true)
+    expect(pText).toContain('It was built of uncut rocks roughly mortared. An adult could look right over it, and even a child could climb it. Where it crossed the roadway, instead of having a gate it degenerated into mere geometry, a line, an idea of boundary. But the idea was real.')
+  })
+
+  it('displays the correct buttons with hrefs and text', async () => {
+    const homePage = await createPage('/')
+    const main = await homePage.locator('main')
+    const loginButton = await main.locator('.hero-buttons a[href="/login"]')
+    const signupButton = await main.locator('.hero-buttons a[href="/signup"]')
+    expect(await loginButton.isVisible()).toBe(true)
+    expect(await loginButton.textContent()).toContain('Log in')
+    expect(await signupButton.isVisible()).toBe(true)
+    expect(await signupButton.textContent()).toContain('Sign up')
+  })
+
+  it('has correct footer text', async () => {
+    const page = await createPage('/')
+    const p = await page.locator('footer p')
+    const pText = await p.textContent()
+    expect(await p.isVisible()).toBe(true)
+    expect(pText).toContain('© 2024. Made with Nuxt, Tailwind, UI Thing, Rails, Fly.io and S3.')
+  })
+
+  it('matches the visual baseline', async () => {
+    const homePage = await createPage('/')
+    await compareScreenshotWithBaseline(homePage, 'home-page', 'home-page-diff')
+  }, 20000)
+})
+```
+- Let's run our homepage spec again to make sure it still works.
+- `npm run test spec/e2e/index.spec.js` -> should pass
 
 ### Header/Footer Component Specs
 - `cd ~/app/frontend`
@@ -641,9 +716,7 @@ describe('homepage', async () => {
 - now that we've changed the way our homepage looks, we'll have to delete our pixelmatch baseline homepage image, which is `~/app/frontend/spec/e2e/screenshots/baseline/home-page.png` so it will take a new baseline image to compare to
 - `npm run test` -> header, footer and homepage tests should all pass
 
-### Subpages E2E Specs
-- We're going to add a couple subpages, `/public` and `/private`. We'll write some specs first.
-- As part of the subpages specs, we'll move the header/footer tests we've already written into `shared.js` so they can be run on multiple pages' tests without rewriting them multiple times.
+### Move Homepage Spec Header/Footer Checks Into Shared.js
 - `cd ~/app/frontend`
 - make `~/app/frontend/spec/e2e/shared.js` look like this:
 ```
@@ -762,9 +835,9 @@ describe('homepage', async () => {
   }, 20000)
 })
 ```
-- Let's run our homepage spec again to make sure it still works.
-- `npm run test spec/e2e/index.spec.js` -> should pass
-- Now we'll make specs for our `/public` and `/private` pages.
+
+### Subpages E2E Specs
+- We're going to add a couple subpages, `/public` and `/private`. We'll write some specs first.
 - `touch spec/e2e/public.spec.js spec/e2e/private.spec.js`
 - make `~/app/frontend/specs/e2e/public.spec.js` look like this:
 ```
