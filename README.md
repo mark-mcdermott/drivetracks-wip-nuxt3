@@ -128,7 +128,7 @@ AWS details:
 ```
 export default defineNuxtConfig({
   devtools: { enabled: true },
-  modules: ['@nuxt/icon', '@nuxt/test-utils/module'],
+  modules: ['@nuxt/test-utils/module'],
 })
 ```
 - `touch vitest.config.ts`
