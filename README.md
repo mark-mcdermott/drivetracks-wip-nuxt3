@@ -412,7 +412,7 @@ describe('homepage', async () => {
   let page
 
   beforeAll(async () => {
-    page = await createPage('/public')
+    page = await createPage('/')
   })
 
   it('has correct header links', async () => {
@@ -736,11 +736,17 @@ export async function compareScreenshotWithBaseline(page, baselineName, diffName
 ```
 import { createPage } from '@nuxt/test-utils'
 import { setup } from '@nuxt/test-utils/e2e'
-import { describe, expect, it } from 'vitest'
+import { beforeAll, describe, expect, it } from 'vitest'
 import { compareScreenshotWithBaseline, testFooterText, testHeaderLinks } from './shared'
 
 describe('homepage', async () => {
   await setup({ browser: true })
+
+  let page
+
+  beforeAll(async () => {
+    page = await createPage('/')
+  })
 
   it('has correct header links', async () => {
     const page = await createPage('/')
