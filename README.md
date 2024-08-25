@@ -2288,15 +2288,18 @@ end
 - `rails db:migrate`
 - open your `~/app/.secrets`. You'll need the `access key ID`, `secret access key`, `region` and `bucket` in the next step.
 - `EDITOR="code --wait" rails credentials:edit`
-  - uncomment the first three lines (the AWS lines)
-  - add your `access key ID` and `secret access key` so the file will look something like this (with the x's replaced with your values):
+  - make the file that opens look like this:
 ```
 aws:
-  access_key_id: XXXXXXXXXXXXXXXXXXXX
-  secret_access_key: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+  access_key_id: <your aws access key id>
+  secret_access_key: <your aws secret access key>
   region: <your aws region>
   bucket: <your s3 production bucket name>
+
+# Used as the base secret for all MessageVerifiers in Rails, including the one protecting cookies.
+secret_key_base: <your secret_key_base that was already there. don't touch this>
 ```
+- make sure to fill in all the `<...>` sections with the corresponding info from your `.secrets` file and just leave the whole `secret_key_base` as is so don't touch it.
   - save and close the credentials.yml file
 - in your `~/app/backend/config/storage.yml` file, uncomment the `amazon` section and change the `bucket` line to use your actual s3 bucket name prefix - so if your production s3 bucket is `app-s3-bucket001-production`, the prefix would be `app-s3-bucket001`
 ```
