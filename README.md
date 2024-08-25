@@ -1988,6 +1988,7 @@ class DeviseCreateUsers < ActiveRecord::Migration[7.1]
       t.string :email,              null: false, default: ""
       t.string :encrypted_password, null: false, default: ""
 
+      ## Custom additions I did
       t.boolean :admin, default: false
       t.uuid :uuid, index: { unique: true }
 
@@ -2009,10 +2010,10 @@ class DeviseCreateUsers < ActiveRecord::Migration[7.1]
       t.string   :confirmation_token
       t.datetime :confirmed_at
       t.datetime :confirmation_sent_at
-      # t.string   :unconfirmed_email # Only if using reconfirmable
+      t.string   :unconfirmed_email # Only if using reconfirmable
 
       ## Lockable
-      # t.integer  :failed_attempts, default: 0, null: false # Only if lock strategy is :failed_attempts
+      t.integer  :failed_attempts, default: 0, null: false # Only if lock strategy is :failed_attempts
       t.string   :unlock_token # Only if unlock strategy is :email or :both
       t.datetime :locked_at
 
@@ -2025,7 +2026,6 @@ class DeviseCreateUsers < ActiveRecord::Migration[7.1]
     add_index :users, :unlock_token,         unique: true
   end
 end
-
 ```
 - `rails db:migrate`
 - make `~/app/backend/spec/factories/users.rb` look like this:
@@ -2242,6 +2242,12 @@ User.create!(email: 'test2@mail.com', password: 'password')
 ### Test The API
 - `rails server`
 - split your terminal and in the second pane, run `curl -H 'Content-Type: application/json' -X POST -d '{"user": { "email": "test@mail.com", "password" : "password" }}' http://localhost:3000/api/auth/signup`
+- Now a user is created. We will test the login API next, but first we must set the user's email to confirmed in the database:
+  - `rails console`
+  - `user = User.find_by(email: "test@mail.com")`
+  - `user.confirmed_at = Time.current`
+  - `user.save!`
+  - `exit`  
 - `curl -H 'Content-Type: application/json' -X POST -d '{"user": { "email": "test@mail.com", "password" : "password" }}' http://localhost:3000/api/auth/login`
 - kill the server with `^ + c`
 
