@@ -2040,7 +2040,6 @@ end
 
 ### User Registration
 - `rails g devise:controllers users -c sessions registrations`
-- add `respond_to :json` to `~/app/backend/app/controllers/users/registrations_controller.rb` and `~/app/backend/app/controllers/users/sessions_controller.rb` (in both files hit return at the start of line 4 right after the opening `class` line to create a blank line and add `respond_to :json` there)
 - make `~/app/backend/config/routes.rb` look like this:
 ```
 # frozen_string_literal: true
