@@ -1,0 +1,15 @@
+{
+  "name": "app",
+  "version": "1.0.0",
+  "description": "- Rails 7 postgres backend, Nuxt 3 frontend using tailwindcss - Hosted on fly.io",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@antfu/eslint-config": "^2.27.1",
+    "eslint": "^9.9.0"
+  }
+}
