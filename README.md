@@ -1668,7 +1668,7 @@ async function createUser() {
 - That's it for the frontend for now. We're sort of halfway through getting user login functionality working. The other half is on the backend, which we'll build next.
 
 ## Backend
-- Our Rails API-only backend will serve our users to the frontend for login. We'll use Devise and JWT for backend auth.
+- Our Rails API-only backend will serve our users to the frontend for login. We'll use Devise and JWT for backend auth. We'll also setup S3 on AWS for hosting our avatars and other file uploads.
 
 ### Rails Starter API
 - install VSCode extentions `Ruby LSP` and `Rubocop`
