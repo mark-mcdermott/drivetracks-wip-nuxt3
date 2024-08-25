@@ -2242,13 +2242,16 @@ User.create!(email: 'test2@mail.com', password: 'password')
 ### Test The API
 - `rails server`
 - split your terminal and in the second pane, run `curl -H 'Content-Type: application/json' -X POST -d '{"user": { "email": "test@mail.com", "password" : "password" }}' http://localhost:3000/api/auth/signup`
-- Now a user is created. We will test the login API next, but first we must set the user's email to confirmed in the database:
+- You should see a `status: 200` in the response somewhere and now a user is created. We will test the login API next, but first we must set the user's email to confirmed in the database. In your first terminal (the rails server one):
+  - `^ + c` -> to kill the server
   - `rails console`
   - `user = User.find_by(email: "test@mail.com")`
   - `user.confirmed_at = Time.current`
   - `user.save!`
   - `exit`  
-- `curl -H 'Content-Type: application/json' -X POST -d '{"user": { "email": "test@mail.com", "password" : "password" }}' http://localhost:3000/api/auth/login`
+  - `rails server` -> to restart the server
+- in the second terminal now run `curl -H 'Content-Type: application/json' -X POST -d '{"user": { "email": "test@mail.com", "password" : "password" }}' http://localhost:3000/api/auth/login`
+- you should see a `status: 200` in the response somewhere and now our user is logged in
 - kill the server with `^ + c`
 
 ### S3 In Rails
