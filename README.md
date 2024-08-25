@@ -2150,9 +2150,8 @@ end
 ```
 class User < ApplicationRecord
   include Devise::JWT::RevocationStrategies::JTIMatcher
-  devise :database_authenticatable, :registerable,
-         :recoverable, :rememberable, :validatable,
-         :confirmable, :lockable, :timeoutable, :trackable
+  devise :database_authenticatable, :registerable, :validatable,
+         :jwt_authenticatable, jwt_revocation_strategy: self
   before_create :set_uuid
 
   private
@@ -2230,7 +2229,25 @@ class CurrentUserController < ApplicationController
   end
 end
 ```
-- in `~/app/backend/config/routes.rb` replace `get 'current_user/index'` with `get '/api/auth/session', to: 'current_user#index'`
+- make `~/app/backend/config/routes.rb` look like this:
+```
+# frozen_string_literal: true
+
+Rails.application.routes.draw do
+  resources :users, param: :uuid
+  devise_for :users, path: '', path_names: {
+    sign_in: 'api/auth/login',
+    sign_out: 'api/auth/logout',
+    registration: 'api/auth/signup'
+  },
+  controllers: {
+    sessions: 'users/sessions',
+    registrations: 'users/registrations'
+  }
+  get '/api/auth/session', to: 'current_user#index'
+  get 'up' => 'rails/health#show', as: :rails_health_check
+end
+```
 
 ### User Seeds
 - make `~/app/backend/db/seeds.rb` look like this:
