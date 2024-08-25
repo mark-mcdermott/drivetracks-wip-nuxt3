@@ -2310,14 +2310,14 @@ amazon:
   region: <your aws region string>
   bucket: <your s3 bucket name prefix>-<%= Rails.env %>
 ```
-- in `~/app/backend/app/models/user.rb`, add `has_one_attached :avatar` so it looks like this:
+- in `~/app/backend/app/models/user.rb`, add `has_one_attached :avatar` and a `avatar_url` method so it looks like this:
 ```
 class User < ApplicationRecord
   include Devise::JWT::RevocationStrategies::JTIMatcher
-  devise :database_authenticatable, :registerable, :validatable,
-         :jwt_authenticatable, jwt_revocation_strategy: self
+  devise :database_authenticatable, :registerable,
+         :recoverable, :rememberable, :validatable,
+         :confirmable, :lockable, :timeoutable, :trackable
   has_one_attached :avatar
-
   before_create :set_uuid
 
   def avatar_url
@@ -2331,7 +2331,7 @@ class User < ApplicationRecord
   end
 end
 ```
-- in `~/app/backend/app/controllers/users_controller.rb`, add `:avatar` to the permitted parameters and change the `update` method so the whole file looks like this:
+- in `~/app/backend/app/controllers/users/users_controller.rb`, add `:avatar` to the permitted parameters and change the `update` method so the whole file looks like this:
 ```
 class UsersController < ApplicationController
   before_action :set_user, only: %i[ show edit update destroy ]
@@ -2402,7 +2402,7 @@ class UserSerializer
   attributes :id, :email, :uuid, :avatar_url
 end
 ```
-- change `~/app/backend/config/routes.rb` to look like this:
+- the `~/app/backend/config/routes.rb` file should already look like this, but just double check:
 ```
 # frozen_string_literal: true
 
@@ -2418,8 +2418,8 @@ Rails.application.routes.draw do
     registrations: 'users/registrations'
   }
   get '/api/auth/session', to: 'current_user#index'
-  get 'up' => 'rails/health#show', as: :rails_health_check
   get 'upload', to: 'uploads#presigned_url'
+  get 'up' => 'rails/health#show', as: :rails_health_check
 end
 ```
 
