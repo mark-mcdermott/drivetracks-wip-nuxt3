@@ -1350,6 +1350,7 @@ async function login() {
 ```
 
 ### Signup Page
+- Let's also build out the signup page.
 - `cd ~/app/frontend`
 - `touch pages/signup.vue`
 - make `~/app/frontend/pages/signup.vue` look like this:
@@ -1400,6 +1401,7 @@ async function register() {
 ```
 
 ### Nuxt User Views
+- Here we'll build out the frontend user pages - index, show, edit and new.
 - `cd ~/app/frontend`
 - `npx ui-thing@latest add card table`
 - `mkdir pages/users`
