@@ -2028,7 +2028,7 @@ end
 
 ```
 - `rails db:migrate`
-- make ~/app/backend/spec/factories/user.rb (TODO: is it `user.rb` or `users.rb`???) look like this:
+- make `~/app/backend/spec/factories/users.rb` look like this:
 ```
 FactoryBot.define do
   factory :user do
