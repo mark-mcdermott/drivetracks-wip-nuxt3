@@ -1974,7 +1974,7 @@ end
 ### User Model
 - `cd ~/app/backend`
 - `rails g migration EnableUuid`
-- add `enable_extension 'pgcrypto'` to `~/app/backend/db/migrate/<timestamp>_enable_uuuid.rb`
+- add `enable_extension 'pgcrypto'` to `~/app/backend/db/migrate/<timestamp>_enable_uuuid.rb` inside the `change` method
 - `rails db:migrate`
 - `rails generate devise User`
 - to `~/app/backend/db/<timestamp>_devise_create_users.rb`, add this near the other `t.` lines:
