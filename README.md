@@ -1283,6 +1283,7 @@ async function logout() {
 - TODO!!!
 
 ### Login Page
+- Let's build out the login page. Login/logout functionality won't work until we get to the backend, but we build the actual page here.
 - `cd ~/app/frontend`
 - `npx ui-thing@latest add vee-input form vue-sonner` -> hit `y` when asked about installing dependencies
 - `touch pages/login.vue`
