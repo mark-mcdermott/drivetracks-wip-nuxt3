@@ -2301,6 +2301,20 @@ User.create!(email: 'test2@mail.com', password: 'password')
 - you should see a `status: 200` in the response somewhere and now our user is logged in
 - kill the server with `^ + c`
 
+### Swagger
+- Let's create Swagger API documentation.
+- `cd ~/app/backend`
+- `bundle add rswag`
+- `bundle install`
+- `rails g rswag:install`
+- `rails generate rspec:swagger Api::V1::Auth::CurrentUserController`
+- `rails generate rspec:swagger Api::V1::Auth::RegistrationsController`
+- `rails generate rspec:swagger Api::V1::Auth::SessionsController`
+- `rails generate rspec:swagger Api::V1::UsersController`
+
+
+- `rake rswag`
+
 ### S3 In Rails
 - `cd ~/app/backend`
 - `bundle add aws-sdk-s3`
