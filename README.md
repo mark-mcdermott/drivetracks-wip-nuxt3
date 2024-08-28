@@ -2060,6 +2060,7 @@ end
 
 ### Users Controller
 - `cd ~/app/backend`
+- `mkdir app/controllers/users`
 - `touch app/controllers/users/users_controller.rb`
 - make `~/app/backend/app/controllers/users/users_controller.rb` look like this:
 ```
