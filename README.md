@@ -1006,6 +1006,7 @@ export default defineNuxtConfig({
   auth: {
     computed: { pathname: development ? 'http://localhost:3000/api/v1/auth/' : 'https://interview-app-backend.fly.dev/api/auth/' },
     isEnabled: true,
+    baseURL: 'http://localhost:3000/api/v1/auth',
     globalAppMiddleware: { isEnabled: true },
     provider: {
       type: 'local',
