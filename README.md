@@ -2046,7 +2046,11 @@ end
 # frozen_string_literal: true
 
 Rails.application.routes.draw do
-  resources :users, param: :uuid
+  namespace :api do
+    namespace :v1 do
+      resources :users, param: :uuid
+    end
+  end
   devise_for :users, path: '', path_names: {
     sign_in: 'api/v1/auth/login',
     sign_out: 'api/v1/auth/logout',
@@ -2062,11 +2066,10 @@ end
 
 ### Users Controller
 - `cd ~/app/backend`
-- `mkdir app/controllers/users`
-- `touch app/controllers/users/users_controller.rb`
-- make `~/app/backend/app/controllers/users/users_controller.rb` look like this:
+- `touch app/controllers/api/v1/users_controller.rb`
+- make `~/app/backend/app/controllers/api/v1/users_controller.rb` look like this:
 ```
-class UsersController < ApplicationController
+class Api::V1::UsersController < ApplicationController
   before_action :set_user, only: %i[ show edit update destroy ]
 
   # GET /users or /users.json
@@ -2242,10 +2245,10 @@ end
 ```
 
 ### Current User Endpoint
-- `rails g controller current_user index`
-- make `~/app/backend/app/controller/current_user_controller.rb` look like this:
+- `rails g controller Api::V1::Auth::current_user index`
+- make `~/app/backend/app/controllers/api/v1/auth/current_user_controller.rb` look like this:
 ```
-class CurrentUserController < ApplicationController
+class Api::V1::Auth::CurrentUserController < ApplicationController
   before_action :authenticate_user!
   def index
     render json: UserSerializer.new(current_user).serializable_hash[:data][:attributes], status: :ok
@@ -2257,7 +2260,11 @@ end
 # frozen_string_literal: true
 
 Rails.application.routes.draw do
-  resources :users, param: :uuid
+  namespace :api do
+    namespace :v1 do
+      resources :users, param: :uuid
+    end
+  end
   devise_for :users, path: '', path_names: {
     sign_in: 'api/v1/auth/login',
     sign_out: 'api/v1/auth/logout',
@@ -2286,7 +2293,7 @@ User.create!(email: 'test2@mail.com', password: 'password')
   - `^ + c` -> to kill the server
   - `rails console`
   - `user = User.find_by(email: "test@mail.com")`
-  - `user.confirmed_at = Time.current`
+  - `user.confirmed_at = Time.now`
   - `user.save!`
   - `exit`  
   - `rails server` -> to restart the server
@@ -2325,7 +2332,11 @@ end
 # frozen_string_literal: true
 
 Rails.application.routes.draw do
-  resources :users, param: :uuid
+  namespace :api do
+    namespace :v1 do
+      resources :users, param: :uuid
+    end
+  end
   devise_for :users, path: '', path_names: {
     sign_in: 'api/v1/auth/login',
     sign_out: 'api/v1/auth/logout',
