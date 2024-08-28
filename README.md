@@ -1004,7 +1004,7 @@ export default defineNuxtConfig({
     ],
   },
   auth: {
-    computed: { pathname: development ? 'http://localhost:3000/api/auth/' : 'https://interview-app-backend.fly.dev/api/auth/' },
+    computed: { pathname: development ? 'http://localhost:3000/api/v1/auth/' : 'https://interview-app-backend.fly.dev/api/auth/' },
     isEnabled: true,
     globalAppMiddleware: { isEnabled: true },
     provider: {
@@ -1012,10 +1012,10 @@ export default defineNuxtConfig({
       pages: { login: '/' },
       token: { signInResponseTokenPointer: '/token' },
       endpoints: {
-        signIn: { path: '/login', method: 'post' },
-        signOut: { path: '/logout', method: 'delete' },
-        signUp: { path: '/signup', method: 'post' },
-        getSession: { path: '/session', method: 'get' },
+        signIn: { path: 'login', method: 'post' },
+        signOut: { path: 'logout', method: 'delete' },
+        signUp: { path: 'signup', method: 'post' },
+        getSession: { path: 'session', method: 'get' },
       },
     },
   }
