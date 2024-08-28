@@ -2039,7 +2039,7 @@ end
 ```
 
 ### User Registration
-- `rails g devise:controllers users -c sessions registrations`
+- `rails g devise:controllers api/v1/auth -c sessions registrations`
 - make `~/app/backend/config/routes.rb` look like this:
 ```
 # frozen_string_literal: true
