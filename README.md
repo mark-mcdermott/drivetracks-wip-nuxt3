@@ -2167,7 +2167,7 @@ end
 - `rails generate serializer user id email uuid`
 
 ### Auth Controllers
-- make `~/app/backend/app/controllers/registrations_controller.rb` look like this:
+- make `~/app/backend/app/controllers/api/v1/auth/registrations_controller.rb` look like this:
 ```
 class Api::V1::Auth::RegistrationsController < Devise::RegistrationsController
   respond_to :json
@@ -2191,7 +2191,7 @@ class Api::V1::Auth::RegistrationsController < Devise::RegistrationsController
   end
 end
 ```
-- make `~/app/backend/app/controllers/sessions_controller.rb` look like this:
+- make `~/app/backend/app/controllers/api/v1/auth/sessions_controller.rb` look like this:
 ```
 class Api::V1::Auth::SessionsController < ApplicationController
   before_action :authenticate_user!, only: [:destroy]
