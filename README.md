@@ -2311,9 +2311,9 @@ User.create!(email: 'test2@mail.com', password: 'password')
 - `rails generate rspec:swagger Api::V1::Auth::RegistrationsController`
 - `rails generate rspec:swagger Api::V1::Auth::SessionsController`
 - `rails generate rspec:swagger Api::V1::UsersController`
-
-
-- `rake rswag`
+- `rake rswag:specs:swaggerize`
+- `rails s`
+- in a browser go to `http://localhost:3000/api-docs` -> nice html doc of your API
 
 ### S3 In Rails
 - `cd ~/app/backend`
