@@ -2051,7 +2051,8 @@ Rails.application.routes.draw do
     sign_in: 'api/v1/auth/login',
     sign_out: 'api/v1/auth/logout',
     registration: 'api/v1/auth/signup'
-  }, controllers: {
+  },
+  controllers: {
     sessions: 'api/v1/auth/sessions',
     registrations: 'api/v1/auth/registrations'
   }
@@ -2258,15 +2259,15 @@ end
 Rails.application.routes.draw do
   resources :users, param: :uuid
   devise_for :users, path: '', path_names: {
-    sign_in: 'api/auth/login',
-    sign_out: 'api/auth/logout',
-    registration: 'api/auth/signup'
+    sign_in: 'api/v1/auth/login',
+    sign_out: 'api/v1/auth/logout',
+    registration: 'api/v1/auth/signup'
   },
   controllers: {
-    sessions: 'users/sessions',
-    registrations: 'users/registrations'
+    sessions: 'api/v1/auth/sessions',
+    registrations: 'api/v1/auth/registrations'
   }
-  get '/api/auth/session', to: 'current_user#index'
+  get '/api/auth/sessions', to: 'current_user#index'
   get 'up' => 'rails/health#show', as: :rails_health_check
 end
 ```
@@ -2329,11 +2330,12 @@ Rails.application.routes.draw do
     sign_in: 'api/v1/auth/login',
     sign_out: 'api/v1/auth/logout',
     registration: 'api/v1/auth/signup'
-  }, controllers: {
+  },
+  controllers: {
     sessions: 'api/v1/auth/sessions',
     registrations: 'api/v1/auth/registrations'
   }
-  get '/api/v1/auth/sessions', to: 'current_user#index'
+  get '/api/auth/sessions', to: 'current_user#index'
   get 'upload', to: 'uploads#presigned_url'
   get 'up' => 'rails/health#show', as: :rails_health_check
 end
