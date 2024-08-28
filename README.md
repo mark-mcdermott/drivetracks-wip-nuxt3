@@ -2047,13 +2047,12 @@ end
 Rails.application.routes.draw do
   resources :users, param: :uuid
   devise_for :users, path: '', path_names: {
-    sign_in: 'api/auth/login',
-    sign_out: 'api/auth/logout',
-    registration: 'api/auth/signup'
-  },
-  controllers: {
-    sessions: 'users/sessions',
-    registrations: 'users/registrations'
+    sign_in: 'api/v1/auth/login',
+    sign_out: 'api/v1/auth/logout',
+    registration: 'api/v1/auth/signup'
+  }, controllers: {
+    sessions: 'api/v1/auth/sessions',
+    registrations: 'api/v1/auth/registrations'
   }
   get 'up' => 'rails/health#show', as: :rails_health_check
 end
@@ -2129,16 +2128,16 @@ end
 ### JWT
 - add this to `~/app/backend/config/initializers/devise.rb` right before the last `end`:
 ```
-config.jwt do |jwt|
-  jwt.secret = Rails.application.credentials.fetch(:secret_key_base)
-  jwt.dispatch_requests = [
-    ['POST', %r{^/login$}]
-  ]
-  jwt.revocation_requests = [
-    ['DELETE', %r{^/logout$}]
-  ]
-  jwt.expiration_time = 30.minutes.to_i
-end
+  config.jwt do |jwt|
+    jwt.secret = Rails.application.credentials.fetch(:secret_key_base)
+    jwt.dispatch_requests = [
+      ['POST', %r{^/api/v1/auth/login$}]
+    ]
+    jwt.revocation_requests = [
+      ['DELETE', %r{^/api/v1/auth//logout$}]
+    ]
+    jwt.expiration_time = 30.minutes.to_i
+  end
 ```
 - `rails g migration addJtiToUsers jti:string:index:unique`
 - change `~/app/backend/db/migrate/<timestamp>_add_jti_to_users.rb` to include this:
@@ -2150,7 +2149,9 @@ end
 ```
 class User < ApplicationRecord
   include Devise::JWT::RevocationStrategies::JTIMatcher
-  devise :database_authenticatable, :registerable, :validatable,
+  devise :database_authenticatable, :registerable,
+         :recoverable, :rememberable, :validatable,
+         :confirmable, :lockable, :timeoutable, :trackable,
          :jwt_authenticatable, jwt_revocation_strategy: self
   before_create :set_uuid
 
@@ -2191,22 +2192,41 @@ end
 ```
 - make `~/app/backend/app/controllers/sessions_controller.rb` look like this:
 ```
-class Users::SessionsController < Devise::SessionsController
-  respond_to :json
-  private
+class Api::V1::Auth::SessionsController < ApplicationController
+  before_action :authenticate_user!, only: [:destroy]
 
-  def respond_with(resource, _opts = {})
-    render json: {
-      token: request.env['warden-jwt_auth.token'],
-      status: {code: 200, message: 'Logged in sucessfully.'},
-    }, status: :ok
+  def create
+    user_params = params.dig(:user) || params.dig(:session, :user)
+
+    if user_params.present?
+      user = User.find_by(email: user_params[:email])
+
+      if user&.valid_password?(user_params[:password])
+        token = Warden::JWTAuth::UserEncoder.new.call(user, :user, nil).first
+        render json: {
+          token: token,
+          status: { code: 200, message: 'Logged in successfully.' }
+        }, status: :ok
+      else
+        render json: {
+          status: 401,
+          message: 'Invalid email or password.'
+        }, status: :unauthorized
+      end
+    else
+      render json: {
+        status: 400,
+        message: 'Invalid parameters.'
+      }, status: :bad_request
+    end
   end
 
-  def respond_to_on_destroy
+  def destroy
     if current_user
+      # Assuming you have a method to handle logout logic
       render json: {
         status: 200,
-        message: "logged out successfully"
+        message: 'Logged out successfully.'
       }, status: :ok
     else
       render json: {
@@ -2220,7 +2240,7 @@ end
 
 ### Current User Endpoint
 - `rails g controller current_user index`
-- make `~/app/backend/app/controller/current_users_controller.rb` look like this:
+- make `~/app/backend/app/controller/current_user_controller.rb` look like this:
 ```
 class CurrentUserController < ApplicationController
   before_action :authenticate_user!
@@ -2297,7 +2317,25 @@ class UploadsController < ApplicationController
   end
 end
 ```
-- add `get 'upload', to: 'uploads#presigned_url'` to `~/app/backend/config/routes.rb`
+- add `get 'upload', to: 'uploads#presigned_url'` to `~/app/backend/config/routes.rb` so it looks like this:
+```
+# frozen_string_literal: true
+
+Rails.application.routes.draw do
+  resources :users, param: :uuid
+  devise_for :users, path: '', path_names: {
+    sign_in: 'api/v1/auth/login',
+    sign_out: 'api/v1/auth/logout',
+    registration: 'api/v1/auth/signup'
+  }, controllers: {
+    sessions: 'api/v1/auth/sessions',
+    registrations: 'api/v1/auth/registrations'
+  }
+  get '/api/v1/auth/sessions', to: 'current_user#index'
+  get 'upload', to: 'uploads#presigned_url'
+  get 'up' => 'rails/health#show', as: :rails_health_check
+end
+```
 
 ### Avatars In Rails
 - `cd ~/app/backend`
@@ -2417,26 +2455,6 @@ end
 class UserSerializer
   include JSONAPI::Serializer
   attributes :id, :email, :uuid, :avatar_url
-end
-```
-- the `~/app/backend/config/routes.rb` file should already look like this, but just double check:
-```
-# frozen_string_literal: true
-
-Rails.application.routes.draw do
-  resources :users, param: :uuid
-  devise_for :users, path: '', path_names: {
-    sign_in: 'api/auth/login',
-    sign_out: 'api/auth/logout',
-    registration: 'api/auth/signup'
-  },
-  controllers: {
-    sessions: 'users/sessions',
-    registrations: 'users/registrations'
-  }
-  get '/api/auth/session', to: 'current_user#index'
-  get 'upload', to: 'uploads#presigned_url'
-  get 'up' => 'rails/health#show', as: :rails_health_check
 end
 ```
 
