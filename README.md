@@ -2168,7 +2168,7 @@ end
 ### Auth Controllers
 - make `~/app/backend/app/controllers/registrations_controller.rb` look like this:
 ```
-class Users::RegistrationsController < Devise::RegistrationsController
+class Api::V1::Auth::RegistrationsController < Devise::RegistrationsController
   respond_to :json
   private
 
