@@ -2274,7 +2274,7 @@ Rails.application.routes.draw do
     sessions: 'api/v1/auth/sessions',
     registrations: 'api/v1/auth/registrations'
   }
-  get '/api/auth/session', to: 'current_user#index'
+  get '/api/v1/auth/sessions', to: 'api/v1/auth/current_user#index'
   get 'up' => 'rails/health#show', as: :rails_health_check
 end
 ```
@@ -2360,7 +2360,7 @@ Rails.application.routes.draw do
     sessions: 'api/v1/auth/sessions',
     registrations: 'api/v1/auth/registrations'
   }
-  get '/api/auth/session', to: 'current_user#index'
+  get '/api/v1/auth/sessions', to: 'api/v1/auth/current_user#index'
   get 'upload', to: 'uploads#presigned_url'
   get 'up' => 'rails/health#show', as: :rails_health_check
 end
