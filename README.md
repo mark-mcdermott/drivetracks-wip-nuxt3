@@ -2200,6 +2200,7 @@ end
 ```
 class Api::V1::Auth::SessionsController < ApplicationController
   before_action :authenticate_user!, only: [:destroy]
+  respond_to :json
 
   def create
     user_params = params.dig(:user) || params.dig(:session, :user)
