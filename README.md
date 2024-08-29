@@ -1016,7 +1016,7 @@ export default defineNuxtConfig({
         signIn: { path: 'login', method: 'post' },
         signOut: { path: 'logout', method: 'delete' },
         signUp: { path: 'signup', method: 'post' },
-        getSession: { path: 'session', method: 'get' },
+        getSession: { path: 'sessions', method: 'get' },
       },
     },
   }
