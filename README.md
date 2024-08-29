@@ -2057,7 +2057,7 @@ Rails.application.routes.draw do
     registration: 'api/v1/auth/signup'
   },
   controllers: {
-    sessions: 'api/v1/auth/sessions',
+    session: 'api/v1/auth/sessions',
     registrations: 'api/v1/auth/registrations'
   }
   get 'up' => 'rails/health#show', as: :rails_health_check
@@ -2271,7 +2271,7 @@ Rails.application.routes.draw do
     registration: 'api/v1/auth/signup'
   },
   controllers: {
-    sessions: 'api/v1/auth/sessions',
+    session: 'api/v1/auth/sessions',
     registrations: 'api/v1/auth/registrations'
   }
   get '/api/auth/session', to: 'current_user#index'
@@ -2357,7 +2357,7 @@ Rails.application.routes.draw do
     registration: 'api/v1/auth/signup'
   },
   controllers: {
-    sessions: 'api/v1/auth/sessions',
+    session: 'api/v1/auth/sessions',
     registrations: 'api/v1/auth/registrations'
   }
   get '/api/auth/session', to: 'current_user#index'
