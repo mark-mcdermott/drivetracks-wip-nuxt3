@@ -394,6 +394,7 @@ describe('homepage', async () => {
 </template>
 ```
 - `npm run dev` -> Should be some ok looking homepage content now with a h1, some body copy and two buttons
+- now that we've changed the way our homepage looks, we'll have to delete our pixelmatch baseline homepage image, which is at `~/app/frontend/spec/e2e/screenshots/baseline/page-home.png`
 - `npm run test spec/e2e/index.spec.js` -> test should pass now
 
 ### Add Failing Header/Footer Checks To Homepage Spec
