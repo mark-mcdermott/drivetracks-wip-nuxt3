@@ -2303,6 +2303,12 @@ User.create!(email: 'test2@mail.com', password: 'password')
 - you should see a `status: 200` in the response somewhere and now our user is logged in
 - kill the server with `^ + c`
 
+### Test The UI
+- in a browser, go to http://localhost:3001
+  - home & public pages should work
+  - logging in (with the default `test@mail.com` / `password`) should work and should show the Private page link and the user avatar for the user menu
+  - logging out should work
+
 ### Swagger
 - Let's create Swagger API documentation.
 - `cd ~/app/backend`
