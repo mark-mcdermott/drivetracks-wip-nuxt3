@@ -400,7 +400,7 @@ describe('homepage', async () => {
 ### Add Failing Header/Footer Checks To Homepage Spec
 - Our next big step is to add a header and footer to the site. But before that we'll update our homepage spec (which will then fail until the header/footer are build - which is what we want) and build out some component specs for the header and footer.
 - `cd ~/app/frontend`
-- Let's adjust our homepage `index.spec.js` test check for the header links and the footer test we're about to add. Let's also adjust some of the selectors in the checks we already had to nest them inside `main` so instead of just looking for a `p` tag, not it will look for `main p` to be more specific and not catch the footer text when we're looking for the body text.
+- Let's adjust our homepage `index.spec.js` test check for the header links and the footer test we're about to add. Let's also adjust some of the selectors in the checks we already had to nest them inside `main` so instead of just looking for a `p` tag, not it will look for `main p` to be more specific and not catch the footer text when we're looking for the body text. So make `~/app/spec/e2e/index.spec.js` look like:
 ```
 import { createPage } from '@nuxt/test-utils'
 import { setup } from '@nuxt/test-utils/e2e'
