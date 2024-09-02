@@ -154,7 +154,7 @@ config.include FactoryBot::Syntax::Methods
 
 ### Health Status Controller
 - `cd ~/app/backend`
-- `touch app/controller/health_controller.rb`
+- `touch app/controllers/health_controller.rb`
 - make `~/app/backend/app/controllers/health_controller.rb` look like this:
 ```
 class HealthController < ApplicationController
