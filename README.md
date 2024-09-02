@@ -78,6 +78,77 @@ AWS details:
     - copy the frontend app url it gives you at the end of all the output and paste it into your `.secrets` file at the `frontend url:` line
 - in a browser, go to your fly.io frontend app url. You should see the default Nuxt placeholder homepage.
 
+## Placeholder Backend API
+- Mostly we're going to get the frontend up and running first, but to make sure everything's wired up correctly, we're going to first quickly build out a small placeholder backend API with rpec tests.
+
+### Rubocop
+- `cd ~/app/backend`
+- `bundle add rubocop-rails`
+- `bundle install`
+- `touch .rubocop.yml`
+- to `.rubocop.yml` add:
+```
+require: rubocop-rails
+Style/Documentation:
+  Enabled: false
+```
+- `rubocop -A`
+
+### RSpec
+- `bundle add rspec-rails --group "development, test"`
+- `bundle install`
+- `rails generate rspec:install`
+
+### Database Cleaner
+- `bundle add database_cleaner-active_record`
+- `bundle install`
+- make `~/app/backend/spec/rails_helper.rb` look like this:
+```
+require 'spec_helper'
+ENV['RAILS_ENV'] ||= 'test'
+require_relative '../config/environment'
+abort("The Rails environment is running in production mode!") if Rails.env.production?
+require 'rspec/rails'
+require 'database_cleaner/active_record'
+
+begin
+  ActiveRecord::Migration.maintain_test_schema!
+rescue ActiveRecord::PendingMigrationError => e
+  abort e.to_s.strip
+end
+
+RSpec.configure do |config|
+  config.use_transactional_fixtures = false
+
+  config.before(:suite) do
+    DatabaseCleaner.clean_with(:truncation)
+  end
+
+  config.before(:each) do
+    DatabaseCleaner.strategy = :transaction
+    DatabaseCleaner.start
+    Rails.application.routes.default_url_options[:host] = 'http://localhost:3000'
+  end
+
+  config.after(:each) do
+    DatabaseCleaner.clean
+  end
+
+  config.infer_spec_type_from_file_location!
+  config.filter_rails_from_backtrace!
+end
+```
+
+### Factory Bot
+- `bundle add factory_bot_rails --group "development, test"`
+- `bundle install`
+- `mkdir spec/factories`
+- we will wait to create the user factory until Devise creates it for us automatically when we use Devise to generate the user model
+- in `~/app/backend/spec/rails_helper.rb`, in the line after `RSpec.configure do |config|` add a blank line and put this there: 
+```
+config.include FactoryBot::Syntax::Methods
+```
+
 ## Frontend 
 
 ### ESLint AutoSave
@@ -1833,74 +1904,6 @@ Now we'll create our AWS S3 account so we can store our user avatar images there
   - look at the highlighted region in the dropdown and look for the region string to the right of it - something like `us-east-1`
   - paste your region string in your `~/app/.secrets` file in the `aws region` line
 - we're now done with our S3 setup and our AWS dashboard, at least for now. So let's go back to our terminal where we're building out our rails backend
-
-### Rubocop
-- `cd ~/app/backend`
-- `bundle add rubocop-rails`
-- `bundle install`
-- `touch .rubocop.yml`
-- to `.rubocop.yml` add:
-```
-require: rubocop-rails
-Style/Documentation:
-  Enabled: false
-```
-- `rubocop -A`
-
-### RSpec
-- `bundle add rspec-rails --group "development, test"`
-- `bundle install`
-- `rails generate rspec:install`
-
-### Database Cleaner
-- `bundle add database_cleaner-active_record`
-- `bundle install`
-- make `~/app/backend/spec/rails_helper.rb` look like this:
-```
-require 'spec_helper'
-ENV['RAILS_ENV'] ||= 'test'
-require_relative '../config/environment'
-abort("The Rails environment is running in production mode!") if Rails.env.production?
-require 'rspec/rails'
-require 'database_cleaner/active_record'
-
-begin
-  ActiveRecord::Migration.maintain_test_schema!
-rescue ActiveRecord::PendingMigrationError => e
-  abort e.to_s.strip
-end
-
-RSpec.configure do |config|
-  config.use_transactional_fixtures = false
-
-  config.before(:suite) do
-    DatabaseCleaner.clean_with(:truncation)
-  end
-
-  config.before(:each) do
-    DatabaseCleaner.strategy = :transaction
-    DatabaseCleaner.start
-    Rails.application.routes.default_url_options[:host] = 'http://localhost:3000'
-  end
-
-  config.after(:each) do
-    DatabaseCleaner.clean
-  end
-
-  config.infer_spec_type_from_file_location!
-  config.filter_rails_from_backtrace!
-end
-```
-
-### Factory Bot
-- `bundle add factory_bot_rails --group "development, test"`
-- `bundle install`
-- `mkdir spec/factories`
-- we will wait to create the user factory until Devise creates it for us automatically when we use Devise to generate the user model
-- in `~/app/backend/spec/rails_helper.rb`, in the line after `RSpec.configure do |config|` add a blank line and put this there: 
-```
-config.include FactoryBot::Syntax::Methods
-```
 
 ### Auth Spec
 - `cd ~/app/backend`
