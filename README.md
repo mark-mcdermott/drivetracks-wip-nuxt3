@@ -95,11 +95,13 @@ Style/Documentation:
 - `rubocop -A`
 
 ### RSpec
+- `cd ~/app/backend`
 - `bundle add rspec-rails --group "development, test"`
 - `bundle install`
 - `rails generate rspec:install`
 
 ### Database Cleaner
+- `cd ~/app/backend`
 - `bundle add database_cleaner-active_record`
 - `bundle install`
 - make `~/app/backend/spec/rails_helper.rb` look like this:
@@ -140,6 +142,7 @@ end
 ```
 
 ### Factory Bot
+- `cd ~/app/backend`
 - `bundle add factory_bot_rails --group "development, test"`
 - `bundle install`
 - `mkdir spec/factories`
@@ -147,6 +150,22 @@ end
 - in `~/app/backend/spec/rails_helper.rb`, in the line after `RSpec.configure do |config|` add a blank line and put this there: 
 ```
 config.include FactoryBot::Syntax::Methods
+```
+
+### Health Status Controller
+- `cd ~/app/backend`
+- `touch app/controller/health_controller.rb`
+- make `~/app/backend/app/controllers/health_controller.rb` look like this:
+```
+class HealthController < ApplicationController
+  def show
+    if application_healthy?
+      render json: { status: 'OK' }, status: :ok
+    else
+      render json: { status: 'ERROR' }, status: :internal_server_error
+    end
+  end
+end
 ```
 
 ## Frontend 
