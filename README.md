@@ -154,15 +154,33 @@ config.include FactoryBot::Syntax::Methods
 
 ### Health Status Controller
 - `cd ~/app/backend`
-- `touch app/controllers/health_controller.rb`
+- `mkdir -p app/controllers/api/v1`
+- `touch app/controllers/api/v1/health_controller.rb`
 - make `~/app/backend/app/controllers/health_controller.rb` look like this:
 ```
-class HealthController < ApplicationController
+class Api::V1::HealthController < ApplicationController
   def show
     render json: { status: 'OK' }, status: :ok
   end
 end
 ```
+- make `~/app/backend/config/routes.rb` look like this:
+```
+# frozen_string_literal: true
+
+Rails.application.routes.draw do
+  namespace :api do
+    namespace :v1 do
+      get 'up' => 'health#show'
+    end
+  end
+end
+```
+
+### Health Status Controller Test
+- TODO: One-liner rspec test generator here
+- TODO: run the test, make sure it works.
+
 - `rails server`
 - split your terminal and in the second pane, run `curl http://localhost:3000/up` -> you should see a `{"status":"OK"}` response
 - `^ + c` in the first pane to kill the server
