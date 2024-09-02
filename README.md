@@ -53,7 +53,7 @@ fly.io postgres cluster details
 
 AWS details:
   aws acct id: 
-  aws region: 
+  aws region:  
   s3 user policy: 
   s3 user: 
   s3 user access key: 
