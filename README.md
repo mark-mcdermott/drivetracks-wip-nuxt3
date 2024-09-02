@@ -159,14 +159,13 @@ config.include FactoryBot::Syntax::Methods
 ```
 class HealthController < ApplicationController
   def show
-    if application_healthy?
-      render json: { status: 'OK' }, status: :ok
-    else
-      render json: { status: 'ERROR' }, status: :internal_server_error
-    end
+    render json: { status: 'OK' }, status: :ok
   end
 end
 ```
+- `rails server`
+- split your terminal and in the second pane, run `curl http://localhost:3000/up` -> you should see a `{"status":"OK"}` response
+- `^ + c` in the first pane to kill the server
 
 ## Frontend 
 
