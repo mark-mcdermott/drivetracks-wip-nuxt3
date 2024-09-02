@@ -245,7 +245,7 @@ export default defineNuxtConfig({
     "@nuxtjs/tailwindcss",
     "@nuxtjs/color-mode",
     "@vueuse/nuxt",
-    "nuxt-icon",
+    "@nuxt-icon",
   ],
 
   tailwindcss: {
@@ -986,7 +986,7 @@ export default defineNuxtConfig({
     "@nuxtjs/tailwindcss",
     "@nuxtjs/color-mode",
     "@vueuse/nuxt",
-    "nuxt-icon",
+    "@nuxt-icon",
     "@sidebase/nuxt-auth",
   ],
   tailwindcss: { exposeConfig: true },
