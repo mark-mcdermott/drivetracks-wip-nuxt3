@@ -1880,6 +1880,7 @@ RSpec.configure do |config|
   config.before(:each) do
     DatabaseCleaner.strategy = :transaction
     DatabaseCleaner.start
+    Rails.application.routes.default_url_options[:host] = 'http://localhost:3000'
   end
 
   config.after(:each) do
@@ -1964,8 +1965,14 @@ end
 - `bundle add devise devise-jwt jsonapi-serializer`
 - `bundle install`
 - `rails generate devise:install`
-- in `~/app/backend/config/environments/development.rb` add `config.action_mailer.default_url_options = { host: 'localhost', port: 3000 }` near the other `action_mailer` lines
-- in `~/app/backend/config/initializers/devise.rb` uncomment the `config.navigational_format` line and make it like this `config.navigational_formats = []`
+- in `~/app/backend/config/environments/development.rb`, near the other `action_mailer` lines add:
+```
+config.action_mailer.default_url_options = { host: 'localhost', port: 3000 }
+```
+- in `~/app/backend/config/initializers/devise.rb` uncomment the `config.navigational_format` line and make that line look like this:
+```
+config.navigational_formats = []
+```
 - to avoid a `Your application has sessions disabled. To write to the session you must first configure a session store` error, in `~/app/backend/config/application.rb` add this near the other `config.` lines:
 ```
     config.session_store :cookie_store, key: '_interslice_session'
@@ -2036,6 +2043,10 @@ FactoryBot.define do
   factory :user do
     sequence(:email) { |n| "user#{n}@example.com" }
     password { "password" }
+
+    trait :confirmed do
+      confirmed_at { Time.now }
+    end
   end
 end
 ```
@@ -2265,17 +2276,17 @@ Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
       resources :users, param: :uuid
+      devise_for :users, path: '', path_names: {
+      sign_in: 'api/v1/auth/login',
+      sign_out: 'api/v1/auth/logout',
+      registration: 'api/v1/auth/signup'
+    },
+    controllers: {
+      sessions: 'api/v1/auth/sessions',
+      registrations: 'api/v1/auth/registrations'
+    }
     end
   end
-  devise_for :users, path: '', path_names: {
-    sign_in: 'api/v1/auth/login',
-    sign_out: 'api/v1/auth/logout',
-    registration: 'api/v1/auth/signup'
-  },
-  controllers: {
-    sessions: 'api/v1/auth/sessions',
-    registrations: 'api/v1/auth/registrations'
-  }
   get '/api/v1/auth/sessions', to: 'api/v1/auth/current_user#index'
   get 'up' => 'rails/health#show', as: :rails_health_check
 end
