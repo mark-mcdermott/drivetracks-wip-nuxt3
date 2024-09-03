@@ -497,7 +497,7 @@ describe('homepage', async () => {
   }, 20000)
 })
 ```
-- run the failing test with `npm run test spec/e2e/index.spec.js` -> it should fail
+- run the failing test with `npm run test --specPath=spec/e2e/index.spec.js` -> it should fail
 - `^ + c` to kill the test server
 
 ### Non-Placeholder Homepage Content
@@ -610,7 +610,7 @@ describe('homepage', async () => {
 })
 ```
 - Let's run our homepage spec and make sure it fails.
-- `npm run test spec/e2e/index.spec.js` -> should fail
+- `npm run test --specPath=spec/e2e/index.spec.js` -> should fail
 - `^ + c`
 
 ### Header/Footer Component Specs
@@ -932,7 +932,7 @@ describe('homepage', async () => {
 })
 ```
 - Before we do anything else, let's rerun our homepage spec to make sure we didn't break it in the refactor.
-- `npm run test spec/e2e/index.spec.js` -> should pass
+- `npm run test --specPath=spec/e2e/index.spec.js` -> should pass
 - `^ + c`
 
 ### Subpages E2E Specs
@@ -1101,8 +1101,8 @@ describe('private page', async () => {
 - split your terminal and in the second pane, run `cd ~/app/backend` and then `rails server`
 - in the first pane run `npm run dev` -> home, public & private links work (private page is not yet locked)
 - run `^ + c` in both panes to kill the servers
-- `npm run test spec/e2e/public.spec.js` -> public tests should pass now
-- `npm run test spec/e2e/private.spec.js` -> private tests should pass now
+- `npm run test --specPath=spec/e2e/public.spec.js` -> public tests should pass now
+- `npm run test --specPath=spec/e2e/private.spec.js` -> private tests should pass now
 
 ### Install Sidebase Nuxt-Auth
 - Next we'll setup our signup/login functionality with `@sidebase/nuxt-auth`
