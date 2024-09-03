@@ -507,7 +507,7 @@ describe('homepage', async () => {
 - make `~/app/frontend/pages/index.vue` look like this:
 ```
 <script setup>
-const healthStatus = await $fetch(`${useRuntimeConfig().public.apiBase}/up`)
+const healthStatus = await $fetch(`${useRuntimeConfig().public.apiBase}/api/v1/up`)
 </script>
 
 <template>
