@@ -1177,8 +1177,9 @@ export default defineNuxtConfig({
 definePageMeta({ auth: false })
 </script>
 ```
-- `npm run dev` -> private page redirects to homepage (Login still goes to a 404 and also now the private.spec.js test will fail until we change some things.)
-- `^ + c`
+- split your terminal and in the second pane, run `cd ~/app/backend` and then `rails server`
+- in the first pane run `npm run dev` -> private page redirects to homepage (Login still goes to a 404 and also now the private.spec.js test will fail until we change some things.)
+- run `^ + c` in both panes to kill the servers
 
 ### Hide The Private Page Link
 - Right now if you are logged out and click the link to the private page, you're redirected to the homepage, which is what we want. But we also don't even want the link to the private page to show at all for users who are logged out. Sidebase Nuxt Auth gives us a `useAuth()` method which has a `status` property. With `status`, we can add conditional vue logic in templates like `v-if="status === 'authenticated'"` which will only render it's tag if the user is logged in.
