@@ -1323,7 +1323,7 @@ async function logout() {
     <UiContainer class="flex h-16 items-center justify-between md:h-20">
       <div class="flex items-center gap-10">
         <Logo />
-        <UiNavigationMenu as="nav" class="hidden items-center justify-start gap-8 md:flex">
+        <UiNavigationMenu as="nav" class="header-main-nav hidden items-center justify-start gap-8 md:flex">
           <UiNavigationMenuList class="gap-2">
             <UiNavigationMenuItem>
               <UiNavigationMenuLink as-child>
@@ -1396,7 +1396,7 @@ async function logout() {
           </UiSheetTrigger>
         </UiSheet>
       </div>
-      <div class="hidden items-center gap-3 md:flex">
+      <div class="header-login-nav hidden items-center gap-3 md:flex">
         <UiButton v-if="status === 'unauthenticated'" to="/login" variant="ghost" size="sm">
           Log in
         </UiButton>
