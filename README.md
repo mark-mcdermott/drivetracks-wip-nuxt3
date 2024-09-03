@@ -178,7 +178,9 @@ end
 ```
 
 ### Health Status Controller Test
-- TODO: One-liner rspec test generator here
+- `cd ~/app/backend`
+- `mkdir -p spec/requests/api/v1`
+- `touch spec/requests/api/v1`
 - TODO: run the test, make sure it works.
 
 - `rails server`
