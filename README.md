@@ -303,7 +303,7 @@ echo "Ok, rails server is up and running - let's start testing!"
     "front-and-back-dev": "concurrently -n \"BACKEND,FRONTEND\" -c \"green,yellow\" \"npm run rails-server\" \"npm run dev\"",
     "test": "concurrently -n \"BACKEND,FRONTEND\" -c \"green,yellow\" \"npm run rails-server\" \"./wait-for-rails.sh && npm run vitest '${npm_config_path}'\""
 ```
-- `npm run test --specPath=spec/e2e/index.spec.js` -> backend should start and then vitest should run (it will try to run, but there are no tests yet)
+- `npm run test --path=spec/e2e/index.spec.js` -> backend should start and then vitest should run (it will try to run, but there are no tests yet)
 
 ### Placeholder Hello World Homepage
 - `cd ~/app/frontend`
@@ -517,7 +517,7 @@ describe('homepage', async () => {
   }, 20000)
 })
 ```
-- run the failing test with `npm run test --specPath=spec/e2e/index.spec.js` -> it should fail
+- run the failing test with `npm run test --path=spec/e2e/index.spec.js` -> it should fail
 - `^ + c` to kill the test server
 
 ### Non-Placeholder Homepage Content
@@ -553,7 +553,7 @@ const healthStatus = await $fetch(`${useRuntimeConfig().public.apiBase}/api/v1/u
 - in the first pane run `npm run dev` -> Should be some ok looking homepage content now with a h1, some body copy and two buttons
 - run `^ + c` in both panes to kill the servers
 - now that we've changed the way our homepage looks, we'll have to delete our pixelmatch baseline homepage image, which is at `~/app/frontend/spec/e2e/screenshots/baseline/page-home.png`
-- `npm run test --specPath=spec/e2e/index.spec.js` -> test should pass now
+- `npm run test --path=spec/e2e/index.spec.js` -> test should pass now
 
 ### Add Failing Header/Footer Checks To Homepage Spec
 - Our next big step is to add a header and footer to the site. But before that we'll update our homepage spec (which will then fail until the header/footer are build - which is what we want) and build out some component specs for the header and footer.
@@ -630,7 +630,7 @@ describe('homepage', async () => {
 })
 ```
 - Let's run our homepage spec and make sure it fails.
-- `npm run test --specPath=spec/e2e/index.spec.js` -> should fail
+- `npm run test --path=spec/e2e/index.spec.js` -> should fail
 - `^ + c`
 
 ### Header/Footer Component Specs
@@ -952,7 +952,7 @@ describe('homepage', async () => {
 })
 ```
 - Before we do anything else, let's rerun our homepage spec to make sure we didn't break it in the refactor.
-- `npm run test --specPath=spec/e2e/index.spec.js` -> should pass
+- `npm run test --path=spec/e2e/index.spec.js` -> should pass
 - `^ + c`
 
 ### Subpages E2E Specs
@@ -1120,8 +1120,8 @@ describe('private page', async () => {
 ```
 - `npm run front-and-back-dev` -> home, public & private links work (private page is not yet locked)
 - `^ + c`
-- `npm run test --specPath=spec/e2e/public.spec.js` -> public tests should pass now
-- `npm run test --specPath=spec/e2e/private.spec.js` -> private tests should pass now
+- `npm run test --path=spec/e2e/public.spec.js` -> public tests should pass now
+- `npm run test --path=spec/e2e/private.spec.js` -> private tests should pass now
 
 ### Install Sidebase Nuxt-Auth
 - Next we'll setup our signup/login functionality with `@sidebase/nuxt-auth`
