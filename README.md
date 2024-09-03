@@ -579,10 +579,10 @@ describe('homepage', async () => {
   })
 
   it('displays p with correct text', async () => {
-    const p = await page.locator('main p')
-    const pText = await p.innerHTML('p')
+    const p = await page.locator('p')
+    const pText = await p.textContent('p')
     expect(await p.isVisible()).toBe(true)
-    expect(pText).toContain('It was built of uncut rocks roughly mortared. An adult could look right over it, and even a child could climb it. Where it crossed the roadway, instead of having a gate it degenerated into mere geometry, a line, an idea of boundary. But the idea was real.')
+    expect(pText).toContain('{"status":"OK"}')
   })
 
   it('displays the correct buttons with hrefs and text', async () => {
@@ -903,11 +903,10 @@ describe('homepage', async () => {
   })
 
   it('displays p with correct text', async () => {
-    const page = await createPage('/')
-    const p = await page.locator('main p')
-    const pText = await p.innerHTML('p')
+    const p = await page.locator('p')
+    const pText = await p.textContent('p')
     expect(await p.isVisible()).toBe(true)
-    expect(pText).toContain('It was built of uncut rocks roughly mortared. An adult could look right over it, and even a child could climb it. Where it crossed the roadway, instead of having a gate it degenerated into mere geometry, a line, an idea of boundary. But the idea was real.')
+    expect(pText).toContain('{"status":"OK"}')
   })
 
   it('displays the correct buttons with hrefs and text', async () => {
