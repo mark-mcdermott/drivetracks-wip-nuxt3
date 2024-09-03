@@ -1098,7 +1098,9 @@ describe('private page', async () => {
   </uicontainer>
 </template>
 ```
-- `cd ~/app/frontend`
+- split your terminal and in the second pane, run `cd ~/app/backend` and then `rails server`
+- in the first pane run `npm run dev` -> Should be some ok looking homepage content now with a h1, some body copy and two buttons
+- run `^ + c` in both panes to kill the servers
 - `npm run dev` -> home, public & private links work (private page is not yet locked)
 - `^ + c`
 - `npm run test spec/e2e/public.spec.js` -> public tests should pass now
