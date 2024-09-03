@@ -1524,8 +1524,8 @@ const password = ref('')
 
 async function register() {
   await signUp({ user: { email: email.value, password: password.value } }, { redirect: false })
-  useSonner('Signed up successfully!', { description: 'You have successfully signed in.' })
-  navigateTo('/')
+  useSonner('Signed up successfully!', { description: 'You have successfully signed up.' })
+  navigateTo('/confirm')
 }
 </script>
 
@@ -1559,6 +1559,31 @@ async function register() {
 </template>
 ```
 
+### Confirm Page
+- Let's also build out a confirm page.
+- `cd ~/app/frontend`
+- `touch pages/confirm.vue`
+- make `~/app/frontend/pages/confirm.vue` look like this:
+```
+<script setup>
+definePageMeta({ auth: false })
+</script>
+
+<template>
+  <UiContainer class="relative flex flex-col py-10 lg:py-20">
+    <div class="flex h-screen items-center justify-center">
+      <div class="w-full max-w-[350px] px-5">
+        <h1 class="text-2xl font-bold tracking-tight lg:text-3xl">
+          Confirm your email
+        </h1>
+        <p class="mt-1 text-muted-foreground">
+          Please go to your email and click the confirmation link. 🙏
+        </p>
+      </div>
+    </div>
+  </UiContainer>
+</template>
+```
 ### Nuxt User Views
 - Here we'll build out the frontend user pages - index, show, edit and new.
 - `cd ~/app/frontend`
