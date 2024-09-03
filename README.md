@@ -265,12 +265,25 @@ export default antfu({
   plugins: ['vitest'],
 })
 ```
+- `touch wait-for-rails.sh`
+- make `~/app/frontend/wait-for-rails.sh` look like this:
+```
+#!/bin/bash
+until curl --silent --fail http://localhost:3000/api/v1/up | grep -q '{"status":"OK"}'; do
+  echo "Waiting for Rails server to start..."
+  sleep 1
+done
+
+echo "Ok, rails server is up and running - let's start testing!"
+```
+- `chmod +x wait-for-rails.sh`
 - to `~/app/frontend/package.json` in the `scripts` section add:
 ```
-    "vitest": "npx vitest",
-    "test": "concurrently --kill-others -c \"red,blue\" \"cd ~/app/backend && RAILS_ENV=test rails server\" \"npm run vitest '${npm_config_path}'\""
+    "rails-server": "cd ../backend && rails server",
+    "wait-then-vitest": "./wait-for-rails.sh && npm run vitest '${npm_config_specPath}'",
+    "test": "concurrently -n \"BACKEND,FRONTEND\" -c \"green,yellow\" \"npm run rails-server\" \"npm run wait-then-vitest\""
 ```
-- `npm run test --path=spec/e2e/index.spec.js` -> backend should start and then vitest should run (it will try to run, but there are no tests yet)
+- `npm run test --specPath=spec/e2e/index.spec.js` -> backend should start and then vitest should run (it will try to run, but there are no tests yet)
 
 ### Placeholder Hello World Homepage
 - `cd ~/app/frontend`
