@@ -83,6 +83,7 @@ AWS details:
 
 ### Rubocop
 - `cd ~/app/backend`
+- install VSCode extentions `Ruby LSP` and `Rubocop`
 - `bundle add rubocop-rails`
 - `bundle install`
 - `touch .rubocop.yml`
@@ -150,6 +151,23 @@ end
 - in `~/app/backend/spec/rails_helper.rb`, in the line after `RSpec.configure do |config|` add a blank line and put this there: 
 ```
 config.include FactoryBot::Syntax::Methods
+```
+
+### CORS
+- `cd ~/app/backend`
+- `bundle add rack-cors`
+- `bundle install`
+- make `~/app/backend/config/initializers/cors.rb` (if it doesn't exist, then make it) look like this (you will probably have to change the https://app-frontend.fly.dev line later):
+```
+Rails.application.config.middleware.insert_before 0, Rack::Cors do
+  allow do
+    origins 'http://localhost:3001', 'https://app-frontend.fly.dev'
+    resource "*",
+    headers: :any,
+    expose: ['access-token', 'expiry', 'token-type', 'Authorization'],
+    methods: [:get, :patch, :put, :delete, :post, :options, :show]
+  end
+end
 ```
 
 ### Health Status Controller
@@ -1179,9 +1197,8 @@ export default defineNuxtConfig({
 definePageMeta({ auth: false })
 </script>
 ```
-- split your terminal and in the second pane, run `cd ~/app/backend` and then `rails server`
-- in the first pane run `npm run dev` -> private page redirects to homepage (Login still goes to a 404 and also now the private.spec.js test will fail until we change some things.)
-- run `^ + c` in both panes to kill the servers
+- `npm run front-and-back-dev` -> private page redirects to homepage (Login still goes to a 404 and also now the private.spec.js test will fail until we change some things.)
+- `^ + c`
 
 ### Hide The Private Page Link
 - Right now if you are logged out and click the link to the private page, you're redirected to the homepage, which is what we want. But we also don't even want the link to the private page to show at all for users who are logged out. Sidebase Nuxt Auth gives us a `useAuth()` method which has a `status` property. With `status`, we can add conditional vue logic in templates like `v-if="status === 'authenticated'"` which will only render it's tag if the user is logged in.
@@ -1813,25 +1830,6 @@ async function createUser() {
 ## Backend
 - Our Rails API-only backend will serve our users to the frontend for login. We'll use Devise and JWT for backend auth. We'll also setup S3 on AWS for hosting our avatars and other file uploads.
 
-### Rails Starter API
-- install VSCode extentions `Ruby LSP` and `Rubocop`
-- `cd ~/app/backend`
-- `bundle add rack-cors`
-- `bundle install`
-- make `~/app/backend/config/initializers/cors.rb` (if it doesn't exist, then make it) look like this (you will probably have to change the `https://app-frontend.fly.dev` line later):
-```
-Rails.application.config.middleware.insert_before 0, Rack::Cors do
-  allow do
-    origins 'http://localhost:3001', 'https://app-frontend.fly.dev'
-    resource "*",
-    headers: :any,
-    expose: ['access-token', 'expiry', 'token-type', 'Authorization'],
-    methods: [:get, :patch, :put, :delete, :post, :options, :show]
-  end
-end
-```
-- `rails db:create` (or `rails db:drop db:create` if you already have a database called `backend`)
-
 ### AWS S3 Setup
 Now we'll create our AWS S3 account so we can store our user avatar images there as well as any other file uploads we'll need. There are a few parts here. We want to create a S3 bucket to store the files. But a S3 bucket needs a IAM user. Both the S3 bucket and the IAM user need permissions policies. There's a little bit of a chicken and egg issue here - when we create the user permissions policy, we need the S3 bucket name. But when we create the S3 bucket permissions, we need the IAM user name. So we'll create everything and use placeholder strings in some of the policies. Then when we're all done, we'll go through the policies and update all the placeholder strings to what they really need to be.
 
@@ -2035,6 +2033,8 @@ end
 ```
 
 ### Devise
+- `cd ~/app/backend`
+- `rails db:create` (or `rails db:drop db:create` if you already have a database called `backend`)
 - `bundle add devise devise-jwt jsonapi-serializer`
 - `bundle install`
 - `rails generate devise:install`
