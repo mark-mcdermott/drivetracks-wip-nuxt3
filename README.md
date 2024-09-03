@@ -579,7 +579,7 @@ describe('homepage', async () => {
   })
 
   it('displays p with correct text', async () => {
-    const p = await page.locator('p')
+    const p = await page.locator('main p')
     const pText = await p.textContent('p')
     expect(await p.isVisible()).toBe(true)
     expect(pText).toContain('{"status":"OK"}')
@@ -903,7 +903,7 @@ describe('homepage', async () => {
   })
 
   it('displays p with correct text', async () => {
-    const p = await page.locator('p')
+    const p = await page.locator('main p')
     const pText = await p.textContent('p')
     expect(await p.isVisible()).toBe(true)
     expect(pText).toContain('{"status":"OK"}')
