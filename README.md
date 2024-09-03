@@ -2390,7 +2390,7 @@ User.create!(email: 'test2@mail.com', password: 'password')
   - `exit`  
   - `rails server` -> to restart the server
 - in the second terminal now run `curl -H 'Content-Type: application/json' -X POST -d '{"user": { "email": "test@mail.com", "password" : "password" }}' http://localhost:3000/api/v1/auth/login`
-- you should see a `status: 200` in the response somewhere and now our user is logged in
+- you should see a `status: 200` in the response somewhere a long `token` string and now our user is logged in
 - kill the server with `^ + c`
 
 ### Test The UI
