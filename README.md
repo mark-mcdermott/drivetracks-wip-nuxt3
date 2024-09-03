@@ -330,8 +330,8 @@ export default defineNuxtConfig({
   <NuxtPage />
 </template>
 ```
-npm run dev -> Homepage still looks like it did before
-^ + c
+- `npm run dev` -> Homepage still looks like it did before
+- `^ + c`
 
 ### Tailwind
 - We'll use [Nuxt Tailwind](https://tailwindcss.nuxtjs.org) for modern, scaleable css. We'll setup tailwind now because UI Thing we set up in the next step needs it.
