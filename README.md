@@ -241,7 +241,7 @@ end
 - We'll use Nuxt testing as [described in the Nuxt docs](https://nuxt.com/docs/getting-started/testing), which uses `@nuxt/test-utils`, [Vitest](https://vitest.dev) and [Playwright](https://playwright.dev).
 - install VSCode `Vitest` extension
 - `cd ~/app/frontend`
-- `npm install --save-dev @nuxt/test-utils vitest @vue/test-utils happy-dom eslint-plugin-vitest unplugin-auto-import unplugin-vue-components playwright-core pixelmatch`
+- `npm install --save-dev @nuxt/test-utils vitest @vue/test-utils happy-dom eslint-plugin-vitest unplugin-auto-import unplugin-vue-components playwright-core pixelmatch concurrently`
 - add `modules: ["@nuxt/test-utils/module"],` to `~/app/frontend/nuxt.config.ts` so it looks like this:
 ```
 export default defineNuxtConfig({
@@ -267,9 +267,10 @@ export default antfu({
 ```
 - to `~/app/frontend/package.json` in the `scripts` section add:
 ```
-"test": "npx vitest"
+"vitest": "npx vitest",
+"test": "concurrently 'cd ~/app/backend && RAILS_ENV=test rails server' 'npm run test'"
 ```
-- `npm run test` -> vitest should run (it will try to run, but there are no tests yet)
+- `npm run test` -> backend should start and then vitest should run (it will try to run, but there are no tests yet)
 
 ### Placeholder Hello World Homepage
 - `cd ~/app/frontend`
@@ -466,7 +467,7 @@ describe('homepage', async () => {
     const p = await page.locator('p')
     const pText = await p.textContent('p')
     expect(await p.isVisible()).toBe(true)
-    expect(pText).toContain('It was built of uncut rocks roughly mortared. An adult could look right over it, and even a child could climb it. Where it crossed the roadway, instead of having a gate it degenerated into mere geometry, a line, an idea of boundary. But the idea was real.')
+    expect(pText).toContain('{"status":"OK"}')
   })
 
   it('displays the correct buttons with hrefs and text', async () => {
@@ -492,13 +493,17 @@ describe('homepage', async () => {
 - `npx ui-thing@latest add container badge button gradient-divider`
 - make `~/app/frontend/pages/index.vue` look like this:
 ```
+<script setup>
+const healthStatus = await $fetch(`${useRuntimeConfig().public.apiBase}/up`)
+</script>
+
 <template>
   <UiContainer class="relative flex flex-col items-center py-10 text-center lg:py-20">
     <h1 class="hero-h-1 mb-4 mt-7 text-4xl font-bold lg:mb-6 lg:mt-5 lg:text-center lg:text-5xl xl:text-6xl">
       There was a wall.<br>It did not look important.
     </h1>
     <p class="hero-text mx-auto max-w-[768px] tracking-tight text-lg text-muted-foreground lg:text-center lg:text-xl">
-      It was built of uncut rocks roughly mortared. An adult could look right over it, and even a child could climb it. Where it crossed the roadway, instead of having a gate it degenerated into mere geometry, a line, an idea of boundary. But the idea was real.
+      {{ JSON.stringify(healthStatus) }}
     </p>
     <div class="hero-buttons mt-8 grid w-full grid-cols-1 items-center gap-3 sm:flex sm:justify-center lg:mt-10">
       <UiButton to="/login" size="lg" variant="outline">
