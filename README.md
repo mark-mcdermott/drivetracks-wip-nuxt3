@@ -281,6 +281,8 @@ echo "Ok, rails server is up and running - let's start testing!"
 ```
     "vitest": "npx vitest",
     "rails-server": "cd ../backend && rails server",
+    "wait-then-dev": "./wait-for-rails.sh && npm run dev",
+    "front-and-back-dev": "concurrently -n \"BACKEND,FRONTEND\" -c \"green,yellow\" \"npm run rails-server\" \"npm run dev\"",
     "test": "concurrently -n \"BACKEND,FRONTEND\" -c \"green,yellow\" \"npm run rails-server\" \"./wait-for-rails.sh && npm run vitest '${npm_config_path}'\""
 ```
 - `npm run test --specPath=spec/e2e/index.spec.js` -> backend should start and then vitest should run (it will try to run, but there are no tests yet)
