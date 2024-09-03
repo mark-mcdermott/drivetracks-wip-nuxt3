@@ -267,8 +267,8 @@ export default antfu({
 ```
 - to `~/app/frontend/package.json` in the `scripts` section add:
 ```
-"vitest": "npx vitest",
-"test": "concurrently 'cd ~/app/backend && RAILS_ENV=test rails server' 'npm run test'"
+    "vitest": "npx vitest",
+    "test": "concurrently --kill-others -c 'red,blue' 'cd ~/app/backend && RAILS_ENV=test rails server' 'npm run vitest'"
 ```
 - `npm run test` -> backend should start and then vitest should run (it will try to run, but there are no tests yet)
 
