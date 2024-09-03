@@ -279,7 +279,7 @@ export default antfu({
 ```
 export default defineNuxtConfig({
   devtools: { enabled: true },
-  runtimeConfig: { public: { apiBase: 'http://localhost:3000' }},
+  runtimeConfig: { public: { apiBase: 'http://localhost:3000/api/v1' }},
   devServer: { port: 3001 },
   modules: ['@nuxt/test-utils/module'],
 })
@@ -337,7 +337,7 @@ npm run dev -> Homepage still looks like it did before
 ```
 export default defineNuxtConfig({
   devtools: { enabled: true },
-  runtimeConfig: { public: { apiBase: 'http://localhost:3000' }},
+  runtimeConfig: { public: { apiBase: 'http://localhost:3000/api/v1' }},
   devServer: { port: 3001 },
   modules: ['@nuxt/test-utils/module', '@nuxtjs/tailwindcss'],
 })
@@ -356,7 +356,7 @@ npm run dev -> "Hello World" in sans serif font Inter
 ```
 export default defineNuxtConfig({
   devtools: { enabled: true },
-  runtimeConfig: { public: { apiBase: "http://localhost:3000" } },
+  runtimeConfig: { public: { apiBase: "http://localhost:3000/api/v1" } },
   devServer: { port: 3001 },
 
   modules: [
@@ -516,9 +516,11 @@ const healthStatus = await $fetch(`${useRuntimeConfig().public.apiBase}/up`)
   </UiContainer>
 </template>
 ```
-- `npm run dev` -> Should be some ok looking homepage content now with a h1, some body copy and two buttons
+- split your terminal and in the second pane, run `cd ~/app/backend` and then `rails server`
+- in the first pane run `npm run dev` -> Should be some ok looking homepage content now with a h1, some body copy and two buttons
+- run `^ + c` in both panes to kill the servers
 - now that we've changed the way our homepage looks, we'll have to delete our pixelmatch baseline homepage image, which is at `~/app/frontend/spec/e2e/screenshots/baseline/page-home.png`
-- `npm run test spec/e2e/index.spec.js` -> test should pass now
+- `npm run test --path=spec/e2e/index.spec.js` -> test should pass now
 
 ### Add Failing Header/Footer Checks To Homepage Spec
 - Our next big step is to add a header and footer to the site. But before that we'll update our homepage spec (which will then fail until the header/footer are build - which is what we want) and build out some component specs for the header and footer.
@@ -2737,7 +2739,7 @@ fly secrets set \
   - `exit`
 
 - `cd ~/app/frontend`
-  - in `~/app/frontend/nuxt.config.ts`, change `runtimeConfig: { public: { apiBase: 'http://localhost:3000' } },` to `runtimeConfig: { public: { apiBase: development ? 'http://localhost:3000' : '<your backend fly.io url>' } },` (substituting your backend fly.io url for `<your backend fly.io url>`)
+  - in `~/app/frontend/nuxt.config.ts`, change `runtimeConfig: { public: { apiBase: 'http://localhost:3000/api/v1' } },` to `runtimeConfig: { public: { apiBase: development ? 'http://localhost:3000' : '<your backend fly.io url>' } },` (substituting your backend fly.io url for `<your backend fly.io url>`)
   - also in `~/app/frontend/nuxt.config.ts`, change `computed: { pathname: development ? 'http://localhost:3000/api/auth/' : 'https://interview-app-backend.fly.dev/api/auth/' },` to `computed: { pathname: development ? 'http://localhost:3000/api/auth/' : '<your fly.io backend url>/api/auth/' },` (also substituting your backend fly.io url for `<your fly.io backend url>`)
   - `fly deploy`
 
