@@ -279,6 +279,7 @@ echo "Ok, rails server is up and running - let's start testing!"
 - `chmod +x wait-for-rails.sh`
 - to `~/app/frontend/package.json` in the `scripts` section add:
 ```
+    "vitest": "npx vitest",
     "rails-server": "cd ../backend && rails server",
     "wait-then-vitest": "./wait-for-rails.sh && npm run vitest '${npm_config_specPath}'",
     "test": "concurrently -n \"BACKEND,FRONTEND\" -c \"green,yellow\" \"npm run rails-server\" \"npm run wait-then-vitest\""
