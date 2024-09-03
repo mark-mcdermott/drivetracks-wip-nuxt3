@@ -1565,7 +1565,7 @@ async function register() {
 - `npx ui-thing@latest add card table`
 - `mkdir pages/users`
 - `touch pages/users/index.vue pages/users/new.vue pages/users/\[id\].vue`
-- make `~/app/frontend/pages/users/index.vue` look like this:
+- make `~/app/frontend/pages/users/index.vue` (note: not `~/app/frontend/pages/index.vue`!) look like this:
 ```
 <script setup lang="ts">
 import { ref } from 'vue'
