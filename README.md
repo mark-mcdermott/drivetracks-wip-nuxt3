@@ -1136,7 +1136,7 @@ describe('private page', async () => {
 const development = process.env.NODE_ENV !== 'production'
 export default defineNuxtConfig({
   devtools: { enabled: true },
-  runtimeConfig: { public: { apiBase: "http://localhost:3000" } },
+  runtimeConfig: { public: { apiBase: "http://localhost:3000/api/v1" } },
   devServer: { port: 3001 },
   modules: [
     "@nuxt/test-utils/module",
@@ -2764,7 +2764,7 @@ fly secrets set \
   - `exit`
 
 - `cd ~/app/frontend`
-  - in `~/app/frontend/nuxt.config.ts`, change `runtimeConfig: { public: { apiBase: 'http://localhost:3000/api/v1' } },` to `runtimeConfig: { public: { apiBase: development ? 'http://localhost:3000' : '<your backend fly.io url>' } },` (substituting your backend fly.io url for `<your backend fly.io url>`)
+  - in `~/app/frontend/nuxt.config.ts`, change `runtimeConfig: { public: { apiBase: 'http://localhost:3000/api/v1' } },` to `runtimeConfig: { public: { apiBase: development ? 'http://localhost:3000/api/v1' : '<your backend fly.io url>' } },` (substituting your backend fly.io url for `<your backend fly.io url>`)
   - also in `~/app/frontend/nuxt.config.ts`, change `computed: { pathname: development ? 'http://localhost:3000/api/auth/' : 'https://interview-app-backend.fly.dev/api/auth/' },` to `computed: { pathname: development ? 'http://localhost:3000/api/auth/' : '<your fly.io backend url>/api/auth/' },` (also substituting your backend fly.io url for `<your fly.io backend url>`)
   - `fly deploy`
 
