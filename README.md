@@ -2133,6 +2133,7 @@ Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
       resources :users, param: :uuid
+      get 'up' => 'health#show'
     end
   end
   devise_for :users, path: '', path_names: {
@@ -2144,7 +2145,6 @@ Rails.application.routes.draw do
     sessions: 'api/v1/auth/sessions',
     registrations: 'api/v1/auth/registrations'
   }
-  get 'up' => 'rails/health#show', as: :rails_health_check
 end
 ```
 
