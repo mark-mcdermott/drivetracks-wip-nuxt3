@@ -2379,6 +2379,7 @@ User.create!(email: 'test2@mail.com', password: 'password')
 ```
 
 ### Test The API
+- `cd ~/app/backend`
 - `rails server`
 - split your terminal and in the second pane, run `curl -H 'Content-Type: application/json' -X POST -d '{"user": { "email": "test@mail.com", "password" : "password" }}' http://localhost:3000/api/v1/auth/signup`
 - You should see a `status: 200` in the response somewhere and now a user is created. We will test the login API next, but first we must set the user's email to confirmed in the database. In your first terminal (the rails server one):
@@ -2394,6 +2395,8 @@ User.create!(email: 'test2@mail.com', password: 'password')
 - kill the server with `^ + c`
 
 ### Test The UI
+- `cd ~/app/frontend`
+- `npm run front-and-back-dev`
 - in a browser, go to http://localhost:3001
   - home & public pages should work
   - logging in (with the default `test@mail.com` / `password`) should work and should show the Private page link and the user avatar for the user menu
