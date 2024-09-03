@@ -181,11 +181,20 @@ end
 - `cd ~/app/backend`
 - `mkdir -p spec/requests/api/v1`
 - `touch spec/requests/api/v1`
-- TODO: run the test, make sure it works.
+- make `~/app/backend/app/spec/requests/api/v1/health_controller_spec.rb` look like this:
+```
+require 'rails_helper'
 
-- `rails server`
-- split your terminal and in the second pane, run `curl http://localhost:3000/up` -> you should see a `{"status":"OK"}` response
-- `^ + c` in the first pane to kill the server
+RSpec.describe "Api::V1::HealthControllers", type: :request do
+  describe "GET /api/v1/up" do
+    it "returns http success" do
+      get "/api/v1/up"
+      expect(response).to have_http_status(:success)
+    end
+  end
+end
+```
+- `rspec spec/requests/api/v1/health_controller_spec.rb` -> should pass
 
 ## Frontend 
 
