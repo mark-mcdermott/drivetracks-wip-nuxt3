@@ -2216,6 +2216,7 @@ end
 ```
 
 ### JWT
+- `cd ~/app/backend`
 - add this to `~/app/backend/config/initializers/devise.rb` right before the last `end`:
 ```
   config.jwt do |jwt|
@@ -2256,6 +2257,7 @@ end
 - `rails generate serializer user id email uuid`
 
 ### Auth Controllers
+- `cd ~/app/backend`
 - make `~/app/backend/app/controllers/api/v1/auth/registrations_controller.rb` look like this:
 ```
 class Api::V1::Auth::RegistrationsController < Devise::RegistrationsController
@@ -2330,6 +2332,7 @@ end
 ```
 
 ### Current User Endpoint
+- `cd ~/app/backend`
 - `rails g controller Api::V1::Auth::current_user index`
 - make `~/app/backend/app/controllers/api/v1/auth/current_user_controller.rb` look like this:
 ```
@@ -2368,6 +2371,7 @@ end
 ```
 
 ### User Seeds
+- `cd ~/app/backend`
 - make `~/app/backend/db/seeds.rb` look like this:
 ```
 User.create!(email: 'test@mail.com', password: 'password', admin: true)
