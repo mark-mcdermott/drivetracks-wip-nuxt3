@@ -670,9 +670,9 @@ it('can mount some component', async () => {
     )
 })
 ```
-- `npm run test spec/components/Header.nuxt.spec.js` -> should fail
+- `npm run vitest spec/components/Header.nuxt.spec.js` -> should fail
 - `^ + c`
-- `npm run test spec/components/Footer.nuxt.spec.js` -> should fail
+- `npm run vitest spec/components/Footer.nuxt.spec.js` -> should fail
 - `^ + c`
 
 ### Header & Footer
@@ -800,8 +800,9 @@ it('can mount some component', async () => {
   <Footer />
 </template>
 ```
-- `npm run dev` -> Homepage should have header and footer
-- `^ + c`
+- split your terminal and in the second pane, run `cd ~/app/backend` and then `rails server`
+- in the first pane run `npm run dev` -> Should be some ok looking homepage content now with a h1, some body copy and two buttons
+- run `^ + c` in both panes to kill the servers
 - now that we've changed the way our homepage looks, we'll have to delete our pixelmatch baseline homepage image, which is `~/app/frontend/spec/e2e/screenshots/baseline/page-home.png` so it will take a new baseline image screenshot to compare to going forward.
 - `npm run test` -> header and footer component tests should pass and homepage end-to-end test should also pass
 
