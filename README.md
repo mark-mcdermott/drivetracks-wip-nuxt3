@@ -1613,9 +1613,6 @@ async function logout() {
 - `npm run front-and-back-dev` -> User dropdown is coded, but not showing because we're logged out. We're also now showing Log In & Sign Up buttons only when logged out. When logged in (which we'll build out shortly), Log In & Sign Up buttons will not show and the Log Out button will show.
 - `^ + c`
 
-### Login/Signup Page Specs
-- TODO!!!
-
 ### Login Page
 - Let's build out the login page. Login/logout functionality won't work until we get to the backend, but we build the actual page here. We also add a package called `vue-sonner` which shows little "toast" messages notifying the user when they've successfully logged in/out.
 - `cd ~/app/frontend`
@@ -2172,7 +2169,7 @@ Now we'll create our AWS S3 account so we can store our user avatar images there
   - paste your region string in your `~/app/.secrets` file in the `aws region` line
 - we're now done with our S3 setup and our AWS dashboard, at least for now. So let's go back to our terminal where we're building out our rails backend
 
-### Auth Spec
+### Auth Spec (TODO: remove this - instead of one auth spec, just do the automatic rspec generators for the controllers that exist)
 - `cd ~/app/backend`
 - `mkdir spec/requests`
 - `touch spec/requests/auth_spec.rb`
@@ -2456,7 +2453,7 @@ end
 - `rails db:migrate`
 - `rails generate serializer user id email uuid`
 
-### Auth Controllers
+### Auth Controllers (TODO: maybe remove this? and just use the default devise controller generators?)
 - `cd ~/app/backend`
 - make `~/app/backend/app/controllers/api/v1/auth/registrations_controller.rb` look like this:
 ```
