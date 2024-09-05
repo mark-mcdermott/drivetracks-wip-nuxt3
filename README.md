@@ -3061,10 +3061,6 @@ async function logout() {
             </UiDropdownMenuContent>
           </UiDropdownMenu>
         </div>
-
-        <UiButton v-if="status === 'authenticated'" variant="ghost" size="sm" @click.prevent="logout">
-          Log out
-        </UiButton>
       </div>
     </UiContainer>
   </header>
