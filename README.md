@@ -2723,6 +2723,23 @@ class UserSerializer
   attributes :id, :email, :uuid, :avatar_url
 end
 ```
+- change `~/app/backend/app/controllers/application_controller.rb` to
+```
+# frozen_string_literal: true
+
+class ApplicationController < ActionController::API
+
+  def serialized_user(user)
+    UserSerializer.new(user).serializable_hash[:data][:attributes].merge(avatar_url: user.avatar.attached? ? url_for(user.avatar) : nil)
+  end
+
+  def serialized_users(users)
+    users.map do |user|
+      serialized_user(user)
+    end
+  end
+end
+```
 - in `~/app/backend/app/controllers/users/users_controller.rb`, we'll 1) add `:avatar` to the permitted, 2) use our serializer for all returned users and 3) set each user's avatar url to a full url path. So the whole file looks like this:
 ```
 class Api::V1::UsersController < ApplicationController
@@ -2780,20 +2797,19 @@ class Api::V1::UsersController < ApplicationController
       @user = User.find_by!(uuid: params[:uuid])
     end
 
-    def serialized_user(user)
-      UserSerializer.new(user).serializable_hash[:data][:attributes].merge(avatar_url: user.avatar.attached? ? url_for(user.avatar) : nil)
-    end
-
-    def serialized_users(users)
-      users.map do |user|
-        serialized_user(user)
-      end
-    end
-
     # Only allow a list of trusted parameters through.
     def user_params
       params.require(:user).permit(:uuid, :email, :avatar, :password)
     end
+end
+```
+- make `~/app/backend/app/controllers/api/v1/auth/current_user_controller.rb` look like this:
+```
+class Api::V1::Auth::CurrentUserController < ApplicationController
+  before_action :authenticate_user!
+  def index
+    render json: serialized_user(current_user), status: :ok
+  end
 end
 ```
 
