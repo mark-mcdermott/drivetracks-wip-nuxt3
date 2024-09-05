@@ -2700,9 +2700,10 @@ class User < ApplicationRecord
   include Devise::JWT::RevocationStrategies::JTIMatcher
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable,
-         :confirmable, :lockable, :timeoutable, :trackable
-  has_one_attached :avatar
+         :confirmable, :lockable, :timeoutable, :trackable,
+         :jwt_authenticatable, jwt_revocation_strategy: self
   before_create :set_uuid
+  has_one_attached :avatar
 
   def avatar_url
     Rails.application.routes.url_helpers.rails_blob_url(self.avatar, only_path: true) if avatar.attached?
