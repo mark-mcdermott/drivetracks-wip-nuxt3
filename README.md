@@ -2627,7 +2627,7 @@ class UploadsController < ApplicationController
     filename = params[:filename]
     content_type = params[:content_type]
 
-    s3_client = Aws::S3::Client.new(region: <your-region>')
+    s3_client = Aws::S3::Client.new(region: '<your-region>')
     presigned_url = s3_client.presigned_url(:put_object,
       bucket: '<your production s3 bucket name>',
       key: filename,
