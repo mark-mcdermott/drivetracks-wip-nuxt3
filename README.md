@@ -2716,20 +2716,27 @@ class User < ApplicationRecord
   end
 end
 ```
-- in `~/app/backend/app/controllers/users/users_controller.rb`, add `:avatar` to the permitted parameters and change the `update` method so the whole file looks like this:
+- change `~/app/backend/app/serializers/user_serializer.rb` to look like this:
 ```
-class UsersController < ApplicationController
+class UserSerializer
+  include JSONAPI::Serializer
+  attributes :id, :email, :uuid, :avatar_url
+end
+```
+- in `~/app/backend/app/controllers/users/users_controller.rb`, we'll 1) add `:avatar` to the permitted, 2) use our serializer for all returned users and 3) set each user's avatar url to a full url path. So the whole file looks like this:
+```
+class Api::V1::UsersController < ApplicationController
   before_action :set_user, only: %i[ show edit update destroy ]
 
   # GET /users or /users.json
   def index
     @users = User.all
-    render json: @users
+    render json: serialized_users(@users)
   end
 
   # GET /users/1 or /users/1.json
   def show
-    render json: @user.as_json.merge(avatar_url: @user.avatar.attached? ? url_for(@user.avatar) : nil)
+    render json: serialized_user(@user)
   end
 
   # GET /users/new
@@ -2746,19 +2753,18 @@ class UsersController < ApplicationController
     @user = User.new(user_params)
 
     if @user.save
-      render json: @user, status: :created, location: @user
+      render json: serialized_user(@user), status: :created
     else
       render json: @user.errors, status: :unprocessable_entity
     end
   end
 
   # PATCH/PUT /users/1 or /users/1.json
-
   def update
     if @user.update(user_params)
-      render json: @user.as_json.merge(avatar_url: @user.avatar.attached? ? url_for(@user.avatar) : nil)
+      render json: serialized_user(@user), status: :ok
     else
-      render json: { errors: @user.errors.full_messages }, status: :unprocessable_entity
+      render json: @user.errors, status: :unprocessable_entity
     end
   end
 
@@ -2774,17 +2780,20 @@ class UsersController < ApplicationController
       @user = User.find_by!(uuid: params[:uuid])
     end
 
+    def serialized_user(user)
+      UserSerializer.new(user).serializable_hash[:data][:attributes].merge(avatar_url: user.avatar.attached? ? url_for(user.avatar) : nil)
+    end
+
+    def serialized_users(users)
+      users.map do |user|
+        serialized_user(user)
+      end
+    end
+
     # Only allow a list of trusted parameters through.
     def user_params
       params.require(:user).permit(:uuid, :email, :avatar, :password)
     end
-end
-```
-- change `~/app/backend/app/serializers/user_serializer.rb` to look like this:
-```
-class UserSerializer
-  include JSONAPI::Serializer
-  attributes :id, :email, :uuid, :avatar_url
 end
 ```
 
