@@ -174,7 +174,7 @@ end
 - `cd ~/app/backend`
 - `mkdir -p app/controllers/api/v1`
 - `touch app/controllers/api/v1/health_controller.rb`
-- make `~/app/backend/app/controllers/health_controller.rb` look like this:
+- make `~/app/controllers/api/v1/health_controller.rb` look like this:
 ```
 class Api::V1::HealthController < ApplicationController
   def show
