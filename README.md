@@ -1064,6 +1064,7 @@ describe('private page', async () => {
 })
 ```
 - `npm run e2e-tests` -> the public & private tests should fail
+- `^ + c`
 
 ### Subpages
 - Now let's build out our `/public` and `/private` pages.
