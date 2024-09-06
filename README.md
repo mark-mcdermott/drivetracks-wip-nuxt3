@@ -1466,7 +1466,7 @@ const uuid = computed(() => {
   </header>
 </template>
 ```
-- `npm run front-and-back-dev` -> Private page link now not showing on homepage. When logged in (which we'll build out shortly), Private page link will show
+- `npm run front-and-back-dev` -> Private page link now not showing on homepage. When logged in (we'll build out login functionality shortly here), Private page link will show. Also, tests are a mess right now - don't run them yet.
 - `^ + c`
 
 ### Add User Dropdown To Nav
@@ -2019,7 +2019,7 @@ async function createUser() {
   </UiContainer>
 </template>
 ```
-- That's it for the frontend for now. We're sort of halfway through getting user login functionality working. The other half is on the backend, which we'll build next.
+- That's it for the frontend for now. We're sort of halfway through getting user login functionality working. We just added a lot (like user views), but some of it we can't see yet because we can't yet log in. The other half of the user login functionality is on the backend and we'll build that next here. Also, tests are still a mess - don't run them yet.
 
 ## Backend
 - Our Rails API-only backend will serve our users to the frontend for login. We'll use Devise and JWT for backend auth. We'll also setup S3 on AWS for hosting our avatars and other file uploads.
