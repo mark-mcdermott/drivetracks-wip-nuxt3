@@ -252,7 +252,7 @@ end
 - We'll use Nuxt testing as [described in the Nuxt docs](https://nuxt.com/docs/getting-started/testing), which uses `@nuxt/test-utils`, [Vitest](https://vitest.dev) and [Playwright](https://playwright.dev).
 - install VSCode `Vitest` extension
 - `cd ~/app/frontend`
-- `npm install --save-dev @nuxt/test-utils vitest @vue/test-utils happy-dom eslint-plugin-vitest unplugin-auto-import unplugin-vue-components playwright-core pixelmatch concurrently`
+- `npm install --save-dev @nuxt/test-utils vitest @vue/test-utils happy-dom eslint-plugin-vitest unplugin-auto-import unplugin-vue-components playwright-core pixelmatch`
 - add `modules: ["@nuxt/test-utils/module"],` to `~/app/frontend/nuxt.config.ts` so it looks like this:
 ```
 export default defineNuxtConfig({
@@ -276,6 +276,17 @@ export default antfu({
   plugins: ['vitest'],
 })
 ```
+- to `~/app/frontend/package.json` in the `scripts` section add:
+```
+    "vitest": "npx vitest",
+```
+- `npm run vitest` -> vitest should run (it will try to run the frontend tests, but there are no tests yet)
+- `^ + c` -> to kill the server
+
+### Concurrently
+- We want to be able to start our app locally with one command. We could do something like `rails server` in one terminal pane and then split the terminal pane and in the new one do `cd ~/app/frontend && npm run dev`. But we can do it cleanly in just one pane with the npm package called [concurrently](https://www.npmjs.com/package/concurrently).
+- `cd ~/app/frontend`
+- `npm install --save-dev concurrently`
 - `touch wait-for-rails.sh`
 - make `~/app/frontend/wait-for-rails.sh` look like this:
 ```
@@ -284,19 +295,18 @@ until curl --silent --fail http://localhost:3000/api/v1/up | grep -q '{"status":
   echo "Waiting for Rails server to start..."
   sleep 1
 done
-
 echo "Ok, rails server is up and running - let's start testing!"
 ```
 - `chmod +x wait-for-rails.sh`
 - to `~/app/frontend/package.json` in the `scripts` section add:
 ```
-    "vitest": "npx vitest",
     "rails-server": "cd ../backend && rails server",
     "wait-then-dev": "./wait-for-rails.sh && npm run dev",
     "front-and-back-dev": "concurrently -n \"BACKEND,FRONTEND\" -c \"green,yellow\" \"npm run rails-server\" \"npm run dev\"",
-    "test": "concurrently -n \"BACKEND,FRONTEND\" -c \"green,yellow\" \"npm run rails-server\" \"./wait-for-rails.sh && npm run vitest '${npm_config_path}'\""
+    "e2e-tests": "concurrently -n \"BACKEND,FRONTEND\" -c \"green,yellow\" \"npm run rails-server\" \"./wait-for-rails.sh && npm run vitest '${npm_config_path}'\""
 ```
-- `npm run test --path=spec/e2e/index.spec.js` -> backend should start and then vitest should run (it will try to run, but there are no tests yet)
+- `npm run e2e-tests` -> backend should start and then vitest should run (it will try to run, but there are no tests yet)
+- `^ + c` -> will kill both the frontend and backend servers with one command
 
 ### Placeholder Hello World Homepage
 - `cd ~/app/frontend`
@@ -510,7 +520,7 @@ describe('homepage', async () => {
   }, 20000)
 })
 ```
-- run the failing test with `npm run test --path=spec/e2e/index.spec.js` -> it should fail
+- run the failing test with `npm run e2e-tests --path=spec/e2e/index.spec.js` -> it should fail
 - `^ + c` to kill the test server
 
 ### Non-Placeholder Homepage Content
@@ -546,7 +556,7 @@ const healthStatus = await $fetch(`${useRuntimeConfig().public.apiBase}/up`)
 - in the first pane run `npm run dev` -> Should be some ok looking homepage content now with a h1, some body copy and two buttons
 - run `^ + c` in both panes to kill the servers
 - now that we've changed the way our homepage looks, we'll have to delete our pixelmatch baseline homepage image, which is at `~/app/frontend/spec/e2e/screenshots/baseline/page-home.png`
-- `npm run test --path=spec/e2e/index.spec.js` -> test should pass now
+- `npm run e2e-tests --path=spec/e2e/index.spec.js` -> test should pass now
 
 ### Add Failing Header/Footer Checks To Homepage Spec
 - Our next big step is to add a header and footer to the site. But before that we'll update our homepage spec (which will then fail until the header/footer are build - which is what we want) and build out some component specs for the header and footer.
@@ -623,7 +633,7 @@ describe('homepage', async () => {
 })
 ```
 - Let's run our homepage spec and make sure it fails.
-- `npm run test --path=spec/e2e/index.spec.js` -> should fail
+- `npm run e2e-tests --path=spec/e2e/index.spec.js` -> should fail
 - `^ + c`
 
 ### Header/Footer Component Specs
@@ -817,7 +827,7 @@ it('can mount some component', async () => {
 - in the first pane run `npm run dev` -> Should be some ok looking homepage content now with a h1, some body copy and two buttons
 - run `^ + c` in both panes to kill the servers
 - now that we've changed the way our homepage looks, we'll have to delete our pixelmatch baseline homepage image, which is `~/app/frontend/spec/e2e/screenshots/baseline/page-home.png` so it will take a new baseline image screenshot to compare to going forward.
-- `npm run test` -> header and footer component tests should pass and homepage end-to-end test should also pass
+- `npm run e2e-tests` -> header and footer component tests should pass and homepage end-to-end test should also pass
 
 ### Refactor Homepage Spec - Move Header/Footer Checks Into Shared.js
 - The next big thing we'll do is build out some subpages at `/public` and `/private`. But first of course, we'll build out some end-to-end tests for our new pages. And even before that, since we'll use the same header link and footer text checks (that we wrote for the homepage spec) in our new public and private page specs, we'll refactor a little and move them into `shared.js` so we don't have to rewrite them all two more times.
@@ -945,7 +955,7 @@ describe('homepage', async () => {
 })
 ```
 - Before we do anything else, let's rerun our homepage spec to make sure we didn't break it in the refactor.
-- `npm run test --path=spec/e2e/index.spec.js` -> should pass
+- `npm run e2e-tests --path=spec/e2e/index.spec.js` -> should pass
 - `^ + c`
 
 ### Subpages E2E Specs
@@ -1062,7 +1072,7 @@ describe('private page', async () => {
   }, 20000)
 })
 ```
-- `npm run test` -> the public & private tests should fail
+- `npm run e2e-tests` -> the public & private tests should fail
 
 ### Subpages
 - Now let's build out our `/public` and `/private` pages.
@@ -1113,8 +1123,8 @@ describe('private page', async () => {
 ```
 - `npm run front-and-back-dev` -> home, public & private links work (private page is not yet locked)
 - `^ + c`
-- `npm run test --path=spec/e2e/public.spec.js` -> public tests should pass now
-- `npm run test --path=spec/e2e/private.spec.js` -> private tests should pass now
+- `npm run e2e-tests --path=spec/e2e/public.spec.js` -> public tests should pass now
+- `npm run e2e-tests --path=spec/e2e/private.spec.js` -> private tests should pass now
 
 ### Install Sidebase Nuxt-Auth
 - Next we'll setup our signup/login functionality with `@sidebase/nuxt-auth`
