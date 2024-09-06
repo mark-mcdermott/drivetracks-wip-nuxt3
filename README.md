@@ -886,8 +886,8 @@ export async function compareScreenshotWithBaseline(page, baselineName, diffName
   expect(numDiffPixels).toBe(0)
 }
 ```
-- Now we'll adjust out homepage `index.spec.js` test to pull the header/footer tests from.
-- make `~/app/frontend/spec/e2e/shared.js` look like this:
+- Now we'll adjust out homepage `index.spec.js` test to pull the header/footer tests from `shared.js`.
+- make `~/app/frontend/spec/e2e/index.spec.js` look like this:
 ```
 import { createPage } from '@nuxt/test-utils'
 import { setup } from '@nuxt/test-utils/e2e'
