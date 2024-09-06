@@ -515,7 +515,7 @@ describe('homepage', async () => {
 - `^ + c` to kill the test server
 
 ### Non-Hello-World Homepage Content
-- Here we'll replace our "Hello World" placeholder homepage with a lorem-type content in a h1, some body copy and some buttons. We'll use our UI Thing kit, which uses tailwind, to make it look pretty nice.
+- Here we'll replace our "Hello World" placeholder homepage with some lorem-type content in a h1, some body copy and some buttons. Our `p` tag body content will actually be the response from our backend health check api, to test that the backend and frontend are wired together correctly. The We'll use our UI Thing kit, which uses tailwind, to make it look pretty nice.
 - `cd ~/app/frontend`
 - `npx ui-thing@latest add container badge button gradient-divider`
 - make `~/app/frontend/pages/index.vue` look like this:
@@ -543,7 +543,7 @@ const healthStatus = await $fetch(`${useRuntimeConfig().public.apiBase}/up`)
   </UiContainer>
 </template>
 ```
-- `npm run front-and-back-dev`-> Should be some ok looking homepage content now with a h1, some body copy and two buttons. Note that the `{"status":"OK"}` subtitle is actually pulling from the backend API so we know the front and back are wired together correctly.
+- `npm run front-and-back-dev`-> Should be some ok looking homepage content now with a h1, some body copy and two buttons. Note that the `{"status":"OK"}` subtitle is pulling from the backend API so we know that our frontend calls to the backend are written correctly and that the backend is responding properly.
 - run `^ + c` to kill the servers
 - now that we've changed the way our homepage looks, we'll have to delete our pixelmatch baseline homepage image, which is at `~/app/frontend/spec/e2e/screenshots/baseline/page-home.png`
 - `npm run e2e-tests --path=spec/e2e/index.spec.js` -> test should pass now
