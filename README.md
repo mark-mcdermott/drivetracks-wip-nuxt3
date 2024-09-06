@@ -253,6 +253,7 @@ end
 - install VSCode `Vitest` extension
 - `cd ~/app/frontend`
 - `npm install --save-dev @nuxt/test-utils vitest @vue/test-utils happy-dom eslint-plugin-vitest unplugin-auto-import unplugin-vue-components playwright-core pixelmatch`
+- `npx playwright install`
 - add `modules: ["@nuxt/test-utils/module"],` to `~/app/frontend/nuxt.config.ts` so it looks like this:
 ```
 export default defineNuxtConfig({
