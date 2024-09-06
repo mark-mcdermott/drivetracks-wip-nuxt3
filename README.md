@@ -1369,7 +1369,7 @@ describe('homepage', async () => {
 definePageMeta({ auth: false })
 </script>
 ```
-- `npm run front-and-back-dev` -> private page redirects to homepage (Login still goes to a 404 and also now the private.spec.js test will fail until we change some things.)
+- `npm run front-and-back-dev` -> private page redirects to homepage (Login still goes to a 404. Also, tests will now fail until we change some things.)
 - `^ + c`
 
 ### Hide The Private Page Link
@@ -1466,7 +1466,7 @@ const uuid = computed(() => {
   </header>
 </template>
 ```
-- `npm run dev` -> Private page link now not showing on homepage. When logged in (which we'll build out shortly), Private page link will show
+- `npm run front-and-back-dev` -> Private page link now not showing on homepage. When logged in (which we'll build out shortly), Private page link will show
 - `^ + c`
 
 ### Add User Dropdown To Nav
