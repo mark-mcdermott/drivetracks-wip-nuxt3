@@ -814,9 +814,10 @@ it('can mount some component', async () => {
 </template>
 ```
 - `npm run front-and-back-dev`-> Should be our homepage from before, but now also with a header and footer section
-- run `^ + c` in both panes to kill the servers
-- now that we've changed the way our homepage looks, we'll have to delete our pixelmatch baseline homepage image, which is `~/app/frontend/spec/e2e/screenshots/baseline/page-home.png` so it will take a new baseline image screenshot to compare to going forward.
+- `^ + c`
+- now that we've changed the way our homepage looks again, we'll have to delete our pixelmatch baseline homepage image, which is `~/app/frontend/spec/e2e/screenshots/baseline/page-home.png` so it will take a new baseline image screenshot to compare to going forward.
 - `npm run e2e-tests` -> header and footer component tests should pass and homepage end-to-end test should also pass
+- `^ + c`
 
 ### Refactor Homepage Spec - Move Header/Footer Checks Into Shared.js
 - The next big thing we'll do is build out some subpages at `/public` and `/private`. But first of course, we'll build out some end-to-end tests for our new pages. And even before that, since we'll use the same header link and footer text checks (that we wrote for the homepage spec) in our new public and private page specs, we'll refactor a little and move them into `shared.js` so we don't have to rewrite them all two more times.
