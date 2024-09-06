@@ -227,14 +227,7 @@ end
   - extra utils: `none`
   - update `.vscode/settings.json`: `yes`
 - `npm install`
-- in `~/app/.vscode/settings.json`, change the `codeActionsOnSave` section (lines 7-10) to:
-```
-  "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "always",
-    "source.organizeImports": "always"
-  },
-```
-- open `package.json`
+- open `~/app/package.json`
   - you should see some red underlines for ESLint violations
   - hit `command + s` to save and you should see ESLint automatically fix the issues
 
