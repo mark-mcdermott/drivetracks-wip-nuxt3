@@ -1115,6 +1115,7 @@ describe('private page', async () => {
 ```
 - `npm run front-and-back-dev` -> home, public & private links work (private page is not yet locked)
 - `^ + c`
+- We want to run our public and private specs now, which should pass. But since we've changed the way they look (ie, we created them), we'll have to delete our pixelmatch baseline public and private page images, which are at `~/app/frontend/spec/e2e/screenshots/baseline/page-public.png` and `~/app/frontend/spec/e2e/screenshots/baseline/page-private.png`, respectively.
 - `npm run e2e-tests --path=spec/e2e/public.spec.js` -> public tests should pass now
 - `npm run e2e-tests --path=spec/e2e/private.spec.js` -> private tests should pass now
 
