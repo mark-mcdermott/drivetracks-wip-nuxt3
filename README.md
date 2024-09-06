@@ -301,7 +301,6 @@ echo "Ok, rails server is up and running - let's start testing!"
 - to `~/app/frontend/package.json` in the `scripts` section add:
 ```
     "rails-server": "cd ../backend && rails server",
-    "wait-then-dev": "./wait-for-rails.sh && npm run dev",
     "front-and-back-dev": "concurrently -n \"BACKEND,FRONTEND\" -c \"green,yellow\" \"npm run rails-server\" \"npm run dev\"",
     "e2e-tests": "concurrently -n \"BACKEND,FRONTEND\" -c \"green,yellow\" \"npm run rails-server\" \"./wait-for-rails.sh && npm run vitest '${npm_config_path}'\""
 ```
@@ -360,15 +359,6 @@ export default defineNuxtConfig({
 - install the VSCode extension `vscode-tailwind-magic`
 - `cd ~/app/frontend`
 - `npx nuxi@latest module add tailwindcss`
-- add these to your `~/app/.vscode/settings.json`:
-```
-"files.associations": {
-    "*.css": "tailwindcss"
-},
-"editor.quickSuggestions": {
-    "strings": true
-}
-```
 - For the record, installing the tailwind module added itself to our module list in  `~/app/frontend/nuxt.config.ts`, which now looks something like this now:
 ```
 export default defineNuxtConfig({
