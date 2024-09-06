@@ -1117,7 +1117,9 @@ describe('private page', async () => {
 - `^ + c`
 - We want to run our public and private specs now, which should pass. But since we've changed the way they look (ie, we created them), we'll have to delete our pixelmatch baseline public and private page images, which are at `~/app/frontend/spec/e2e/screenshots/baseline/page-public.png` and `~/app/frontend/spec/e2e/screenshots/baseline/page-private.png`, respectively.
 - `npm run e2e-tests --path=spec/e2e/public.spec.js` -> public tests should pass now
+- `^ + c`
 - `npm run e2e-tests --path=spec/e2e/private.spec.js` -> private tests should pass now
+- `^ + c`
 
 ### Install Sidebase Nuxt-Auth
 - Next we'll setup our signup/login functionality with `@sidebase/nuxt-auth`
