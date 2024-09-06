@@ -514,7 +514,7 @@ describe('homepage', async () => {
 - run the failing test with `npm run e2e-tests --path=spec/e2e/index.spec.js` -> it should fail
 - `^ + c` to kill the test server
 
-### Non-Placeholder Homepage Content
+### Non-Hello-World Homepage Content
 - Here we'll replace our "Hello World" placeholder homepage with a lorem-type content in a h1, some body copy and some buttons. We'll use our UI Thing kit, which uses tailwind, to make it look pretty nice.
 - `cd ~/app/frontend`
 - `npx ui-thing@latest add container badge button gradient-divider`
@@ -543,9 +543,8 @@ const healthStatus = await $fetch(`${useRuntimeConfig().public.apiBase}/up`)
   </UiContainer>
 </template>
 ```
-- split your terminal and in the second pane, run `cd ~/app/backend` and then `rails server`
-- in the first pane run `npm run dev` -> Should be some ok looking homepage content now with a h1, some body copy and two buttons
-- run `^ + c` in both panes to kill the servers
+- `npm run front-and-back-dev`-> Should be some ok looking homepage content now with a h1, some body copy and two buttons. Note that the `{"status":"OK"}` subtitle is actually pulling from the backend API so we know the front and back are wired together correctly.
+- run `^ + c` to kill the servers
 - now that we've changed the way our homepage looks, we'll have to delete our pixelmatch baseline homepage image, which is at `~/app/frontend/spec/e2e/screenshots/baseline/page-home.png`
 - `npm run e2e-tests --path=spec/e2e/index.spec.js` -> test should pass now
 
