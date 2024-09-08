@@ -2022,7 +2022,7 @@ async function createUser() {
 - That's it for the frontend for now. We're sort of halfway through getting user login functionality working. We just added a lot (like user views), but some of it we can't see yet because we can't yet log in. The other half of the user login functionality is on the backend and we'll build that next here. Also, tests are still a mess - don't run them yet.
 
 ## Backend
-- Our Rails API-only backend will serve our users to the frontend for login. We'll use Devise and JWT for backend auth. We'll also setup S3 on AWS for hosting our avatars and other file uploads.
+Our Rails API-only backend will serve our users to the frontend for login. We'll use Devise and JWT for backend auth. We'll also setup S3 on AWS for hosting our avatars and other file uploads.
 
 ### AWS S3 Setup
 Now we'll create our AWS S3 account so we can store our user avatar images there as well as any other file uploads we'll need. There are a few parts here. We want to create a S3 bucket to store the files. But a S3 bucket needs a IAM user. Both the S3 bucket and the IAM user need permissions policies. There's a little bit of a chicken and egg issue here - when we create the user permissions policy, we need the S3 bucket name. But when we create the S3 bucket permissions, we need the IAM user name. So we'll create everything and use placeholder strings in some of the policies. Then when we're all done, we'll go through the policies and update all the placeholder strings to what they really need to be.
@@ -2641,6 +2641,8 @@ end
 # frozen_string_literal: true
 
 Rails.application.routes.draw do
+  mount Rswag::Ui::Engine => '/api-docs'
+  mount Rswag::Api::Engine => '/api-docs'
   namespace :api do
     namespace :v1 do
       namespace :auth do
