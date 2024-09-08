@@ -3069,7 +3069,7 @@ async function logout() {
 
 ### Deploy to Fly.io
 - `cd ~/app/backend`
-- change `~/app/backend/config/environments/production.rb` to look like this:
+- change `~/app/backend/config/environments/production.rb` to look like this (in the last line, make sure to replace `<backend url>` with the backend url from your `.secrets` file):
 ```
 require "active_support/core_ext/integer/time"
 Rails.application.configure do
@@ -3089,6 +3089,7 @@ Rails.application.configure do
   config.active_support.report_deprecations = false
   config.active_record.dump_schema_after_migration = false
 end
+Rails.application.routes.default_url_options[:host] = '<backend url>'
 ```
 - copy and paste the below `fly secrets` console line into a blank file and replace all the `<...>` sections with the appropriate info. The S3 endpoint is like `https://s3.<aws region>.amazonaws.com/<bucket name>`, so something like `https://s3.us-east-1.amazonaws.com/app-s3-bucket-production` Once it's filled in paste it all in your backend terminal and hit enter
 ```
