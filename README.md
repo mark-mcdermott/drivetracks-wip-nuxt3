@@ -3069,18 +3069,6 @@ async function logout() {
 
 ### Deploy to Fly.io
 - `cd ~/app/backend`
-- make `~/app/backend/config/initializers/cors.rb` look like this (we'll restrict):
-```
-Rails.application.config.middleware.insert_before 0, Rack::Cors do
-  allow do
-    origins '*'
-    resource "*",
-    headers: :any,
-    expose: ['access-token', 'expiry', 'token-type', 'Authorization'],
-    methods: [:get, :patch, :put, :delete, :post, :options, :show]
-  end
-end
-```
 - change `~/app/backend/config/environments/production.rb` to look like this:
 ```
 require "active_support/core_ext/integer/time"
