@@ -71,6 +71,7 @@ AWS details:
     - hit enter (for "no") when it asks a question about wanting to tweak the settings
     - watch the output and look for the `Postgres cluster` details, which end with the line, `Save your credentials in a secure place -- you won't be able to see them again!` When you see it, copy and paste it to the corresponding section in your `~/app/.secrets` file.
     - at the end of all the output it will say, `Visit your newly deployed app at https://<your backend app name>.fly.dev/` - copy/paste the backend app name url it gives you to the `backend url:` part of your `.secrets` file
+    - if you go to your backend url in a browser it will say `page not found` / `http error 404`. This is expected because it's an API only backend
 - `cd ~/app/frontend`
   - like in the backend `fly launch` line above, your fly.io frontend app name has to be unique in their system, so you may have to run this a few times with different names after the `--name ` part until you find a unique one that works
   - `fly launch --name app-frontend`
