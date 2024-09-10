@@ -213,6 +213,8 @@ RSpec.describe "Api::V1::HealthControllers", type: :request do
 end
 ```
 - `rspec spec/requests/api/v1/health_controller_spec.rb` -> should pass
+
+### Deploy Backend And Run Tests
 - `fly deploy`
 - `curl <backend url from .secrets>/api/v1/up` <- should return `{"status":"OK"}`
 - `fly ssh console`
