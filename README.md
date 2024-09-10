@@ -1607,7 +1607,6 @@ async function logout() {
   </header>
 </template>
 ```
-- `cd ~/app/frontend`
 - `npm run front-and-back-dev` -> User dropdown is coded, but not showing because we're logged out. We're also now showing Log In & Sign Up buttons only when logged out. When logged in (which we'll build out shortly), Log In & Sign Up buttons will not show and the Log Out button will show.
 - `^ + c`
 
