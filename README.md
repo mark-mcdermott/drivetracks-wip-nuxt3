@@ -172,6 +172,7 @@ end
 ```
 
 ### Health Status Controller
+- Rails comes with a built-in health controller api at `/up`. We're going to change this to `/api/v1/up` because all our API urls will be prefixed with `/api/v1`, which is pretty common for APIs.
 - `cd ~/app/backend`
 - `mkdir -p app/controllers/api/v1`
 - `touch app/controllers/api/v1/health_controller.rb`
