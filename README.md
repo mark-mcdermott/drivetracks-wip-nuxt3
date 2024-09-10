@@ -213,6 +213,11 @@ RSpec.describe "Api::V1::HealthControllers", type: :request do
 end
 ```
 - `rspec spec/requests/api/v1/health_controller_spec.rb` -> should pass
+- `fly deploy`
+- `curl <backend url from .secrets>/api/v1/up` <- should return `{"status":"OK"}`
+- `fly ssh console`
+  - `DATABASE_CLEANER_ALLOW_REMOTE_DATABASE_URL=true RAILS_ENV=test bundle exec rspec` <- should pass
+  - `exit`
 
 ## Frontend 
 
