@@ -2587,13 +2587,102 @@ User.create!(email: 'test2@mail.com', password: 'password')
 - you should see a `status: 200` in the response somewhere a long `token` string and now our user is logged in
 - kill the server with `^ + c`
 
-### Test The UI
+### Test The UI Locally
 - `cd ~/app/frontend`
 - `npm run front-and-back-dev`
 - in a browser, go to http://localhost:3001
   - home & public pages should work
   - logging in (with the default `test@mail.com` / `password`) should work and should show the Private page link and the user avatar for the user menu
   - logging out should work
+
+### Update Backend For Prod Database Calls
+- Our fly.io API was working last time we checked, but that was just a simple API call that wasn't pulling anything from the database at all. We've now added database calls to our frontend and backend code and everything is working locally. But if we deploy either our frontend or backend code to fly.io now, we'll see quite a few errors. So let's fix all that now.
+- `cd ~/app/backend`
+- make sure `~/app/backend/config/environments/production.rb` has `config.consider_all_requests_local = false` (TODO: this is probably default and this line can probably be removed - double check!)
+- in `~/app/backend/config/puma.rb`, below the `port ENV.fetch('PORT', 3000) line, add this:
+```
+# Specifies the `bind` address that Puma will listen on.
+bind "tcp://0.0.0.0:#{ENV.fetch('PORT', 3000)}"
+```
+- `touch config/initializers/default_url_options.rb`
+- make `~/app/backend/config/initializers/default_url_options.rb` look like this:
+```
+# config/initializers/default_url_options.rb
+
+Rails.application.routes.default_url_options = {
+  host: ENV['DEFAULT_URL_HOST'] || 'localhost',
+  port: ENV['DEFAULT_URL_PORT'] || 3000
+}
+
+# Optionally, you can set different options for different environments
+Rails.application.configure do
+  config.action_mailer.default_url_options = { host: ENV['DEFAULT_URL_HOST'] || 'localhost', port: ENV['DEFAULT_URL_PORT'] || 3000 }
+end
+```
+- in `~/app/backend/fly.toml`, we want to make a couple changes:
+  - under `[http_service]`, change `internal_port = 3000` to:
+```
+internal_port = 8080
+```
+ - also under `[http_service]` add a whole indented section (I think it must be indented!):
+ ```
+  [[http_service.health_checks]]
+  path = "/api/v1/up"
+  interval = 10000
+  timeout = 2000
+ ```
+- at the end of the file add this (non-indented) section (make sure to replace `<backend url>` with your backend url from you `.secrets` file):
+```
+[env]
+  PORT = "8080"
+  DEFAULT_URL_HOST = "<backend url>"
+  DEFAULT_URL_PORT = "443"
+```
+- `fly deploy` <- this may show a couple errors mid-deploy, but should not hang (ie, it should complete and bring you back to the terminal prompt) and it should not show `WARNING The app is not listening on the expected address` at any point
+- Our one user has been automatically seeded in prod, but is still not confirmed and login will error unless we confirm them:
+  - `fly console`
+  - `user = User.find_by(email: "test@mail.com")`
+  - `user.confirmed_at = Time.now`
+  - `user.save!`
+  - `exit`  
+
+### Update Frontend For Prod Database Calls
+- `cd ~/app/frontend`
+- `touch .env`
+- make `~/app/frontend/.env` look like this:
+```
+API_BASE=http://localhost:3000/api/v1
+```
+- `touch .env.production`
+- make `~/app/frontend/.env.production` look like this (and make sure to replace `<backend url>` with your backend url from your `.secrets` file):
+```
+API_BASE=<backend url>/api/v1
+```
+- The only other changes we need to make on the frontend are in `~/app/frontend/nuxt.config.ts`:
+  - at the top of the file add these three lines:
+```
+import dotenv from 'dotenv'
+dotenv.config()
+
+```
+  - in the top of the file, change the `runtimeConfig: { public: { apiBase: "http://localhost:3000/api/v1" } },` line to (and make sure to replace the `<backend url>` part with the backend url from your `.secrets` file):
+```
+runtimeConfig: { public: { apiBase: process.env.API_BASE || '<backend url>/api/v1' } },
+```
+  - in the `auth:` section, change the `baseURL: 'http://localhost:3000/api/v1/auth',` line to:
+```
+baseURL: development ? 'http://localhost:3000/api/v1/auth/' : 'https://app001-backend.fly.dev/api/v1/auth/',
+```
+- `fly deploy`
+
+### Test The Prod UI
+- In a browser, go to the frontend url address that's in your `.secrets` file.
+- Initial pageload may take 10-20 seconds and that's fine (the fix for this is to set fly.io to give your app more resources - but this costs more money)
+- Clicking the Home, Public, Log in and Sign up links should bring up the correct pages.
+- On the Log in page, clicking the Log in button should successfully log you in (the default user email/password prepopulate the login form).
+- After login, you should see the links to the Users page and the Private page and you should see a user avatar in the top right.
+- Clicking the Users link or the Private link should show you the users index page or the Private page, respectively.
+- Clicking the user avatar in the top right should show you a dropdown with Profile and Log out. Clicking Profile should show you your user show page and clicking Log out should successfully log you out.
 
 ### Swagger
 - Let's create Swagger API documentation.
