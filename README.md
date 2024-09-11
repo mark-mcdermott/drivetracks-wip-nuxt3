@@ -577,30 +577,9 @@ const healthStatus = await $fetch(`${useRuntimeConfig().public.apiBase}/up`)
 - now that we've changed the way our homepage looks, we'll have to delete our pixelmatch baseline homepage image, which is at `~/app/frontend/spec/e2e/screenshots/baseline/page-home.png`
 - `npm run e2e-tests --path=spec/e2e/index.spec.js` -> test should pass now
 
-### Update Backend For Prod Database Calls
-- Our homepage fly.io frontend call to the backend health controller API is working locally, but we also want to deploy our homepage to fly.io now. But as is right now, the homepage won't load and nuxt will say `404 [GET] "http://localhost:3000/api/v1/up": 404 Page not found: /api/v1/up`. The backend 
+### Backend Prod Setup & Deploy
+- Our homepage fly.io frontend call to the backend health controller API is working locally, but we also want to deploy our homepage to fly.io now. If we deploy our backend right now, it will hang mid-deploy because we changed the path the rails health controller, which fly.io makes frequent checks to. So let's update our `fly.toml`.
 - `cd ~/app/backend`
-- make sure `~/app/backend/config/environments/production.rb` has `config.consider_all_requests_local = false` (TODO: this is probably default and this line can probably be removed - double check!)
-- in `~/app/backend/config/puma.rb`, below the `port ENV.fetch('PORT', 3000) line, add this:
-```
-# Specifies the `bind` address that Puma will listen on.
-bind "tcp://0.0.0.0:#{ENV.fetch('PORT', 3000)}"
-```
-- `touch config/initializers/default_url_options.rb`
-- make `~/app/backend/config/initializers/default_url_options.rb` look like this:
-```
-# config/initializers/default_url_options.rb
-
-Rails.application.routes.default_url_options = {
-  host: ENV['DEFAULT_URL_HOST'] || 'localhost',
-  port: ENV['DEFAULT_URL_PORT'] || 3000
-}
-
-# Optionally, you can set different options for different environments
-Rails.application.configure do
-  config.action_mailer.default_url_options = { host: ENV['DEFAULT_URL_HOST'] || 'localhost', port: ENV['DEFAULT_URL_PORT'] || 3000 }
-end
-```
 - in `~/app/backend/fly.toml`, we want to make a couple changes:
   - under `[http_service]`, change `internal_port = 3000` to:
 ```
@@ -620,13 +599,35 @@ internal_port = 8080
   DEFAULT_URL_HOST = "<backend url>"
   DEFAULT_URL_PORT = "443"
 ```
-- `fly deploy` <- this may show a couple errors mid-deploy, but should not hang (ie, it should complete and bring you back to the terminal prompt) and it should not show `WARNING The app is not listening on the expected address` at any point
-- Our one user has been automatically seeded in prod, but is still not confirmed and login will error unless we confirm them:
-  - `fly console`
-  - `user = User.find_by(email: "test@mail.com")`
-  - `user.confirmed_at = Time.now`
-  - `user.save!`
-  - `exit`  
+- `fly deploy` <- this should not hang mid-deploy and it should not show `WARNING The app is not listening on the expected address` at any point
+
+### Frontend Prod Setup & Deploy
+- If we check our app's frontend url right now it won't load and nuxt will say `404 [GET] "http://localhost:3000/api/v1/up": 404 Page not found: /api/v1/up`. The frontend is still making backend calls to `localhost` and we need to change that to our API on fly.io.
+- `cd ~/app/frontend`
+- `touch .env`
+- make `~/app/frontend/.env` look like this:
+```
+API_BASE=http://localhost:3000/api/v1
+```
+- `touch .env.production` (TODO: still not used)
+- make `~/app/frontend/.env.production` look like this (and make sure to replace `<backend url>` with your backend url from your `.secrets` file):
+```
+API_BASE=<backend url>/api/v1
+```
+- The only other changes we need to make on the frontend are in `~/app/frontend/nuxt.config.ts`:
+  - at the top of the file add these three lines:
+```
+import dotenv from 'dotenv'
+dotenv.config()
+
+```
+  - in the top of the file, change the `runtimeConfig: { public: { apiBase: "http://localhost:3000/api/v1" } },` line to (and make sure to replace the `<backend url>` part with the backend url from your `.secrets` file):
+```
+runtimeConfig: { public: { apiBase: process.env.API_BASE || '<backend url>/api/v1' } },
+```
+- `fly deploy`
+- now go to the frontend url that's in your `.secrets` file
+
 
 ### Deploy & Test Minimal Homepage
 - `cd ~/app/frontend`
