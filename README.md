@@ -626,12 +626,7 @@ dotenv.config()
 runtimeConfig: { public: { apiBase: process.env.API_BASE || '<backend url>/api/v1' } },
 ```
 - `fly deploy`
-- now go to the frontend url that's in your `.secrets` file
-
-
-### Deploy & Test Minimal Homepage
-- `cd ~/app/frontend`
-- `fly deploy`
+- now go to the frontend url that's in your `.secrets` file <- the app should look the way it looked locally
 
 ### Add Failing Header/Footer Checks To Homepage Spec
 - Our next big step is to add a header and footer to the site. But before that we'll update our homepage spec (which will then fail until the header/footer are build - which is what we want) and build out some component specs for the header and footer.
