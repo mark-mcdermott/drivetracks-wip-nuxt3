@@ -172,7 +172,7 @@ end
 ```
 
 ### Health Status Controller
-- Rails comes with a built-in health controller api at `/up`. We're going to change this to `/api/v1/up` because all our API urls will be prefixed with `/api/v1`, which is pretty common for APIs.
+- Rails comes with a built-in health controller api at `/up`. We're going to move it to `/api/v1/up` because all our API urls will be prefixed with `/api/v1`, which is pretty common for APIs.
 - `cd ~/app/backend`
 - `mkdir -p app/controllers/api/v1`
 - `touch app/controllers/api/v1/health_controller.rb`
@@ -217,7 +217,26 @@ end
 - `rspec spec/requests/api/v1/health_controller_spec.rb` -> should pass
 
 ### Deploy Backend And Run Tests
-- `fly deploy`
+- in `~/app/backend/fly.toml`, we want to make a couple changes:
+  - under `[http_service]`, change `internal_port = 3000` to:
+```
+internal_port = 8080
+```
+ - also under `[http_service]` add a whole indented section (I think it must be indented!):
+ ```
+  [[http_service.health_checks]]
+  path = "/api/v1/up"
+  interval = 10000
+  timeout = 2000
+ ```
+- at the end of the file add this (non-indented) section (make sure to replace `<backend url>` with your backend url from you `.secrets` file):
+```
+[env]
+  PORT = "8080"
+  DEFAULT_URL_HOST = "<backend url>"
+  DEFAULT_URL_PORT = "443"
+```
+- `fly deploy` <- this may show a couple errors mid-deploy, but should not hang (ie, it should complete and bring you back to the terminal prompt) and it should not show `WARNING The app is not listening on the expected address` at any point
 - `curl <backend url from .secrets>/api/v1/up` <- should return `{"status":"OK"}`
 - `fly ssh console`
   - `DATABASE_CLEANER_ALLOW_REMOTE_DATABASE_URL=true RAILS_ENV=test bundle exec rspec` <- should pass
