@@ -2693,25 +2693,6 @@ Rails.application.configure do
   config.action_mailer.default_url_options = { host: ENV['DEFAULT_URL_HOST'] || 'localhost', port: ENV['DEFAULT_URL_PORT'] || 3000 }
 end
 ```
-- in `~/app/backend/fly.toml`, we want to make a couple changes:
-  - under `[http_service]`, change `internal_port = 3000` to:
-```
-internal_port = 8080
-```
- - also under `[http_service]` add a whole indented section (I think it must be indented!):
- ```
-  [[http_service.health_checks]]
-  path = "/api/v1/up"
-  interval = 10000
-  timeout = 2000
- ```
-- at the end of the file add this (non-indented) section (make sure to replace `<backend url>` with your backend url from you `.secrets` file):
-```
-[env]
-  PORT = "8080"
-  DEFAULT_URL_HOST = "<backend url>"
-  DEFAULT_URL_PORT = "443"
-```
 - `fly deploy` <- this may show a couple errors mid-deploy, but should not hang (ie, it should complete and bring you back to the terminal prompt) and it should not show `WARNING The app is not listening on the expected address` at any point
 - Our one user has been automatically seeded in prod, but is still not confirmed and login will error unless we confirm them:
   - `fly console`
