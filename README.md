@@ -217,20 +217,39 @@ end
 - `rspec spec/requests/api/v1/health_controller_spec.rb` -> should pass
 
 ### Deploy Backend And Run Tests
-- in `~/app/backend/fly.toml`, we want to make a couple changes:
-  - under `[http_service]`, change `internal_port = 3000` to:
+- make `~/app/backend/fly.toml` look like this (replacing `<backend url>` with your backend url from `.secretes` and `<backend app name>` with the backend app name, which is the the backend url with out `https://` at the beginning and without `.fly.dev` at the end):
 ```
-internal_port = 8080
-```
- - also under `[http_service]` add a whole indented section (I think it must be indented!):
- ```
+app = '<backend app name>'
+primary_region = 'dfw'
+console_command = '/rails/bin/rails console'
+
+[build]
+
+[deploy]
+  release_command = './bin/rails db:prepare'
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = 'stop'
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ['app']
+   
   [[http_service.health_checks]]
-  path = "/api/v1/up"
-  interval = 10000
-  timeout = 2000
- ```
-- at the end of the file add this (non-indented) section (make sure to replace `<backend url>` with your backend url from you `.secrets` file):
-```
+    path = "/api/v1/up"
+    interval = 10000
+    timeout = 2000
+
+[[vm]]
+  memory = '1gb'
+  cpu_kind = 'shared'
+  cpus = 1
+
+[[statics]]
+  guest_path = '/rails/public'
+  url_prefix = '/'
+
 [env]
   PORT = "8080"
   DEFAULT_URL_HOST = "<backend url>"
