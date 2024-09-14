@@ -2673,7 +2673,6 @@ User.create!(email: 'test2@mail.com', password: 'password')
 ### Update Backend For Prod Database Calls
 - Our fly.io API was working last time we checked, but that was just a simple API call that wasn't pulling anything from the database at all. We've now added database calls to our frontend and backend code and everything is working locally. But if we deploy either our frontend or backend code to fly.io now, we'll see quite a few errors. So let's fix all that now.
 - `cd ~/app/backend`
-- make sure `~/app/backend/config/environments/production.rb` has `config.consider_all_requests_local = false` (TODO: this is probably default and this line can probably be removed - double check!)
 - in `~/app/backend/config/puma.rb`, below the `port ENV.fetch('PORT', 3000) line, add this:
 ```
 # Specifies the `bind` address that Puma will listen on.
