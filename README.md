@@ -2786,10 +2786,10 @@ baseURL: development ? 'http://localhost:3000/api/v1/auth/' : 'https://app001-ba
 - `cd ~/app/backend`
 - `bundle add aws-sdk-s3`
 - `bundle install`
-- `touch app/controllers/uploads_controller.rb`
-- make `~/app/backend/app/controllers/uploads_controller.rb` look like this (replacing <your-region> with your aws region and `<your production s3 bucket name>` with your production s3 bucket name from your `.secrets` file):
+- `touch app/controllers/api/v1/uploads_controller.rb`
+- make `~/app/backend/app/controllers/api/v1/uploads_controller.rb` look like this (replacing <your-region> with your aws region and `<your production s3 bucket name>` with your production s3 bucket name from your `.secrets` file):
 ```
-class UploadsController < ApplicationController
+class Api::V1::UploadsController < ApplicationController
   before_action :authenticate_user! # Ensure you have authentication in place
 
   def presigned_url
