@@ -2701,6 +2701,7 @@ end
 
 ### Setup Email
 - I believe our Devise setup will try to send confirmation emails automatically if we seed our users and if we don't have our server setup for email properly, it will error and possibly shut down our machine.
+- `cd ~/app/backend`
 - `EDITOR="code --wait" rails credentials:edit`
   - add this section near the top (and change the user_name and password to your liking):
 ```
@@ -2727,6 +2728,7 @@ smtp:
 ```
 
 ### Deploy Backend
+- `cd ~/app/backend`
 - `fly deploy` <- this may show a couple errors mid-deploy, but should not hang (ie, it should complete and bring you back to the terminal prompt) and it should not show `WARNING The app is not listening on the expected address` at any point
 - Our one user has been automatically seeded in prod, but is still not confirmed and login will error unless we confirm them:
   - `fly console`
