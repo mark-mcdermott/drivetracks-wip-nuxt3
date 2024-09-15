@@ -2852,6 +2852,13 @@ aws:
   region: <your aws region>
   bucket: <your s3 production bucket name>
 
+smtp:
+  address: smtp.example.com
+  port: 587
+  domain: example.com
+  user_name: your_smtp_username
+  password: your_smtp_password
+
 # Used as the base secret for all MessageVerifiers in Rails, including the one protecting cookies.
 secret_key_base: <your secret_key_base that was already there. don't touch this>
 ```
