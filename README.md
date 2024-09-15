@@ -255,6 +255,11 @@ console_command = '/rails/bin/rails console'
   DEFAULT_URL_HOST = "<backend url>"
   DEFAULT_URL_PORT = "443"
 ```
+- change the last two lines of the `Dockerfile` (`EXPOSE` and `CMD`) to:
+```
+EXPOSE 8080
+CMD ["./bin/rails", "server", "-b", "0.0.0.0", "-p", "8080"]
+```
 - `fly deploy` <- this may show a couple errors mid-deploy, but should not hang (ie, it should complete and bring you back to the terminal prompt) and it should not show `WARNING The app is not listening on the expected address` at any point
 - `curl <backend url from .secrets>/api/v1/up` <- should return `{"status":"OK"}`
 - `fly ssh console`
