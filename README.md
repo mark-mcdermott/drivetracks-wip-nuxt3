@@ -1210,7 +1210,7 @@ describe('private page', async () => {
 ### Setup Sidebase Nuxt-Auth
 - Sidebase Nuxt Auth keeps its settings under `auth` in `nuxt.config.ts`. Here we'll lock down all pages by default with `globalAppMiddleware: { isEnabled: true }` and we also specify all our auth endpoints.
 - `cd ~/app/frontend`
-- make `~/app/frontend/nuxt.config.js` look like this:
+- make `~/app/frontend/nuxt.config.js` look like this (making sure to replace both `<backend url>` instances with your backend url from your `.secrets` file):
 ```
 const development = process.env.NODE_ENV !== 'production'
 export default defineNuxtConfig({
@@ -1241,9 +1241,9 @@ export default defineNuxtConfig({
     ],
   },
   auth: {
-    computed: { pathname: development ? 'http://localhost:3000/api/v1/auth/' : 'https://interview-app-backend.fly.dev/api/auth/' },
+    computed: { pathname: development ? 'http://localhost:3000/api/v1/auth/' : '<backend url>/api/v1/auth/' },
     isEnabled: true,
-    baseURL: 'http://localhost:3000/api/v1/auth',
+    baseURL: development ? 'http://localhost:3000/api/v1/auth/' : '<backend url>/api/v1/auth/',
     globalAppMiddleware: { isEnabled: true },
     provider: {
       type: 'local',
@@ -2753,9 +2753,9 @@ dotenv.config()
 ```
 runtimeConfig: { public: { apiBase: process.env.API_BASE || '<backend url>/api/v1' } },
 ```
-  - in the `auth:` section, change the `baseURL: 'http://localhost:3000/api/v1/auth',` line to:
+  - in the `auth:` section, change the `baseURL: 'http://localhost:3000/api/v1/auth',` line to (and make sure to replace `<backend url>` with your backend url from your `.secrets` file):
 ```
-baseURL: development ? 'http://localhost:3000/api/v1/auth/' : 'https://app001-backend.fly.dev/api/v1/auth/',
+baseURL: development ? 'http://localhost:3000/api/v1/auth/' : '<backend url>/api/v1/auth/',
 ```
 - `fly deploy`
 
@@ -3246,16 +3246,19 @@ async function logout() {
   </header>
 </template>
 ```
+- `fly deploy`
 
 ### Test Avatars Locally
 - `cd ~/app/frontend`
 - `npm run front-and-back-dev` <- you should now be able to login, go to your profile page and update your avatar
 
-### Deploy to Fly.io
+### Deploy Backend to Fly.io
 - `cd ~/app/backend`
 - change `~/app/backend/config/environments/production.rb` to look like this (in the last line, make sure to replace `<backend url>` with the backend url from your `.secrets` file):
 ```
-require "active_support/core_ext/integer/time"
+# frozen_string_literal: true
+
+require 'active_support/core_ext/integer/time'
 Rails.application.configure do
   config.enable_reloading = false
   config.eager_load = true
@@ -3263,12 +3266,22 @@ Rails.application.configure do
   config.public_file_server.enabled = ENV['RAILS_SERVE_STATIC_FILES'].present?
   config.active_storage.service = :amazon
   config.force_ssl = true
-  config.logger = ActiveSupport::Logger.new(STDOUT)
+  config.logger = ActiveSupport::Logger.new($stdout)
     .tap  { |logger| logger.formatter = ::Logger::Formatter.new }
     .then { |logger| ActiveSupport::TaggedLogging.new(logger) }
-  config.log_tags = [ :request_id ]
-  config.log_level = ENV.fetch("RAILS_LOG_LEVEL", "info")
+  config.log_tags = [:request_id]
+  config.log_level = ENV.fetch('RAILS_LOG_LEVEL', 'info')
   config.action_mailer.perform_caching = false
+  config.action_mailer.delivery_method = :smtp
+  config.action_mailer.smtp_settings = {
+    address:              Rails.application.credentials.dig(:smtp, :address),
+    port:                 Rails.application.credentials.dig(:smtp, :port),
+    domain:               Rails.application.credentials.dig(:smtp, :domain),
+    user_name:            Rails.application.credentials.dig(:smtp, :user_name),
+    password:             Rails.application.credentials.dig(:smtp, :password),
+    authentication:       'plain',
+    enable_starttls_auto: true
+  }
   config.i18n.fallbacks = true
   config.active_support.report_deprecations = false
   config.active_record.dump_schema_after_migration = false
@@ -3284,13 +3297,6 @@ fly secrets set \
   BUCKET_NAME=<your s3 production bucket name>
 ```
 - `fly deploy`
-
-- `cd ~/app/frontend`
-  - in `~/app/frontend/nuxt.config.ts`, change `runtimeConfig: { public: { apiBase: 'http://localhost:3000/api/v1' } },` to `runtimeConfig: { public: { apiBase: development ? 'http://localhost:3000/api/v1' : '<your backend fly.io url>' } },` (substituting your backend fly.io url for `<your backend fly.io url>`)
-  - also in `~/app/frontend/nuxt.config.ts`, change `computed: { pathname: development ? 'http://localhost:3000/api/auth/' : 'https://interview-app-backend.fly.dev/api/auth/' },` to `computed: { pathname: development ? 'http://localhost:3000/api/auth/' : '<your fly.io backend url>/api/auth/' },` (also substituting your backend fly.io url for `<your fly.io backend url>`)
-  - `fly deploy`
-
-
 
 ## Sources
 - Nuxt https://nuxt.com (visited 7/4/24)
