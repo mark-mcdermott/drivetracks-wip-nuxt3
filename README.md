@@ -2675,7 +2675,7 @@ User.create!(email: 'test2@mail.com', password: 'password')
   - logging in (with the default `test@mail.com` / `password`) should work and should show the Private page link and the user avatar for the user menu
   - logging out should work
 
-### Update Backend For Prod Database Calls
+### Update Backend For Prod
 - Our fly.io API was working last time we checked, but that was just a simple API call that wasn't pulling anything from the database at all. We've now added database calls to our frontend and backend code and everything is working locally. But if we deploy either our frontend or backend code to fly.io now, we'll see quite a few errors. So let's fix all that now.
 - `cd ~/app/backend`
 - in `~/app/backend/config/puma.rb`, below the `port ENV.fetch('PORT', 3000)` on line 37, add this:
@@ -2698,6 +2698,35 @@ Rails.application.configure do
   config.action_mailer.default_url_options = { host: ENV['DEFAULT_URL_HOST'] || 'localhost', port: ENV['DEFAULT_URL_PORT'] || 3000 }
 end
 ```
+
+### Setup Email
+- I believe our Devise setup will try to send confirmation emails automatically if we seed our users and if we don't have our server setup for email properly, it will error and possibly shut down our machine.
+- `EDITOR="code --wait" rails credentials:edit`
+  - add this section near the top (and change the user_name and password to your liking):
+```
+smtp:
+  address: smtp.example.com
+  port: 587
+  domain: example.com
+  user_name: your_smtp_username
+  password: your_smtp_password
+```
+  - then save the file and close it
+- now add this to `~/app/backend/config/environments/production.rb`:
+```
+  config.action_mailer.delivery_method = :smtp
+  config.action_mailer.smtp_settings = {
+    address:              Rails.application.credentials.dig(:smtp, :address),
+    port:                 Rails.application.credentials.dig(:smtp, :port),
+    domain:               Rails.application.credentials.dig(:smtp, :domain),
+    user_name:            Rails.application.credentials.dig(:smtp, :user_name),
+    password:             Rails.application.credentials.dig(:smtp, :password),
+    authentication:       'plain',
+    enable_starttls_auto: true
+  }
+```
+
+### Deploy Backend
 - `fly deploy` <- this may show a couple errors mid-deploy, but should not hang (ie, it should complete and bring you back to the terminal prompt) and it should not show `WARNING The app is not listening on the expected address` at any point
 - Our one user has been automatically seeded in prod, but is still not confirmed and login will error unless we confirm them:
   - `fly console`
