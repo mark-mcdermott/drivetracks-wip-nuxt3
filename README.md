@@ -2730,7 +2730,10 @@ smtp:
 ### Deploy Backend
 - `cd ~/app/backend`
 - `fly deploy` <- this may show a couple errors mid-deploy, but should not hang (ie, it should complete and bring you back to the terminal prompt) and it should not show `WARNING The app is not listening on the expected address` at any point
-- Our one user has been automatically seeded in prod, but is still not confirmed and login will error unless we confirm them:
+- `fly ssh console`
+  - `bin/rails db:seed`
+  - `exit`
+- Our one user has been seeded in prod, but is still not confirmed and login will error unless we confirm them:
   - `fly console`
   - `user = User.find_by(email: "test@mail.com")`
   - `user.confirmed_at = Time.now`
