@@ -3247,6 +3247,10 @@ async function logout() {
 </template>
 ```
 
+### Test Avatars Locally
+- `cd ~/app/frontend`
+- `npm run front-and-back-dev` <- you should now be able to login, go to your profile page and update your avatar
+
 ### Deploy to Fly.io
 - `cd ~/app/backend`
 - change `~/app/backend/config/environments/production.rb` to look like this (in the last line, make sure to replace `<backend url>` with the backend url from your `.secrets` file):
