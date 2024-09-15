@@ -2993,6 +2993,7 @@ end
 ```
 
 ### Avatars In Nuxt
+- `cd ~/app/frontend`
 - change `~/app/frontend/pages/users/[id].vue` to look like this:
 ```
 <script setup>
