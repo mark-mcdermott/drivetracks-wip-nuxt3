@@ -2739,17 +2739,7 @@ smtp:
 
 ### Update Frontend For Prod Database Calls
 - `cd ~/app/frontend`
-- `touch .env`
-- make `~/app/frontend/.env` look like this:
-```
-API_BASE=http://localhost:3000/api/v1
-```
-- `touch .env.production`
-- make `~/app/frontend/.env.production` look like this (and make sure to replace `<backend url>` with your backend url from your `.secrets` file):
-```
-API_BASE=<backend url>/api/v1
-```
-- The only other changes we need to make on the frontend are in `~/app/frontend/nuxt.config.ts`:
+- The only frontend changes we need to make are in `~/app/frontend/nuxt.config.ts`:
   - at the top of the file add these three lines:
 ```
 import dotenv from 'dotenv'
