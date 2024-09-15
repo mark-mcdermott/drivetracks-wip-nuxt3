@@ -1210,12 +1210,12 @@ describe('private page', async () => {
 ### Setup Sidebase Nuxt-Auth
 - Sidebase Nuxt Auth keeps its settings under `auth` in `nuxt.config.ts`. Here we'll lock down all pages by default with `globalAppMiddleware: { isEnabled: true }` and we also specify all our auth endpoints.
 - `cd ~/app/frontend`
-- make `~/app/frontend/nuxt.config.js` look like this (making sure to replace both `<backend url>` instances with your backend url from your `.secrets` file):
+- make `~/app/frontend/nuxt.config.js` look like this (making sure to replace all three `<backend url>` instances with your backend url from your `.secrets` file):
 ```
 const development = process.env.NODE_ENV !== 'production'
 export default defineNuxtConfig({
   devtools: { enabled: true },
-  runtimeConfig: { public: { apiBase: "http://localhost:3000/api/v1" } },
+  runtimeConfig: { public: { apiBase: process.env.API_BASE || '<backend url>/api/v1' } },
   devServer: { port: 3001 },
   modules: [
     "@nuxt/test-utils/module",
