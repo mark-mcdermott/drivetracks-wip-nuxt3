@@ -2243,7 +2243,6 @@ Now we'll create our AWS S3 account so we can store our user avatar images there
 
 ### Auth Spec (TODO: remove this - instead of one auth spec, just do the automatic rspec generators for the controllers that exist)
 - `cd ~/app/backend`
-- `mkdir spec/requests`
 - `touch spec/requests/auth_spec.rb`
 - make `spec/requests/auth_spec.rb` look like this:
 ```
