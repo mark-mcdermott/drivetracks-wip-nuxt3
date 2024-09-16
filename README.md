@@ -2290,8 +2290,41 @@ RSpec.describe 'Auth requests' do
 end
 ```
 
-### Session Spec (TODO: Start Here!)
-- `?`
+### Current User Spec
+- `touch spec/requests/current_user_spec.rb`
+- make `spec/requests/current_user_spec.rb` look like this:
+```
+# frozen_string_literal: true
+
+require 'rails_helper'
+
+RSpec.describe 'Current user requests' do
+  before(:all) do
+    @user1 = create(:user, :confirmed)
+  end
+
+  let(:valid_creds) { { user: { email: @user1.email, password: @user1.password } } }
+
+  context 'GET /api/v1/auth/current_user with valid credentials' do
+    it 'responds with 200 status and returns the current user' do
+      post '/api/v1/auth/login', params: valid_creds
+      expect(response.status).to eq 200
+      token = JSON.parse(response.body)['token']
+      get '/api/v1/auth/current_user', headers: { 'Authorization' => "Bearer #{token}" }
+      expect(response.status).to eq 200
+      json_response = JSON.parse(response.body)
+      expect(json_response['email']).to eq(@user1.email)
+    end
+  end
+
+  context 'GET /api/v1/auth/current_user without credentials' do
+    it 'responds with 401 status' do
+      get '/api/v1/auth/current_user'
+      expect(response.status).to eq 401
+    end
+  end
+end
+```
 
 ### Auth Spec (TODO: remove this - instead of one auth spec, just do the automatic rspec generators for the controllers that exist)
 - `cd ~/app/backend`
