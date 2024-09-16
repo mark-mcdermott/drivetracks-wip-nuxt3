@@ -2242,14 +2242,14 @@ Now we'll create our AWS S3 account so we can store our user avatar images there
 - we're now done with our S3 setup and our AWS dashboard, at least for now. So let's go back to our terminal where we're building out our rails backend
 
 ### Login Spec
-- `touch spec/requests/login_spec.rb`
-- make `spec/requests/login_spec.rb` look like this:
+- `touch spec/requests/auth_spec.rb`
+- make `spec/requests/auth_spec.rb` look like this:
 ```
 # frozen_string_literal: true
 
 require 'rails_helper'
 
-RSpec.describe 'Auth requests' do
+RSpec.describe 'Login requests' do
   before(:all) do
     @user1 = create(:user, :confirmed)
     @user2 = create(:user)
@@ -2284,6 +2284,25 @@ RSpec.describe 'Auth requests' do
   context 'POST /api/v1/auth/login unconfirmed user' do
     it 'responds with 401 status' do
       post '/api/v1/auth/login', params: invalid_pass
+      expect(response.status).to eq 401
+    end
+  end
+
+  context 'DELETE /api/v1/auth/logout with valid credentials' do
+    it 'responds with 200 status' do
+      post '/api/v1/auth/login', params: valid_creds
+      expect(response.status).to eq 200
+      token = JSON.parse(response.body)['token']
+      delete '/api/v1/auth/logout', headers: { 'Authorization' => "Bearer #{token}" }
+      expect(response.status).to eq 200
+    end
+  end
+
+  context 'DELETE /api/v1/auth/logout without valid credentials' do
+    it 'responds with 200 status' do
+      post '/api/v1/auth/login', params: valid_creds
+      expect(response.status).to eq 200
+      delete '/api/v1/auth/logout'
       expect(response.status).to eq 401
     end
   end
@@ -2326,65 +2345,47 @@ RSpec.describe 'Current user requests' do
 end
 ```
 
-### Logout Spec (TODO: Start here!!)
-
 ### Registration Spec
-
-### Auth Spec (TODO: remove this - instead of one auth spec, just do the automatic rspec generators for the controllers that exist)
-- `cd ~/app/backend`
-- `touch spec/requests/auth_spec.rb`
-- make `spec/requests/auth_spec.rb` look like this:
+- `touch spec/requests/registration_spec.rb`
+- make `spec/requests/registration_spec.rb` look like this:
 ```
-require "rails_helper"
+# frozen_string_literal: true
 
-RSpec.describe "Auth requests" do
+require 'rails_helper'
 
-  let(:user) { create(:user, email: "MyString", password: "MyString") }
-  let(:valid_creds) {{ :email => user.email, :password => user.password }}
-  let(:invalid_creds) {{ :email => user.email, :password => "wrong" }}
-  let!(:token) { create(:token, user: user, token_str: Digest::MD5.hexdigest(SecureRandom.hex), active: true) }
+RSpec.describe 'Registration requests' do
+  let(:user_params) { { user: { email: 'test@mail.com', password: 'password' } } }
+  let(:just_email) { { user: { email: 'test@mail.com' } } }
+  let(:just_password) { { user: { password: 'password' } } }
+  let(:malformed) { { email: 'test@mail.com', password: 'password' } }
 
-  context "POST /api/auth/login with valid credentials" do
-    it "responds with 200 status" do
-      post "/api/auth/login", params: valid_creds
+  context 'POST /api/v1/auth/signup with email and password params' do
+    it 'responds with 200 status' do
+      post '/api/v1/auth/signup', params: user_params
       expect(response.status).to eq 200
     end
-    it "responds with token " do
-      post "/api/auth/login", params: valid_creds
-      json_response = JSON.parse(response.body)
-      expect(json_response).to have_key("token")
-      user.reload
-      latest_token = user.token.token_str
-      expect(json_response["token"]).to eq latest_token
-    end
   end
-  context "POST /api/auth/login invalid credentials" do
-    it "responds with 401 status" do
-      post "/api/auth/login", params: invalid_creds
-      expect(response.status).to eq 401
+
+  context 'POST /api/v1/auth/signup with just email param' do
+    it 'responds with 422 status' do
+      post '/api/v1/auth/signup', params: just_email
+      expect(response.status).to eq 422
     end
   end
 
-  context "GET /api/auth/session without a token header" do
-    it "responds with error" do
-      get "/api/auth/session"
-      expect(response).to have_http_status(:not_found)
-      json_response = JSON.parse(response.body)
-      expect(json_response).to have_key("error")
-      expect(json_response["error"]).to eq "User token not found"
+  context 'POST /api/v1/auth/signup with just password param' do
+    it 'responds with 422 status' do
+      post '/api/v1/auth/signup', params: just_password
+      expect(response.status).to eq 422
     end
   end
 
-  context "GET /api/auth/session with correct token header" do
-    it "responds with the user" do
-      get "/api/auth/session", headers: { 'Authorization' => "Bearer #{token.token_str}" }
-      expect(response).to have_http_status(:ok)
-      json_response = JSON.parse(response.body)
-      expect(json_response).to have_key("user")
-      expect(json_response["user"]["email"]).to eq user.email
+  context 'POST /api/v1/auth/signup with malformed params' do
+    it 'responds with 422 status' do
+      post '/api/v1/auth/signup', params: malformed
+      expect(response.status).to eq 422
     end
   end
-
 end
 ```
 
