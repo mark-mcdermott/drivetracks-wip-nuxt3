@@ -2241,6 +2241,58 @@ Now we'll create our AWS S3 account so we can store our user avatar images there
   - paste your region string in your `~/app/.secrets` file in the `aws region` line
 - we're now done with our S3 setup and our AWS dashboard, at least for now. So let's go back to our terminal where we're building out our rails backend
 
+### Login Spec
+- `touch spec/requests/login_spec.rb`
+- make `spec/requests/login_spec.rb` look like this:
+```
+# frozen_string_literal: true
+
+require 'rails_helper'
+
+RSpec.describe 'Auth requests' do
+  before(:all) do
+    @user1 = create(:user, :confirmed)
+    @user2 = create(:user)
+  end
+
+  let(:valid_creds) { { user: { email: @user1.email, password: @user1.password } } }
+  let(:invalid_email) { { user: { email: @user1.email, password: 'wrong' } } }
+  let(:invalid_pass) { { user: { email: 'wrong@mail.com', password: @user1.password } } }
+  let(:unconfirmed) { { user: { email: @user2.email, password: @user2.password } } }
+
+  context 'POST /api/v1/auth/login with valid credentials' do
+    it 'responds with 200 status' do
+      post '/api/v1/auth/login', params: valid_creds
+      expect(response.status).to eq 200
+    end
+  end
+
+  context 'POST /api/v1/auth/login with invalid email' do
+    it 'responds with 401 status' do
+      post '/api/v1/auth/login', params: invalid_email
+      expect(response.status).to eq 401
+    end
+  end
+
+  context 'POST /api/v1/auth/login with invalid password' do
+    it 'responds with 401 status' do
+      post '/api/v1/auth/login', params: invalid_pass
+      expect(response.status).to eq 401
+    end
+  end
+
+  context 'POST /api/v1/auth/login unconfirmed user' do
+    it 'responds with 401 status' do
+      post '/api/v1/auth/login', params: invalid_pass
+      expect(response.status).to eq 401
+    end
+  end
+end
+```
+
+### Session Spec (TODO: Start Here!)
+- `?`
+
 ### Auth Spec (TODO: remove this - instead of one auth spec, just do the automatic rspec generators for the controllers that exist)
 - `cd ~/app/backend`
 - `touch spec/requests/auth_spec.rb`
@@ -2381,11 +2433,11 @@ end
 ```
 FactoryBot.define do
   factory :user do
-    sequence(:email) { |n| "user#{n}@example.com" }
-    password { "password" }
+    sequence(:email) { |n| "test#{n}@mail.com" }
+    password { 'password' }
 
     trait :confirmed do
-      confirmed_at { Time.now }
+      confirmed_at { Time.zone.now }
     end
   end
 end
