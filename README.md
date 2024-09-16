@@ -2326,6 +2326,10 @@ RSpec.describe 'Current user requests' do
 end
 ```
 
+### Logout Spec (TODO: Start here!!)
+
+### Registration Spec
+
 ### Auth Spec (TODO: remove this - instead of one auth spec, just do the automatic rspec generators for the controllers that exist)
 - `cd ~/app/backend`
 - `touch spec/requests/auth_spec.rb`
