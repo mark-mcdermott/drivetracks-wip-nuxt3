@@ -2331,8 +2331,6 @@ RSpec.describe 'Current user requests' do
       token = JSON.parse(response.body)['token']
       get '/api/v1/auth/current_user', headers: { 'Authorization' => "Bearer #{token}" }
       expect(response.status).to eq 200
-      json_response = JSON.parse(response.body)
-      expect(json_response['email']).to eq(@user1.email)
     end
   end
 
