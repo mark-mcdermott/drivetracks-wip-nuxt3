@@ -101,19 +101,17 @@ Style/Documentation:
 - `bundle add rspec-rails shoulda-matchers --group "development, test"`
 - `bundle install`
 - `rails generate rspec:install`
-
-### Database Cleaner
-- `cd ~/app/backend`
-- `bundle add database_cleaner-active_record`
-- `bundle install`
 - make `~/app/backend/spec/rails_helper.rb` look like this:
 ```
+# frozen_string_literal: true
+
 require 'spec_helper'
 ENV['RAILS_ENV'] ||= 'test'
 require_relative '../config/environment'
 abort("The Rails environment is running in production mode!") if Rails.env.production?
 require 'rspec/rails'
 require 'database_cleaner/active_record'
+require 'shoulda/matchers'
 
 begin
   ActiveRecord::Migration.maintain_test_schema!
@@ -122,24 +120,23 @@ rescue ActiveRecord::PendingMigrationError => e
 end
 
 RSpec.configure do |config|
+  config.include FactoryBot::Syntax::Methods
+
   config.use_transactional_fixtures = false
 
-  config.before(:suite) do
-    DatabaseCleaner.clean_with(:truncation)
-  end
-
   config.before(:each) do
-    DatabaseCleaner.strategy = :transaction
-    DatabaseCleaner.start
     Rails.application.routes.default_url_options[:host] = 'http://localhost:3000'
-  end
-
-  config.after(:each) do
-    DatabaseCleaner.clean
   end
 
   config.infer_spec_type_from_file_location!
   config.filter_rails_from_backtrace!
+end
+
+Shoulda::Matchers.configure do |config|
+  config.integrate do |with|
+    with.test_framework :rspec
+    with.library :rails
+  end
 end
 ```
 
@@ -1312,7 +1309,89 @@ it('has a login navigation', async () => {
 ```
 
 ### Update Page Specs For Logged In/Out Functionality
-- make `~/app/frontend/spec/e2e/index.spec.js` look like this (TODO: last test here is still breaking): 
+- make `~/app/frontend/spec/e2e/shared.js` look like this:
+```
+import fs from 'node:fs'
+import path from 'node:path'
+import pixelmatch from 'pixelmatch'
+import { PNG } from 'pngjs'
+import { expect } from 'vitest'
+
+export async function testHeaderLinksLoggedOut(page) {
+  const mainNav = await page.locator('header nav.header-main-nav')
+  const loginNav = await page.locator('header .header-login-nav')
+  const homeLink = await mainNav.locator('a[href="/"]')
+  const publicLink = await mainNav.locator('a[href="/public"]')
+  const privateLink = await mainNav.locator('a[href="/private"]')
+  const loginLink = await loginNav.locator('a[href="/login"]')
+  const signupLink = await loginNav.locator('a[href="/signup"]')
+
+  expect(await homeLink.textContent()).toContain('Home')
+  expect(await publicLink.textContent()).toContain('Public')
+  expect(await privateLink.count()).toBe(0)
+  expect(await loginLink.textContent()).toContain('Log in')
+  expect(await signupLink.textContent()).toContain('Sign up')
+}
+
+export async function testHeaderLinksLoggedIn(page) {
+  const mainNav = await page.locator('header nav.header-main-nav')
+  const loginNav = await page.locator('header .header-login-nav')
+  const homeLink = await mainNav.locator('a[href="/"]')
+  const publicLink = await mainNav.locator('a[href="/public"]')
+  const privateLink = await mainNav.locator('a[href="/private"]')
+  const loginLink = await loginNav.locator('a[href="/login"]')
+  const signupLink = await loginNav.locator('a[href="/signup"]')
+  const signOutLink = await loginNav.locator('a:has-text("Log out")')
+
+  expect(await homeLink.textContent()).toContain('Home')
+  expect(await publicLink.textContent()).toContain('Public')
+  expect(await privateLink.textContent()).toContain('Private')
+  expect(await loginLink.count()).toBe(0)
+  expect(await signupLink.count()).toBe(0)
+  expect(await signOutLink.textContent()).toContain('Log out')
+}
+
+export async function testFooterText(page) {
+  const p = await page.locator('footer p')
+  const pText = await p.textContent()
+  expect(await p.isVisible()).toBe(true)
+  expect(pText).toContain('© 2024. Made with Nuxt, Tailwind, UI Thing, Rails, Fly.io and S3.')
+}
+
+export async function compareScreenshotWithBaseline(page, baselineName, diffName) {
+  // Capture the screenshot
+  const screenshotPath = path.resolve(__dirname, 'screenshots', 'current', `${baselineName}.png`)
+  await page.screenshot({ path: screenshotPath, fullPage: true })
+
+  // Load baseline image
+  const baselinePath = path.resolve(__dirname, 'screenshots', 'baseline', `${baselineName}.png`)
+  if (!fs.existsSync(baselinePath)) {
+    console.warn(`Baseline image not found for ${baselineName}, saving current screenshot as baseline.`)
+    fs.mkdirSync(path.dirname(baselinePath), { recursive: true })
+    fs.copyFileSync(screenshotPath, baselinePath)
+    return
+  }
+
+  const baselineImg = PNG.sync.read(fs.readFileSync(baselinePath))
+  const currentImg = PNG.sync.read(fs.readFileSync(screenshotPath))
+
+  // Compare the images
+  const { width, height } = baselineImg
+  const diff = new PNG({ width, height })
+  const numDiffPixels = pixelmatch(baselineImg.data, currentImg.data, diff.data, width, height, { threshold: 0.1 })
+
+  // If images don't match, save the diff
+  if (numDiffPixels > 0) {
+    const diffPath = path.resolve(__dirname, 'screenshots', 'diff', `${diffName}.png`)
+    fs.mkdirSync(path.dirname(diffPath), { recursive: true })
+    fs.writeFileSync(diffPath, PNG.sync.write(diff))
+  }
+
+  // Assert that the number of different pixels is within the acceptable threshold
+  expect(numDiffPixels).toBeLessThan(100)
+}
+```
+- make `~/app/frontend/spec/e2e/index.spec.js`: 
 ```
 import { consola } from 'consola'
 import { createPage } from '@nuxt/test-utils'
@@ -1396,6 +1475,7 @@ describe('homepage', async () => {
   })
 
   it('matches the visual baseline when logged out', async () => {
+    page.reload()
     await compareScreenshotWithBaseline(page, 'page-home-logged-out', 'page-home-logged-out-diff')
   }, 20000)
 
@@ -1425,13 +1505,14 @@ describe('homepage', async () => {
       await page.waitForLoadState('load');
       await page.waitForLoadState('networkidle');
       await page.waitForFunction(() => !window.location.href.includes('/login'));
+      page.reload()
   
       await compareScreenshotWithBaseline(page, 'page-home-logged-in', 'page-home-logged-in-diff');
       
     } catch (error) {
       console.error('Test failed:', error);
     }
-  }, 30000); // Increased overall timeout to 30 seconds
+  }, 30000); 
 })
 ```
 
@@ -2241,24 +2322,26 @@ Now we'll create our AWS S3 account so we can store our user avatar images there
   - paste your region string in your `~/app/.secrets` file in the `aws region` line
 - we're now done with our S3 setup and our AWS dashboard, at least for now. So let's go back to our terminal where we're building out our rails backend
 
-### Login Spec
-- `touch spec/requests/auth_spec.rb`
-- make `spec/requests/auth_spec.rb` look like this:
+### Auth Spec
+- `touch spec/requests/api/v1/auth/auth_spec.rb`
+- make `spec/requests/api/v1/auth/auth_spec.rb` look like this:
 ```
 # frozen_string_literal: true
 
 require 'rails_helper'
 
-RSpec.describe 'Login requests' do
+RSpec.describe 'Login/logout requests' do
   before(:all) do
     @user1 = create(:user, :confirmed)
-    @user2 = create(:user)
+    @user2 = create(:user, :confirmed)
+    @user3 = create(:user)
   end
 
   let(:valid_creds) { { user: { email: @user1.email, password: @user1.password } } }
+  let(:valid_creds2) { { user: { email: @user2.email, password: @user2.password } } }
   let(:invalid_email) { { user: { email: @user1.email, password: 'wrong' } } }
   let(:invalid_pass) { { user: { email: 'wrong@mail.com', password: @user1.password } } }
-  let(:unconfirmed) { { user: { email: @user2.email, password: @user2.password } } }
+  let(:unconfirmed) { { user: { email: @user3.email, password: @user3.password } } }
 
   context 'POST /api/v1/auth/login with valid credentials' do
     it 'responds with 200 status' do
@@ -2306,23 +2389,6 @@ RSpec.describe 'Login requests' do
       expect(response.status).to eq 401
     end
   end
-end
-```
-
-### Current User Spec
-- `touch spec/requests/current_user_spec.rb`
-- make `spec/requests/current_user_spec.rb` look like this:
-```
-# frozen_string_literal: true
-
-require 'rails_helper'
-
-RSpec.describe 'Current user requests' do
-  before(:all) do
-    @user1 = create(:user, :confirmed)
-  end
-
-  let(:valid_creds) { { user: { email: @user1.email, password: @user1.password } } }
 
   context 'GET /api/v1/auth/current_user with valid credentials' do
     it 'responds with 200 status and returns the current user' do
@@ -2344,8 +2410,8 @@ end
 ```
 
 ### Registration Spec
-- `touch spec/requests/registration_spec.rb`
-- make `spec/requests/registration_spec.rb` look like this:
+- `touch spec/requests/api/v1/registration_spec.rb`
+- make `spec/requests/api/v1/registration_spec.rb` look like this:
 ```
 # frozen_string_literal: true
 
@@ -2653,7 +2719,7 @@ end
 - `rails db:migrate`
 - `rails generate serializer user id email uuid`
 
-### Auth Controllers (TODO: maybe remove this? and just use the default devise controller generators?)
+### Auth Controllers
 - `cd ~/app/backend`
 - make `~/app/backend/app/controllers/api/v1/auth/registrations_controller.rb` look like this:
 ```
@@ -2798,6 +2864,10 @@ User.create!(email: 'test2@mail.com', password: 'password')
   - home & public pages should work
   - logging in (with the default `test@mail.com` / `password`) should work and should show the Private page link and the user avatar for the user menu
   - logging out should work
+
+### Run Rspec
+- `cd ~/app/backend`
+- `rspec` <- all 21 test should pass
 
 ### Update Backend For Prod
 - Our fly.io API was working last time we checked, but that was just a simple API call that wasn't pulling anything from the database at all. We've now added database calls to our frontend and backend code and everything is working locally. But if we deploy either our frontend or backend code to fly.io now, we'll see quite a few errors. So let's fix all that now.
