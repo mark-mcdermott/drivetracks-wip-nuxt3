@@ -297,7 +297,7 @@ CMD ["./bin/rails", "server", "-b", "0.0.0.0", "-p", "8080"]
 - open `~/app/frontend/nuxt.config.ts`
 - `npm run lint:fix` -> you will see it add a trailing comma to fix the ESLint violation
 
-### Vitest & Playwright Tests
+### Vitest & Playwright Tests (TODO: Old - Delete!)
 - We'll use Nuxt testing as [described in the Nuxt docs](https://nuxt.com/docs/getting-started/testing), which uses `@nuxt/test-utils`, [Vitest](https://vitest.dev) and [Playwright](https://playwright.dev).
 - install VSCode `Vitest` extension
 - `cd ~/app/frontend`
@@ -334,6 +334,80 @@ export default antfu({
 - `npm run vitest` -> vitest should run (it will try to run the frontend tests, but there are no tests yet)
 - `^ + c` -> to kill the server
 
+### Vitest (Component Tests)
+- We'll use Nuxt testing as [described in the Nuxt docs](https://nuxt.com/docs/getting-started/testing), which uses `@nuxt/test-utils` and [Vitest](https://vitest.dev). The only departure we're taking for the Nuxt testing documentation is that we won't be running Playwright as a vitest test runner. We'll just run Playwright directly as a standalone testing package (I like its functionality better this way).
+- install VSCode `Vitest` extension
+- `cd ~/app/frontend`
+- `npm i --save-dev @nuxt/test-utils vitest @vue/test-utils happy-dom`
+- add `modules: ["@nuxt/test-utils/module"],` to `~/app/frontend/nuxt.config.ts` so it looks like this:
+```
+export default defineNuxtConfig({
+  devtools: { enabled: true },
+  modules: ['@nuxt/test-utils/module'],
+})
+```
+- `touch vitest.config.ts`
+- make `~/app/frontend/vitest.config.ts` look like this:
+```
+import { defineVitestConfig } from '@nuxt/test-utils/config'
+
+export default defineVitestConfig({ })
+```
+- add `plugins: ['vitest'],` to `~/app/frontend/eslint.config.js` so it looks like this:
+```
+import antfu from '@antfu/eslint-config'
+
+export default antfu({
+  vue: true,
+  plugins: ['vitest'],
+})
+```
+- to `~/app/frontend/package.json` in the `scripts` section add:
+```
+    "vitest": "npx vitest",
+```
+- `npm run vitest` -> vitest should run (it will try to run the component tests, but there are no tests yet)
+- `^ + c` -> to kill the server
+
+### Playwright (End-To-End Tests)
+- We'll be using [Playwright](https://playwright.dev) for end-to-end tests. As mentioned above, we won't be running Playwright as a vitest test runner. We'll just run Playwright directly as a standalone testing package. We'll also use pixelmatch for Playwright visual regression testing.
+- `cd ~/app/frontend`
+- `npm install @playwright/test pixelmatch playwright-expect`
+- `touch playwright.config.ts`
+- make `~/app/frontend/playwright.config.ts` look like this:
+```
+import { defineConfig, devices } from '@playwright/test';
+
+export default defineConfig({
+  testDir: './spec/e2e',
+  use: {
+    video: 'on',
+    baseURL: 'http://localhost:3000',
+  },
+  projects: [
+    {
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'] },
+    },
+    {
+      name: 'firefox',
+      use: { ...devices['Desktop Firefox'] },
+    },
+    {
+      name: 'webkit',
+      use: { ...devices['Desktop Safari'] },
+    },
+  ],
+});
+```
+- `mkdir -p spec/e2e/screenshots/baseline`
+- to `~/app/frontend/package.json` in the `scripts` section add:
+```
+    "playwright": "nuxt dev & npx playwright test",
+```
+- `npm run playwright` -> playwright should run (it will try to run the end-to-end tests, but there are no tests yet)
+- `^ + c` -> to kill the server
+
 ### Concurrently
 - We want to be able to start our app locally with one command. We could do something like `rails server` in one terminal pane and then split the terminal pane and in the new one do `cd ~/app/frontend && npm run dev`. But we can do it cleanly in just one pane with the npm package called [concurrently](https://www.npmjs.com/package/concurrently).
 - `cd ~/app/frontend`
@@ -349,7 +423,7 @@ done
 echo "Ok, rails server is up and running - let's start testing!"
 ```
 - `chmod +x wait-for-rails.sh`
-- to `~/app/frontend/package.json` in the `scripts` section add:
+- to `~/app/frontend/package.json` in the `scripts` section add: (TODO: these scripts will need some tweaking for the new playwright setup)
 ```
     "rails-server": "cd ../backend && rails server",
     "front-and-back-dev": "concurrently -n \"BACKEND,FRONTEND\" -c \"green,yellow\" \"npm run rails-server\" \"npm run dev\"",
@@ -465,6 +539,83 @@ export default defineNuxtConfig({
       },
     ],
   },
+});
+```
+
+### TODO: Here are placeholder tests for the new playwright setup
+- `cd ~/app/frontend`
+- `touch spec/e2e/homepage-functionality.spec.ts spec/e2e/homepage-screenshot.spec.ts`
+- make `~/app/frontend/spec/e2e/homepage-functionality.spec.ts` look like this:
+```
+import { test, expect } from '@playwright/test';
+
+test('homepage has title', async ({ page }) => {
+  await page.goto('/')
+  expect(await page.title()).toBe('Welcome to Nuxt!')
+  // await page.waitForTimeout(10000)
+  const link = await page.$('.documentation-container a');
+  if (link) {
+    await link.evaluate(el => el.removeAttribute('target'));
+    await link.click();
+  }
+  await page.waitForLoadState('networkidle')
+  // await page.waitForTimeout(10000)
+});
+```
+- make `~/app/frontend/spec/e2e/homepage-screenshot.spec.ts` look like this:
+```
+import { test, expect } from '@playwright/test';
+import { promises as fs } from 'fs';
+import pixelmatch from 'pixelmatch';
+import { PNG } from 'pngjs';
+
+test('homepage visual comparison', async ({ page }) => {
+  // Navigate to the page
+  await page.goto('http://localhost:3000');
+
+  // Capture the current screenshot
+  const screenshotPath = 'screenshots/current/homepage.png';
+  await page.screenshot({ path: screenshotPath });
+
+  // Define the baseline path
+  const baselinePath = 'screenshots/baseline/homepage.png';
+
+  // Check if the baseline image exists
+  try {
+    await fs.access(baselinePath);
+
+    // Baseline exists, proceed with comparison
+    const baselineImage = PNG.sync.read(await fs.readFile(baselinePath));
+    const currentImage = PNG.sync.read(await fs.readFile(screenshotPath));
+
+    // Create a diff image
+    const { width, height } = baselineImage;
+    const diff = new PNG({ width, height });
+    const pixelDiffCount = pixelmatch(
+      baselineImage.data,
+      currentImage.data,
+      diff.data,
+      width,
+      height,
+      { threshold: 0.1 }
+    );
+
+    // Save the diff image if there are differences
+    if (pixelDiffCount > 0) {
+      const diffPath = 'screenshots/diff/homepage-diff.png';
+      await fs.writeFile(diffPath, PNG.sync.write(diff));
+      console.log(`Difference found! Diff image saved at ${diffPath}`);
+    }
+
+    // Assert no differences
+    expect(pixelDiffCount).toBe(0);
+
+  } catch (error) {
+    // Baseline does not exist, save current screenshot as the baseline
+    await fs.mkdir('screenshots/baseline', { recursive: true });
+    await fs.copyFile(screenshotPath, baselinePath);
+    console.log('Baseline image not found. Created a new baseline image.');
+  }
 });
 ```
 
