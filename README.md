@@ -145,10 +145,6 @@ end
 - `bundle install`
 - `mkdir spec/factories`
 - we will wait to create the user factory until Devise creates it for us automatically when we use Devise to generate the user model
-- in `~/app/backend/spec/rails_helper.rb`, in the line after `RSpec.configure do |config|` add a blank line and put this there: 
-```
-config.include FactoryBot::Syntax::Methods
-```
 
 ### CORS
 - `cd ~/app/backend`
