@@ -259,7 +259,7 @@ CMD ["./bin/rails", "server", "-b", "0.0.0.0", "-p", "8080"]
 - `fly deploy` <- this may show a couple errors mid-deploy, but should not hang (ie, it should complete and bring you back to the terminal prompt) and it should not show `WARNING The app is not listening on the expected address` at any point
 - `curl <backend url from .secrets>/api/v1/up` <- should return `{"status":"OK"}`
 - `fly ssh console`
-  - `DATABASE_CLEANER_ALLOW_REMOTE_DATABASE_URL=true RAILS_ENV=test bundle exec rspec` <- should pass
+  - `RAILS_ENV=test bundle exec rspec` <- should pass
   - `exit`
 
 ## Frontend
