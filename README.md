@@ -618,7 +618,7 @@ test('homepage visual comparison', async ({ page }) => {
 });
 ```
 
-### Homepage E2E Spec
+### Homepage E2E Spec (TODO: Probably delete this)
 - Let's do some test-driven development and write failing specs, build to spec and then make sure the tests pass.
 - `cd ~/app/frontend`
 - `mkdir -p spec/e2e`
