@@ -422,7 +422,7 @@ echo "Ok, rails server is up and running - let's start testing!"
 ```
     "rails-server": "cd ../backend && rails server",
     "front-and-back-dev": "concurrently -n \"BACKEND,FRONTEND\" -c \"green,yellow\" \"npm run rails-server\" \"npm run dev\"",
-    "e2e-tests": "concurrently -n \"BACKEND,FRONTEND\" -c \"green,yellow\" \"npm run rails-server\" \"./wait-for-rails.sh && npm run vitest '${npm_config_path}'\""
+    "e2e-tests": "concurrently -n \"BACKEND,FRONTEND\" -c \"green,yellow\" \"npm run rails-server\" \"./wait-for-rails.sh && npm run playwright\""
 ```
 - `npm run e2e-tests` -> backend should start and then vitest should run (it will try to run, but there are no tests yet)
 - `^ + c` -> will kill both the frontend and backend servers with one command
