@@ -419,9 +419,10 @@ echo "Ok, rails server is up and running - let's start testing!"
 - `chmod +x wait-for-rails.sh`
 - to `~/app/frontend/package.json` in the `scripts` section add: (TODO: these scripts will need some tweaking for the new playwright setup)
 ```
+    "wait-then-playwright": "./wait-for-rails.sh && npx playwright test",
     "rails-server": "cd ../backend && rails server",
-    "front-and-back-dev": "concurrently -n \"BACKEND,FRONTEND\" -c \"green,yellow\" \"npm run rails-server\" \"npm run dev\"",
-    "e2e-tests": "concurrently -n \"BACKEND,FRONTEND\" -c \"green,yellow\" \"npm run rails-server\" \"./wait-for-rails.sh && npm run playwright\""
+    "front-and-back-dev": "concurrently -n 'BACKEND,FRONTEND' -c 'green,yellow' 'npm:rails-server' 'npm:dev'",
+    "e2e-tests": "concurrently -n 'RAILS_SERVER,NUXT_SERVER,PLAYWRIGHT' -c 'blue,green,yellow' 'npm:rails-server' 'npm:dev' 'npm:wait-then-playwright'"
 ```
 - `npm run e2e-tests` -> backend should start and then vitest should run (it will try to run, but there are no tests yet)
 - `^ + c` -> will kill both the frontend and backend servers with one command
