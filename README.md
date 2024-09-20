@@ -741,7 +741,7 @@ const healthStatus = await $fetch(`${useRuntimeConfig().public.apiBase}/up`)
 - `npm run front-and-back-dev`-> Should be some ok looking homepage content now with a h1, some body copy and two buttons. Note that the `{"status":"OK"}` subtitle is pulling from the backend API so we know that our frontend calls to the backend are written correctly and that the backend is responding properly.
 - run `^ + c` to kill the servers
 - now that we've changed the way our homepage looks, we'll have to delete our pixelmatch baseline homepage image, which is at `~/app/frontend/spec/e2e/screenshots/baseline/page-home.png`
-- `npm run e2e-tests --path=spec/e2e/index.spec.js` -> test should pass now
+- `npm run e2e-tests` -> test should pass now
 
 ### Frontend Prod Setup & Deploy
 - If we check our app's frontend url right now it won't load and nuxt will say `404 [GET] "http://localhost:3000/api/v1/up": 404 Page not found: /api/v1/up`. The frontend is still making backend calls to `localhost` and we need to change that to our API on fly.io.
