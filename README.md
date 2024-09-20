@@ -544,17 +544,12 @@ export default defineNuxtConfig({
 ```
 import { test, expect } from '@playwright/test';
 
-test('homepage has title', async ({ page }) => {
-  await page.goto('/')
-  expect(await page.title()).toBe('Welcome to Nuxt!')
-  // await page.waitForTimeout(10000)
-  const link = await page.$('.documentation-container a');
-  if (link) {
-    await link.evaluate(el => el.removeAttribute('target'));
-    await link.click();
-  }
-  await page.waitForLoadState('networkidle')
-  // await page.waitForTimeout(10000)
+test('get started link', async ({ page }) => {
+  await page.goto('http://localhost:3001')
+  await expect(page.getByRole('heading').filter({ hasText: 'There was a wall.'})).toBeVisible()
+  await expect(page.getByRole('heading').filter({ hasText: 'It did not look important.'})).toBeVisible()
+  await expect(page.getByRole('paragraph').filter({ hasText: '{"status":"OK"}'})).toBeVisible()
+  await expect(page.getByRole('link').filter({ hasText: 'Log in'})).toBeVisible()
 });
 ```
 - make `~/app/frontend/spec/e2e/homepage-screenshot.spec.ts` look like this:
