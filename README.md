@@ -398,7 +398,7 @@ export default defineConfig({
 - `mkdir -p spec/e2e/screenshots/baseline`
 - to `~/app/frontend/package.json` in the `scripts` section add:
 ```
-    "playwright": "nuxt dev & npx playwright test",
+    "playwright": "npx playwright test",
 ```
 - `npm run playwright` -> playwright should run (it will try to run the end-to-end tests, but there are no tests yet)
 - `^ + c` -> to kill the server
