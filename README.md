@@ -401,7 +401,6 @@ export default defineConfig({
     "playwright": "npx playwright test",
 ```
 - `npm run playwright` -> playwright should run (it will try to run the end-to-end tests, but there are no tests yet)
-- `^ + c` -> to kill the server
 
 ### Concurrently
 - We want to be able to start our app locally with one command. We could do something like `rails server` in one terminal pane and then split the terminal pane and in the new one do `cd ~/app/frontend && npm run dev`. But we can do it cleanly in just one pane with the npm package called [concurrently](https://www.npmjs.com/package/concurrently).
