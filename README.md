@@ -371,27 +371,15 @@ export default antfu({
 - `touch playwright.config.ts`
 - make `~/app/frontend/playwright.config.ts` look like this:
 ```
-import { defineConfig, devices } from '@playwright/test';
-
+import { defineConfig, devices } from "@playwright/test";
 export default defineConfig({
-  testDir: './spec/e2e',
-  use: {
-    video: 'on',
-    baseURL: 'http://localhost:3000',
-  },
+  testDir: "./spec/e2e",
+  outputDir: "./spec/e2e/videos",
+  use: { video: "on", baseURL: "http://localhost:3001" },
   projects: [
-    {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
-    },
-    {
-      name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
-    },
-    {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
-    },
+    { name: "chromium", use: { ...devices["Desktop Chrome"] } },
+    { name: "firefox", use: { ...devices["Desktop Firefox"] } },
+    { name: "webkit", use: { ...devices["Desktop Safari"] } },
   ],
 });
 ```
@@ -561,14 +549,14 @@ import { PNG } from 'pngjs';
 
 test('homepage visual comparison', async ({ page }) => {
   // Navigate to the page
-  await page.goto('http://localhost:3000');
+  await page.goto('http://localhost:3001');
 
   // Capture the current screenshot
-  const screenshotPath = 'screenshots/current/homepage.png';
+  const screenshotPath = 'spec/e2e/screenshots/current/homepage.png';
   await page.screenshot({ path: screenshotPath });
 
   // Define the baseline path
-  const baselinePath = 'screenshots/baseline/homepage.png';
+  const baselinePath = 'spec/e2e/screenshots/baseline/homepage.png';
 
   // Check if the baseline image exists
   try {
@@ -592,7 +580,7 @@ test('homepage visual comparison', async ({ page }) => {
 
     // Save the diff image if there are differences
     if (pixelDiffCount > 0) {
-      const diffPath = 'screenshots/diff/homepage-diff.png';
+      const diffPath = 'spec/e2e/screenshots/diff/homepage-diff.png';
       await fs.writeFile(diffPath, PNG.sync.write(diff));
       console.log(`Difference found! Diff image saved at ${diffPath}`);
     }
@@ -602,7 +590,7 @@ test('homepage visual comparison', async ({ page }) => {
 
   } catch (error) {
     // Baseline does not exist, save current screenshot as the baseline
-    await fs.mkdir('screenshots/baseline', { recursive: true });
+    await fs.mkdir('spec/e2e/screenshots/baseline', { recursive: true });
     await fs.copyFile(screenshotPath, baselinePath);
     console.log('Baseline image not found. Created a new baseline image.');
   }
