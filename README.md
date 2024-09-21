@@ -751,7 +751,33 @@ runtimeConfig: { public: { apiBase: process.env.API_BASE || '<backend url>/api/v
 - `fly deploy`
 - now go to the frontend url that's in your `.secrets` file <- the app should look the way it looked locally
 
-### TODO: Add CI Here
+### Initialize CircleCI
+- in `drivetracks-cypress` repo:
+- `puravida .circleci/config.yml ~`
+```
+version: '2.1'
+orbs:
+  cypress: cypress-io/cypress@3
+workflows:
+  use-my-orb:
+    jobs:
+      - cypress/run:
+          start-command: npm run cypress
+          post-steps:
+            - store_test_results:
+                path: cypress-results
+            - store_artifacts:
+                path: cypress-results
+                destination: results
+~
+```
+- `git add .` 
+- `git commit -m "Add circleci"`
+- `git push`
+- (if you check the circleci tests at this point, it will start a test here which will fail because there are no specs yet)
+- go to `https://app.circleci.com/projects/project-dashboard/github/mark-mcdermott/`
+- next to repo name (`drivetracks-api`), click Set Up Project
+- click `Fastest` -> `main` -> `Set Up Project`
 
 ### Add Failing Header/Footer Checks To Homepage Spec
 - Our next big step is to add a header and footer to the site. But before that we'll update our homepage spec (which will then fail until the header/footer are build - which is what we want) and build out some component specs for the header and footer.
