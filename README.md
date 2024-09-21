@@ -752,24 +752,25 @@ runtimeConfig: { public: { apiBase: process.env.API_BASE || '<backend url>/api/v
 - now go to the frontend url that's in your `.secrets` file <- the app should look the way it looked locally
 
 ### Initialize CircleCI
-- in `drivetracks-cypress` repo:
+- `cd ~/app/frontend`
+- `npm install --save-dev wait-on`
+- `cd ~/app`
 - `puravida .circleci/config.yml ~`
 ```
 version: 2.1
 
 jobs:
-  # Job to run RSpec tests for the Rails backend
   rspec_tests:
     docker:
-      - image: cimg/ruby:3.3.5
-      - image: cimg/postgres:16.4.0
+      - image: cimg/ruby:3.2.2-node
+      - image: postgres:15-alpine
         environment:
           POSTGRES_USER: postgres
           POSTGRES_DB: backend_test
-          POSTGRES_PASSWORD: ''
+          POSTGRES_PASSWORD: postgres_password
     environment:
       RAILS_ENV: test
-      DATABASE_URL: postgres://postgres:@localhost:5432/backend_test
+      DATABASE_URL: postgres://postgres:postgres_password@localhost:5432/backend_test
     steps:
       - checkout
       - run:
@@ -777,54 +778,92 @@ jobs:
           command: |
             cd backend
             bundle install
-            npm install
       - run:
           name: Setup Database
           command: |
             cd backend
-            RAILS_ENV=test bundle exec rake db:create
-            RAILS_ENV=test bundle exec rake db:schema:load
+            RAILS_ENV=test bundle exec rails db:prepare
       - run:
           name: Run RSpec Tests
           command: |
             cd backend
             bundle exec rspec
 
-  # Job to run Playwright e2e tests for the Nuxt frontend
   playwright_tests:
     docker:
-      - image: cimg/ruby:3.3.5
-      - image: cimg/node:22.9.0
-      - image: cimg/postgres:16.4.0
+      - image: cimg/ruby:3.2.2-node
+      - image: postgres:15-alpine
         environment:
           POSTGRES_USER: postgres
           POSTGRES_DB: backend_test
-          POSTGRES_PASSWORD: ''
+          POSTGRES_PASSWORD: postgres_password
     environment:
       RAILS_ENV: test
-      DATABASE_URL: postgres://postgres:@localhost:5432/backend_test
+      DATABASE_URL: postgres://postgres:postgres_password@localhost:5432/backend_test
+      API_URL: http://localhost:3000
     steps:
       - checkout
       - run:
-          name: Install Dependencies (Frontend)
+          name: Check Current User
           command: |
-            cd frontend
-            npm install
+            whoami
+      - restore_cache:
+          keys:
+            - playwright-deps-{{ checksum "frontend/package-lock.json" }}
+            - playwright-deps-
       - run:
-          name: Start Rails Backend
+          name: Install System Dependencies for Playwright
           command: |
+            apt-get update && apt-get install -y \
+              libnss3 \
+              libatk1.0-0 \
+              libatk-bridge2.0-0 \
+              libcups2 \
+              libxkbcommon0 \
+              libxcomposite1 \
+              libxcursor1 \
+              libxdamage1 \
+              libxi6 \
+              libxrandr2 \
+              libxrender1 \
+              libxss1 \
+              libxtst6 \
+              fonts-liberation
+      - run:
+          name: Install Dependencies
+          command: |
+            # Install Backend Dependencies
             cd backend
             bundle install
-            npm install
-            RAILS_ENV=test bundle exec rails db:create
-            RAILS_ENV=test bundle exec rails db:migrate
-            bundle exec rails s -b 0.0.0.0 -p 3000 &
+            cd ../frontend
+            npm ci
       - run:
-          name: Start Nuxt Frontend
+          name: Install Playwright Browsers
           command: |
             cd frontend
-            npm run dev -- -p 3001 &
-            sleep 15 # Wait for both backend and frontend to be ready
+            npx playwright install
+      - save_cache:
+          paths:
+            - frontend/node_modules
+            - frontend/.cache/ms-playwright
+          key: playwright-deps-{{ checksum "frontend/package-lock.json" }}
+      - run:
+          name: Start Backend and Frontend Servers
+          command: |
+            set -e
+            # Start Rails Backend
+            cd backend
+            RAILS_ENV=test bundle exec rails db:prepare
+            bundle exec rails s -b 0.0.0.0 -p 3000 > ../rails_server.log 2>&1 &
+            cd ..
+            # Start Nuxt Frontend
+            cd frontend
+            npm run build
+            npm run start -- -p 3001 &
+      - run:
+          name: Wait for Servers to Start
+          command: |
+            npx wait-on http://localhost:3000 http://localhost:3001
       - run:
           name: Run Playwright Tests
           command: |
