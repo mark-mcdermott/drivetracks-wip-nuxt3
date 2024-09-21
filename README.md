@@ -755,20 +755,68 @@ runtimeConfig: { public: { apiBase: process.env.API_BASE || '<backend url>/api/v
 - in `drivetracks-cypress` repo:
 - `puravida .circleci/config.yml ~`
 ```
-version: '2.1'
-orbs:
-  cypress: cypress-io/cypress@3
+version: 2.1
+
+jobs:
+  # Job to run RSpec tests for the Rails backend
+  rspec_tests:
+    docker:
+      - image: circleci/ruby:3.1-node
+    steps:
+      - checkout
+      - run:
+          name: Install Dependencies (Backend)
+          command: |
+            bundle install
+            npm install
+      - run:
+          name: Setup Database
+          command: |
+            bundle exec rake db:create
+            bundle exec rake db:schema:load
+      - run:
+          name: Run RSpec Tests
+          command: |
+            bundle exec rspec
+
+  # Job to run Playwright e2e tests for the Nuxt frontend
+  playwright_tests:
+    docker:
+      - image: circleci/node:18-browsers
+    steps:
+      - checkout
+      - run:
+          name: Install Dependencies (Frontend)
+          command: |
+            npm install
+      - run:
+          name: Start Rails Backend
+          command: |
+            cd backend
+            bundle install
+            npm install
+            bundle exec rails db:create
+            bundle exec rails db:migrate
+            bundle exec rails s -b 0.0.0.0 -p 3000 &
+      - run:
+          name: Start Nuxt Frontend
+          command: |
+            cd frontend
+            npm run dev &
+            sleep 10 # Wait for both backend and frontend to be ready
+      - run:
+          name: Run Playwright Tests
+          command: |
+            npx playwright test
+
 workflows:
-  use-my-orb:
+  version: 2
+  test_and_deploy:
     jobs:
-      - cypress/run:
-          start-command: npm run cypress
-          post-steps:
-            - store_test_results:
-                path: cypress-results
-            - store_artifacts:
-                path: cypress-results
-                destination: results
+      - rspec_tests
+      - playwright_tests:
+          requires:
+            - rspec_tests
 ~
 ```
 - `git add .` 
