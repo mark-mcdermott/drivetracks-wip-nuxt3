@@ -596,6 +596,8 @@ test('homepage visual comparison', async ({ page }) => {
   }
 });
 ```
+run the failing test with npm run e2e-tests -> tests should fail
+^ + c to kill the test server
 
 ### Homepage E2E Spec (TODO: Probably delete this)
 - Let's do some test-driven development and write failing specs, build to spec and then make sure the tests pass.
@@ -728,7 +730,7 @@ const healthStatus = await $fetch(`${useRuntimeConfig().public.apiBase}/up`)
 - `npm run e2e-tests` -> test should pass now
 
 ### Frontend Prod Setup & Deploy
-- If we check our app's frontend url right now it won't load and nuxt will say `404 [GET] "http://localhost:3000/api/v1/up": 404 Page not found: /api/v1/up`. The frontend is still making backend calls to `localhost` and we need to change that to our API on fly.io.
+- If we check our app's frontend url in prod (on fly.io) right now it won't load and nuxt will say `404 [GET] "http://localhost:3000/api/v1/up": 404 Page not found: /api/v1/up`. The frontend is still making backend calls to `localhost` and we need to change that to our API on fly.io.
 - `cd ~/app/frontend`
 - `touch .env`
 - make `~/app/frontend/.env` look like this:
