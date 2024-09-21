@@ -761,33 +761,54 @@ jobs:
   # Job to run RSpec tests for the Rails backend
   rspec_tests:
     docker:
-      - image: circleci/ruby:3.1-node
+      - image: cimg/ruby:3.3.5
+      - image: cimg/postgres:16.4.0
+        environment:
+          POSTGRES_USER: postgres
+          POSTGRES_DB: backend_test
+          POSTGRES_PASSWORD: ''
+    environment:
+      RAILS_ENV: test
+      DATABASE_URL: postgres://postgres:@localhost:5432/backend_test
     steps:
       - checkout
       - run:
           name: Install Dependencies (Backend)
           command: |
+            cd backend
             bundle install
             npm install
       - run:
           name: Setup Database
           command: |
-            bundle exec rake db:create
-            bundle exec rake db:schema:load
+            cd backend
+            RAILS_ENV=test bundle exec rake db:create
+            RAILS_ENV=test bundle exec rake db:schema:load
       - run:
           name: Run RSpec Tests
           command: |
+            cd backend
             bundle exec rspec
 
   # Job to run Playwright e2e tests for the Nuxt frontend
   playwright_tests:
     docker:
-      - image: circleci/node:18-browsers
+      - image: cimg/ruby:3.3.5
+      - image: cimg/node:22.9.0
+      - image: cimg/postgres:16.4.0
+        environment:
+          POSTGRES_USER: postgres
+          POSTGRES_DB: backend_test
+          POSTGRES_PASSWORD: ''
+    environment:
+      RAILS_ENV: test
+      DATABASE_URL: postgres://postgres:@localhost:5432/backend_test
     steps:
       - checkout
       - run:
           name: Install Dependencies (Frontend)
           command: |
+            cd frontend
             npm install
       - run:
           name: Start Rails Backend
@@ -795,18 +816,19 @@ jobs:
             cd backend
             bundle install
             npm install
-            bundle exec rails db:create
-            bundle exec rails db:migrate
+            RAILS_ENV=test bundle exec rails db:create
+            RAILS_ENV=test bundle exec rails db:migrate
             bundle exec rails s -b 0.0.0.0 -p 3000 &
       - run:
           name: Start Nuxt Frontend
           command: |
             cd frontend
-            npm run dev &
-            sleep 10 # Wait for both backend and frontend to be ready
+            npm run dev -- -p 3001 &
+            sleep 15 # Wait for both backend and frontend to be ready
       - run:
           name: Run Playwright Tests
           command: |
+            cd frontend
             npx playwright test
 
 workflows:
