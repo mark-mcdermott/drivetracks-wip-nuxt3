@@ -26,7 +26,8 @@
 - `npx nuxi@latest init frontend`
   - package manager: `npm`
   - init git repo: `no`
-- `rails new backend --api --database=postgresql --skip-git`
+- `rails new backend --api --database=postgresql`
+- `rm backend/.git`
 - `touch .gitignore`
 - make `~/app/.gitignore` look like this:
 ```
