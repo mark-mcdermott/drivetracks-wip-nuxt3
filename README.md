@@ -27,7 +27,7 @@
   - package manager: `npm`
   - init git repo: `no`
 - `rails new backend --api --database=postgresql`
-- `rm backend/.git`
+- `rm -rf backend/.git`
 - `touch .gitignore`
 - make `~/app/.gitignore` look like this:
 ```
