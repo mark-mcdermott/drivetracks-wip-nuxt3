@@ -260,6 +260,13 @@ CMD ["./bin/rails", "server", "-b", "0.0.0.0", "-p", "8080"]
 
 ### Docker Prelimnary Setup
 - `cd ~/app`
+- `touch .dockerignore`
+- make `~/app/.dockerignore` look like this:
+```
+.env
+log/*
+tmp/*
+```
 - `touch .env`
 - make `~/.env` look like this:
 ```
