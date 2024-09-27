@@ -562,9 +562,9 @@ volumes:
 - `cd ~/app`
 - `docker-compose down -v --remove-orphans`
 - `docker volume ls`
-- `docker-compose build --no-cache`
+- `docker build -t backend_image -f backend/Dockerfile.backend backend`
 - `docker-compose up -d`
-- `docker-compose ps` <- should see `db`, `backend`, and `rspec` services running
+- `docker-compose ps` <- should see `db` and `backend` (and maybe `postgres`?) services running
 - `docker-compose run --rm rspec`
 
 ### Initialize CircleCI
