@@ -27,11 +27,6 @@
   - package manager: `npm`
   - init git repo: `no`
 - `rails new backend --api --database=postgresql`
-- check your bundler version - this is at the bottom of `~/app/backend/Gemfile.lock`. We want it to say `2.4.19`. If it doesn't, try this:
-```
-gem install bundler -v 2.4.19
-bundle _2.4.19_ lock --update
-```
 - `rm -rf backend/.git`
 - `touch .gitignore`
 - make `~/app/.gitignore` look like this:
@@ -84,6 +79,11 @@ AWS details:
     - hit enter (for "no") when it asks a question about wanting to tweak the settings
     - copy the frontend app url it gives you at the end of all the output and paste it into your `.secrets` file at the `frontend url:` line
 - in a browser, go to your fly.io frontend app url. You should see the default Nuxt placeholder homepage.
+
+### Set Bundler Version
+- check your bundler version - this is at the bottom of ~/app/backend/Gemfile.lock. We want it to say `2.4.19`. If it doesn't, try this:
+  - `gem install bundler -v 2.4.19`
+  - `bundle _2.4.19_ lock --update`
 
 ## Placeholder Backend API
 - Mostly we're going to get the frontend up and running first, but to make sure everything's wired up correctly, we're going to first quickly build out a small placeholder backend API with rpec tests.
