@@ -27,6 +27,11 @@
   - package manager: `npm`
   - init git repo: `no`
 - `rails new backend --api --database=postgresql`
+- check your bundler version - this is at the bottom of `~/app/backend/Gemfile.lock`. We want it to say `2.4.19`. If it doesn't, try this:
+```
+gem install bundler -v 2.4.19
+bundle _2.4.19_ lock --update
+```
 - `rm -rf backend/.git`
 - `touch .gitignore`
 - make `~/app/.gitignore` look like this:
@@ -470,75 +475,22 @@ fi
 - `touch Dockerfile.backend`
 - make `~/app/backend/Dockerfile.backend look like this:`
 ```
-# Use an official Ruby image as a parent image
 FROM cimg/ruby:3.2.2-node
 
-# Arguments for UID and GID
-ARG USER_ID=1000
-ARG GROUP_ID=1003  # Changed to 1003 as it's not in use
-
-# Switch to root to add group and user
-USER root
-
-# Create group if it doesn't exist, and capture the group name
-RUN if ! getent group $GROUP_ID >/dev/null; then \
-      addgroup --gid $GROUP_ID appgroup; \
-      GROUP_NAME=appgroup; \
-    else \
-      GROUP_NAME=$(getent group $GROUP_ID | cut -d: -f1); \
-      echo "Group with GID $GROUP_ID already exists as '$GROUP_NAME'."; \
-    fi && \
-    # Create user with the group and specify home directory
-    adduser --uid $USER_ID --gid $GROUP_ID --disabled-password --gecos "" --home /home/appuser appuser && \
-    # Create and set ownership for the home directory
-    mkdir -p /home/appuser && \
-    chown -R appuser:$GROUP_NAME /home/appuser && \
-    # Create and set ownership for the app directory
-    mkdir -p /app/backend && \
-    chown -R appuser:$GROUP_NAME /app/backend
-
-# Set environment variables before switching to appuser
-ENV HOME=/home/appuser \
-    GEM_HOME=/home/appuser/.gem \
-    GEM_PATH=/home/appuser/.gem
-
-# Set the working directory to /app/backend
+# Set working directory
 WORKDIR /app/backend
 
-# Switch to the new user
-USER appuser
+# Copy Gemfile and Gemfile.lock
+COPY --chown=circleci:circleci Gemfile Gemfile.lock ./
 
-# Ensure .rubygems directory exists and is owned
-RUN mkdir -p /home/appuser/.rubygems && chmod 755 /home/appuser/.rubygems
+# Switch to circleci user (already the default)
+USER circleci
 
-# Debugging step: confirm environment variables and directories
-RUN echo "Current user: $(whoami)" && \
-    echo "HOME: $HOME" && \
-    echo "GEM_HOME: $GEM_HOME" && \
-    echo "GEM_PATH: $GEM_PATH" && \
-    ls -ld /home/appuser /home/circleci && \
-    ls -la /app/backend
-
-# Install bundler 2.5.7 globally
-RUN gem install bundler -v 2.5.7
-
-# Copy Gemfile and Gemfile.lock with correct ownership
-COPY --chown=appuser:appgroup Gemfile Gemfile.lock ./
-
-# Debugging step: list files after copying Gemfile
-RUN ls -la /app/backend
-
-# Install gems (this will be cached as long as Gemfile and Gemfile.lock don't change)
+# Install dependencies as circleci user
 RUN bundle install
 
-# Copy the rest of the app with correct ownership
-COPY --chown=appuser:appgroup . .
-
-# Expose the port Rails will run on
-EXPOSE 3000
-
-# Default command (can be overridden by docker-compose)
-CMD ["bash", "-c", "bundle exec rails db:prepare && bundle exec rails s -b 0.0.0.0 -p 3000"]
+# Copy the rest of your application code
+COPY --chown=circleci:circleci . .
 ```
 - `cd ~/app`
 - `touch docker-compose.yml`
@@ -546,7 +498,7 @@ CMD ["bash", "-c", "bundle exec rails db:prepare && bundle exec rails s -b 0.0.0
 ```
 services:
   db:
-    image: postgres:15-alpine
+    image: postgres:15
     environment:
       POSTGRES_USER: postgres
       POSTGRES_DB: backend_${RAILS_ENV:-development}
@@ -562,12 +514,7 @@ services:
       retries: 5
 
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile.backend
-      args:
-        USER_ID: ${UID:-1000}
-        GROUP_ID: ${GID:-1003}  # Ensure default matches Dockerfile
+    image: backend_image
     environment:
       RAILS_ENV: ${RAILS_ENV:-development}
       DATABASE_URL: "postgres://postgres:${POSTGRES_PASSWORD}@db:5432/backend_${RAILS_ENV:-development}"
@@ -587,27 +534,22 @@ services:
       '
 
   rspec:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile.backend
-      args:
-        USER_ID: 1003  # Use the same UID as Dockerfile
-        GROUP_ID: 1003  # Use the same GID as Dockerfile
+    image: backend_image
     environment:
       RAILS_ENV: test
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}  # Ensure this is set
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       DATABASE_URL: "postgres://postgres:${POSTGRES_PASSWORD}@db:5432/backend_test"
     volumes:
-      - ./backend:/app/backend
       - bundle_data:/usr/local/bundle
-    working_dir: /app/backend  # Align with WORKDIR in Dockerfile
+    working_dir: /app/backend
     depends_on:
       db:
         condition: service_healthy
-    user: "1003:1003"  # Align with the Dockerfile settings
+    user: "circleci"
     command: >
       bash -c '
-        ./wait-for-it.sh db:5432 -- bundle exec rails db:create db:migrate RAILS_ENV=test &&
+        ls -l ./wait-for-it.sh;
+        ./wait-for-it.sh db:5432 -- bundle exec rails db:drop db:create db:migrate &&
         bundle exec rspec
       '
 
@@ -624,6 +566,12 @@ volumes:
 - `docker-compose up -d`
 - `docker-compose ps` <- should see `db`, `backend`, and `rspec` services running
 - `docker-compose run --rm rspec`
+
+### Initialize CircleCI
+- `cd ~/app`
+- `mkdir .circleci`
+- `touch .circleci/config.yml`
+
 
 ## Frontend
 
@@ -1118,11 +1066,85 @@ runtimeConfig: { public: { apiBase: process.env.API_BASE || '<backend url>/api/v
 - `fly deploy`
 - now go to the frontend url that's in your `.secrets` file <- the app should look the way it looked locally
 
-### Initialize CircleCI
+### Initialize CircleCI (New WIP One - Just RSpec Now But Works)
 - `cd ~/app/frontend`
 - `npm install --save-dev wait-on`
 - `cd ~/app`
-- `puravida .circleci/config.yml ~`
+- make `.circleci/config.yml` look like this:
+```
+version: 2.1
+
+jobs:
+  test:
+    docker:
+      - image: cimg/ruby:3.2.2-node
+    environment:
+      DOCKER_BUILDKIT: 0
+    steps:
+      - checkout
+
+      - setup_remote_docker
+
+      - run:
+          name: Install Docker Compose
+          command: |
+            DOCKER_COMPOSE_VERSION=2.20.2
+            sudo curl -L "https://github.com/docker/compose/releases/download/v${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+            sudo chmod +x /usr/local/bin/docker-compose
+            docker-compose version
+
+      - run:
+          name: Verify POSTGRES_PASSWORD
+          command: |
+            if [ -z "${POSTGRES_PASSWORD}" ]; then
+              echo "Error: POSTGRES_PASSWORD is not set."
+              exit 1
+            else
+              echo "POSTGRES_PASSWORD is set."
+            fi
+
+      - run:
+          name: Create .env File
+          command: |
+            echo "POSTGRES_PASSWORD=${POSTGRES_PASSWORD}" > backend/.env
+            echo "RAILS_ENV=test" >> backend/.env
+
+      - run:
+          name: Build Backend Image
+          command: |
+            docker build --no-cache -t backend_image -f backend/Dockerfile.backend backend
+
+      - run:
+          name: Run RSpec Tests
+          command: |
+            cd backend
+            docker-compose up --no-build --abort-on-container-exit rspec
+
+      - store_test_results:
+          path: backend/tmp/rspec_results
+
+      - store_artifacts:
+          path: backend/log
+
+workflows:
+  version: 2
+  test:
+    jobs:
+      - test
+```
+- `git add .` 
+- `git commit -m "Add circleci"`
+- `git push`
+- (if you check the circleci tests at this point, it will start a test here which will fail because there are no specs yet)
+- go to `https://app.circleci.com/projects/project-dashboard/github/mark-mcdermott/`
+- next to repo name (`drivetracks-api`), click Set Up Project
+- click `Fastest` -> `main` -> `Set Up Project`
+
+### Initialize CircleCI (Old one - RSpec & Playwright but doesn't work)
+- `cd ~/app/frontend`
+- `npm install --save-dev wait-on`
+- `cd ~/app`
+- make `.circleci/config.yml` look like this:
 ```
 version: 2.1
 
@@ -1245,7 +1267,6 @@ workflows:
       - playwright_tests:
           requires:
             - rspec_tests
-~
 ```
 - `git add .` 
 - `git commit -m "Add circleci"`
