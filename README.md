@@ -470,7 +470,7 @@ fi
 ```
 - `chmod +x wait-for-it.sh`
 
-### Docker Setup
+### Rspec Docker Setup
 - `cd ~/app/backend`
 - `touch Dockerfile.backend`
 - make `~/app/backend/Dockerfile.backend look like this:`
@@ -557,15 +557,146 @@ volumes:
   postgres_data:
   bundle_data:
 ```
-
-### Run RSpec On Docker
 - `cd ~/app`
 - `docker-compose down -v --remove-orphans`
 - `docker volume ls`
 - `docker build -t backend_image -f backend/Dockerfile.backend backend`
 - `docker-compose up -d`
 - `docker-compose ps` <- should see `db` and `backend` (and maybe `postgres`?) services running
-- `docker-compose run --rm rspec`
+- `docker-compose run --rm rspec` <-- should pass
+
+### Playwright Docker Setup'
+- `cd ~/app/frontend`
+- `touch Dockerfile.playwright`
+- make `~/app/frontend/Dockerfile.playwright look like this:`
+```
+FROM node:16
+
+WORKDIR /app/frontend
+
+# Copy package.json and package-lock.json
+COPY package.json package-lock.json ./
+
+# Install dependencies
+RUN npm i
+
+# Install Playwright and browsers
+RUN npx playwright install
+
+# Copy the rest of your application code
+COPY . .
+
+# Expose port if needed
+# EXPOSE 3001
+```
+- make `~/app/docker-compose.yml` look like this:
+```
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: backend_${RAILS_ENV:-development}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    image: backend_image
+    environment:
+      RAILS_ENV: ${RAILS_ENV:-development}
+      DATABASE_URL: "postgres://postgres:${POSTGRES_PASSWORD}@db:5432/backend_${RAILS_ENV:-development}"
+    volumes:
+      - ./backend:/app/backend
+    working_dir: /app/backend  # Align with WORKDIR in Dockerfile
+    ports:
+      - '3000:3000'
+    depends_on:
+      db:
+        condition: service_healthy
+    command: >
+      bash -c '
+        rm -f /app/backend/tmp/pids/server.pid &&
+        bundle exec rails db:prepare &&
+        bundle exec rails s -b 0.0.0.0 -p 3000
+      '
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3000/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  rspec:
+    image: backend_image
+    environment:
+      RAILS_ENV: test
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      DATABASE_URL: "postgres://postgres:${POSTGRES_PASSWORD}@db:5432/backend_test"
+    volumes:
+      - bundle_data:/usr/local/bundle
+    working_dir: /app/backend
+    depends_on:
+      db:
+        condition: service_healthy
+    user: "circleci"
+    command: >
+      bash -c '
+        ls -l ./wait-for-it.sh;
+        ./wait-for-it.sh db:5432 -- bundle exec rails db:drop db:create db:migrate &&
+        bundle exec rspec
+      '
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    volumes:
+      - ./frontend:/app/frontend
+    working_dir: /app/frontend
+    ports:
+      - '3001:3001'
+    depends_on:
+      backend:
+        condition: service_healthy
+    command: npm run start -- -p 3001
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3001/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  playwright:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.playwright
+    volumes:
+      - ./frontend:/app/frontend
+    working_dir: /app/frontend
+    depends_on:
+      backend:
+        condition: service_started
+      frontend:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+    environment:
+      RAILS_ENV: test
+      DATABASE_URL: "postgres://postgres:${POSTGRES_PASSWORD}@db:5432/backend_test"
+      API_URL: http://backend:3000
+    command: npx playwright test
+
+volumes:
+  postgres_data:
+  bundle_data:
+```
+
 
 ### Initialize CircleCI
 - `cd ~/app`
