@@ -565,7 +565,7 @@ volumes:
 - `docker-compose ps` <- should see `db` and `backend` (and maybe `postgres`?) services running
 - `docker-compose run --rm rspec` <-- should pass
 
-### Playwright Docker Setup'
+### Playwright Docker Setup (This should get the tests running locally, but they're still failing. Also might try to not change frontend/Dockerfile here and make those changes in docker-compose.yml instead)
 - `cd ~/app/frontend`
 - `touch Dockerfile.playwright`
 - make `~/app/frontend/Dockerfile.playwright look like this:`
@@ -657,17 +657,17 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    volumes:
-      - ./frontend:/app/frontend
-    working_dir: /app/frontend
+    working_dir: /app
     ports:
-      - '3001:3001'
+      - '3001:3000'
     depends_on:
       backend:
         condition: service_healthy
-    command: npm run start -- -p 3001
+    environment:
+      NODE_ENV: production
+      API_URL: http://backend:3000
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:3001/ || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://localhost:3000/ || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -696,6 +696,61 @@ volumes:
   postgres_data:
   bundle_data:
 ```
+- make `~/app/frontend/Dockerfile` look like this:
+```
+# syntax = docker/dockerfile:1
+
+# Adjust NODE_VERSION as desired
+ARG NODE_VERSION=21.7.2
+FROM node:${NODE_VERSION}-slim as base
+
+LABEL fly_launch_runtime="Nuxt"
+
+# Nuxt app lives here
+WORKDIR /app
+
+# Set production environment
+ENV NODE_ENV="production"
+ENV HOST=0.0.0.0
+ENV PORT=3000
+
+# Install curl in the base image
+RUN apt-get update && apt-get install --no-install-recommends -y curl
+
+# Throw-away build stage to reduce size of final image
+FROM base as build
+
+# Install packages needed to build node modules
+RUN apt-get install --no-install-recommends -y build-essential node-gyp pkg-config python-is-python3
+
+# Install node modules
+COPY package-lock.json package.json ./
+RUN npm ci --include=dev
+
+# Copy application code
+COPY . .
+
+# Build application
+RUN npm run build
+
+# Remove development dependencies
+RUN npm prune --omit=dev
+
+# Final stage for app image
+FROM base
+
+# Copy built application
+COPY --from=build /app /app
+
+# Expose port and set start command
+EXPOSE 3000
+CMD [ "node", ".output/server/index.mjs" ]
+```
+- `cd ~/app`
+- `docker-compose down -v --remove-orphans `
+- `docker-compose build --no-cache`
+- `docker-compose up -d`
+- `docker-compose run --rm playwright` <- tests should run, but are failing at the moment
 
 
 ### Initialize CircleCI
