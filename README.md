@@ -570,24 +570,21 @@ volumes:
 - `touch Dockerfile.playwright`
 - make `~/app/frontend/Dockerfile.playwright look like this:`
 ```
-FROM node:16
+FROM mcr.microsoft.com/playwright:v1.47.2-focal
 
 WORKDIR /app/frontend
 
 # Copy package.json and package-lock.json
 COPY package.json package-lock.json ./
 
-# Install dependencies
-RUN npm i
-
-# Install Playwright and browsers
-RUN npx playwright install
+# Install Node.js dependencies
+RUN npm ci
 
 # Copy the rest of your application code
 COPY . .
 
-# Expose port if needed
-# EXPOSE 3001
+# Set the default command
+CMD ["npx", "playwright", "test"]
 ```
 - make `~/app/docker-compose.yml` look like this:
 ```
@@ -676,8 +673,6 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile.playwright
-    volumes:
-      - ./frontend:/app/frontend
     working_dir: /app/frontend
     depends_on:
       backend:
@@ -746,8 +741,35 @@ COPY --from=build /app /app
 EXPOSE 3000
 CMD [ "node", ".output/server/index.mjs" ]
 ```
+- make `~/app/frontend/playwright.config.ts` look like this:
+```
+import { defineConfig, devices } from "@playwright/test";
+
+export default defineConfig({
+  testDir: "./spec/e2e",
+  outputDir: "./spec/e2e/videos",
+  use: { video: "on", baseURL: process.env.BASE_URL || 'http://localhost:3000' },
+  projects: [
+    { name: "chromium", use: { ...devices["Desktop Chrome"] } },
+    { name: "firefox", use: { ...devices["Desktop Firefox"] } },
+    { name: "webkit", use: { ...devices["Desktop Safari"] } },
+  ],
+});
+```
+- make `~/app/frontend/spec/e2e/homepage-functionality.spec.ts` look like this:
+```
+import { test, expect } from '@playwright/test';
+
+test('get started link', async ({ page }) => {
+  await page.goto('/')
+  await expect(page.getByRole('heading').filter({ hasText: 'There was a wall.'})).toBeVisible()
+  await expect(page.getByRole('heading').filter({ hasText: 'It did not look important.'})).toBeVisible()
+  await expect(page.getByRole('paragraph').filter({ hasText: '{"status":"OK"}'})).toBeVisible()
+  await expect(page.getByRole('link').filter({ hasText: 'Log in'})).toBeVisible()
+});
+```
 - `cd ~/app`
-- `docker-compose down -v --remove-orphans `
+- `docker-compose down -v --remove-orphans`
 - `docker-compose build --no-cache`
 - `docker-compose up -d`
 - `docker-compose run --rm playwright` <- tests should run, but are failing at the moment
