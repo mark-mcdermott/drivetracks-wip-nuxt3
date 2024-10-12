@@ -270,6 +270,7 @@ CMD ["./bin/rails", "server", "-b", "0.0.0.0", "-p", "8080"]
 - make `~/app/.dockerignore` look like this:
 ```
 .env
+.secrets
 log/*
 tmp/*
 ```
