@@ -274,11 +274,8 @@ log/*
 tmp/*
 ```
 - `touch .env`
-- make `~/.env` look like this:
+- make `~/.env` look like this: (TODO: can you just make this any random string here and it will work?)
 ```
-UID=1003
-GID=1003
-RAILS_ENV=development
 POSTGRES_PASSWORD=048O7vwZ-r5
 ```
 - `cd ~/app/backend`
@@ -475,22 +472,31 @@ fi
 - `touch Dockerfile.backend`
 - make `~/app/backend/Dockerfile.backend look like this:`
 ```
-FROM cimg/ruby:3.2.2-node
+FROM ruby:3.2.2
 
-# Set working directory
+# Create a non-root user named circleci
+RUN useradd -m circleci
+
+# Switch to root user to perform setup tasks
+USER root
+
+# Set the working directory
 WORKDIR /app/backend
 
-# Copy Gemfile and Gemfile.lock
-COPY --chown=circleci:circleci Gemfile Gemfile.lock ./
+# Copy Gemfile and Gemfile.lock first to leverage Docker layer caching
+COPY Gemfile Gemfile.lock ./
 
-# Switch to circleci user (already the default)
-USER circleci
-
-# Install dependencies as circleci user
+# Install dependencies
 RUN bundle install
 
-# Copy the rest of your application code
-COPY --chown=circleci:circleci . .
+# Change ownership of the application directory to the circleci user
+RUN chown -R circleci:circleci /app/backend
+
+# Switch to non-root circleci user
+USER circleci
+
+# Default command
+CMD ["bash"]
 ```
 - `cd ~/app`
 - `touch docker-compose.yml`
@@ -509,13 +515,18 @@ services:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      interval: 20s
+      timeout: 10s
+      retries: 10
 
   backend:
+    user: "${DOCKER_USER:-circleci}"
+    build:
+      context: ./backend
+      dockerfile: Dockerfile 
     image: backend_image
     environment:
+      BACKEND_PATH: /app/backend
       RAILS_ENV: ${RAILS_ENV:-development}
       DATABASE_URL: "postgres://postgres:${POSTGRES_PASSWORD}@db:5432/backend_${RAILS_ENV:-development}"
     volumes:
@@ -532,6 +543,11 @@ services:
         bundle exec rails db:prepare &&
         bundle exec rails s -b 0.0.0.0 -p 3000
       '
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3000/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   rspec:
     image: backend_image
@@ -541,14 +557,14 @@ services:
       DATABASE_URL: "postgres://postgres:${POSTGRES_PASSWORD}@db:5432/backend_test"
     volumes:
       - bundle_data:/usr/local/bundle
+      - ./backend:/app/backend
     working_dir: /app/backend
     depends_on:
       db:
         condition: service_healthy
-    user: "circleci"
+    user: "${DOCKER_USER:-circleci}"
     command: >
       bash -c '
-        ls -l ./wait-for-it.sh;
         ./wait-for-it.sh db:5432 -- bundle exec rails db:drop db:create db:migrate &&
         bundle exec rspec
       '
@@ -556,16 +572,18 @@ services:
 volumes:
   postgres_data:
   bundle_data:
+  backend_data:
+    driver: local
 ```
 - `cd ~/app`
 - `docker-compose down -v --remove-orphans`
 - `docker volume ls`
-- `docker build -t backend_image -f backend/Dockerfile.backend backend`
-- `docker-compose up -d`
+- `docker-compose build`
+- `docker-compose up -d db backend`
 - `docker-compose ps` <- should see `db` and `backend` (and maybe `postgres`?) services running
 - `docker-compose run --rm rspec` <-- should pass
 
-### Playwright Docker Setup (This should get the tests running locally, but they're still failing. Also might try to not change frontend/Dockerfile here and make those changes in docker-compose.yml instead)
+### Playwright Docker Setup
 - `cd ~/app/frontend`
 - `touch Dockerfile.playwright`
 - make `~/app/frontend/Dockerfile.playwright look like this:`
@@ -601,13 +619,18 @@ services:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      interval: 20s
+      timeout: 10s
+      retries: 10
 
   backend:
+    user: "${DOCKER_USER:-circleci}"
+    build:
+      context: ./backend
+      dockerfile: Dockerfile 
     image: backend_image
     environment:
+      BACKEND_PATH: /app/backend
       RAILS_ENV: ${RAILS_ENV:-development}
       DATABASE_URL: "postgres://postgres:${POSTGRES_PASSWORD}@db:5432/backend_${RAILS_ENV:-development}"
     volumes:
@@ -630,6 +653,7 @@ services:
       timeout: 5s
       retries: 5
 
+
   rspec:
     image: backend_image
     environment:
@@ -638,21 +662,21 @@ services:
       DATABASE_URL: "postgres://postgres:${POSTGRES_PASSWORD}@db:5432/backend_test"
     volumes:
       - bundle_data:/usr/local/bundle
+      - ./backend:/app/backend
     working_dir: /app/backend
     depends_on:
       db:
         condition: service_healthy
-    user: "circleci"
+    user: "${DOCKER_USER:-circleci}"
     command: >
       bash -c '
-        ls -l ./wait-for-it.sh;
         ./wait-for-it.sh db:5432 -- bundle exec rails db:drop db:create db:migrate &&
         bundle exec rspec
       '
 
   frontend:
     build:
-      context: ./frontend
+      context: ./frontend 
       dockerfile: Dockerfile
     working_dir: /app
     ports:
@@ -663,6 +687,7 @@ services:
     environment:
       NODE_ENV: production
       API_URL: http://backend:3000
+      BASE_URL: http://frontend:3000
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:3000/ || exit 1"]
       interval: 10s
@@ -682,14 +707,18 @@ services:
       db:
         condition: service_healthy
     environment:
+      BASE_URL: http://frontend:3000
       RAILS_ENV: test
       DATABASE_URL: "postgres://postgres:${POSTGRES_PASSWORD}@db:5432/backend_test"
       API_URL: http://backend:3000
     command: npx playwright test
 
+
 volumes:
   postgres_data:
   bundle_data:
+  backend_data:
+    driver: local
 ```
 - make `~/app/frontend/Dockerfile` look like this:
 ```
@@ -748,7 +777,7 @@ import { defineConfig, devices } from "@playwright/test";
 export default defineConfig({
   testDir: "./spec/e2e",
   outputDir: "./spec/e2e/videos",
-  use: { video: "on", baseURL: process.env.BASE_URL || 'http://localhost:3000' },
+  use: { video: "on", baseURL: process.env.BASE_URL || 'http://localhost:3001' },
   projects: [
     { name: "chromium", use: { ...devices["Desktop Chrome"] } },
     { name: "firefox", use: { ...devices["Desktop Firefox"] } },
@@ -771,15 +800,13 @@ test('get started link', async ({ page }) => {
 - `cd ~/app`
 - `docker-compose down -v --remove-orphans`
 - `docker-compose build --no-cache`
-- `docker-compose up -d`
+- `docker-compose up -d db backend frontend`
 - `docker-compose run --rm playwright` <- tests should run, but are failing at the moment
-
 
 ### Initialize CircleCI
 - `cd ~/app`
 - `mkdir .circleci`
 - `touch .circleci/config.yml`
-
 
 ## Frontend
 
@@ -1057,7 +1084,7 @@ import { test, expect } from '@playwright/test';
 
 test('get started link', async ({ page }) => {
   await page.goto('http://localhost:3001')
-  await expect(page.getByRole('heading').filter({ hasText: 'There was a wall.'})).toBeVisible()
+  await expect(page.getByRole('heading').filter({ hasText: 'There was a wall.'})).toBeVisible({ timeout: 30000 })
   await expect(page.getByRole('heading').filter({ hasText: 'It did not look important.'})).toBeVisible()
   await expect(page.getByRole('paragraph').filter({ hasText: '{"status":"OK"}'})).toBeVisible()
   await expect(page.getByRole('link').filter({ hasText: 'Log in'})).toBeVisible()
@@ -1274,7 +1301,7 @@ runtimeConfig: { public: { apiBase: process.env.API_BASE || '<backend url>/api/v
 - `fly deploy`
 - now go to the frontend url that's in your `.secrets` file <- the app should look the way it looked locally
 
-### Initialize CircleCI (New WIP One - Just RSpec Now But Works)
+### Initialize CircleCI (New One - Works)
 - `cd ~/app/frontend`
 - `npm install --save-dev wait-on`
 - `cd ~/app`
@@ -1282,17 +1309,14 @@ runtimeConfig: { public: { apiBase: process.env.API_BASE || '<backend url>/api/v
 ```
 version: 2.1
 
-jobs:
-  test:
-    docker:
-      - image: cimg/ruby:3.2.2-node
-    environment:
-      DOCKER_BUILDKIT: 0
+executors:
+  ubuntu_machine_executor:
+    machine:
+      image: ubuntu-2004:current
+
+commands:
+  install_docker_compose:
     steps:
-      - checkout
-
-      - setup_remote_docker
-
       - run:
           name: Install Docker Compose
           command: |
@@ -1301,26 +1325,57 @@ jobs:
             sudo chmod +x /usr/local/bin/docker-compose
             docker-compose version
 
-      - run:
-          name: Verify POSTGRES_PASSWORD
-          command: |
-            if [ -z "${POSTGRES_PASSWORD}" ]; then
-              echo "Error: POSTGRES_PASSWORD is not set."
-              exit 1
-            else
-              echo "POSTGRES_PASSWORD is set."
-            fi
-
+  create_env_file:
+    steps:
       - run:
           name: Create .env File
           command: |
             echo "POSTGRES_PASSWORD=${POSTGRES_PASSWORD}" > backend/.env
             echo "RAILS_ENV=test" >> backend/.env
 
+  ensure_permissions:
+    steps:
+      - run:
+          name: Ensure Permissions for Backend Files
+          command: |
+            chmod -R 777 backend/log
+            chmod -R 777 backend/tmp
+            chmod +x backend/wait-for-it.sh
+            touch backend/log/test.log
+            touch backend/tmp/local_secret.txt
+            chmod 666 backend/log/test.log
+            chmod 666 backend/tmp/local_secret.txt
+
+  build_backend_image:
+    steps:
       - run:
           name: Build Backend Image
+          command: docker build --no-cache -t backend_image -f backend/Dockerfile.backend backend
+
+jobs:
+  rspec:
+    executor: ubuntu_machine_executor
+    steps:
+      - checkout
+      - run:
+          name: Set Absolute Path for Backend Directory
           command: |
-            docker build --no-cache -t backend_image -f backend/Dockerfile.backend backend
+            export BACKEND_PATH=$(pwd)/backend
+            echo "export BACKEND_PATH=${BACKEND_PATH}" >> $BASH_ENV
+
+      - install_docker_compose
+      - create_env_file
+      - ensure_permissions
+      - build_backend_image
+
+      - run:
+          name: Adjust Backend Folder Permissions on Host
+          command: sudo chmod -R 777 /home/circleci/project/backend
+
+      - run:
+          name: Verify Permissions Inside Backend Container
+          command: |
+            docker-compose run --rm rspec bash -c 'ls -la /app/backend/log /app/backend/tmp'
 
       - run:
           name: Run RSpec Tests
@@ -1334,11 +1389,98 @@ jobs:
       - store_artifacts:
           path: backend/log
 
+  playwright:
+    machine:
+      image: ubuntu-2004:current
+    steps:
+    - checkout
+
+    - run:
+        name: Set Absolute Path for Backend Directory
+        command: |
+          export BACKEND_PATH=$(pwd)/backend
+          echo "export BACKEND_PATH=${BACKEND_PATH}" >> $BASH_ENV
+
+    - run:
+        name: Install Docker Compose
+        command: |
+          DOCKER_COMPOSE_VERSION=2.20.2
+          sudo curl -L "https://github.com/docker/compose/releases/download/v${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
+          docker-compose version
+
+    - run:
+        name: Verify POSTGRES_PASSWORD
+        command: |
+          if [ -z "${POSTGRES_PASSWORD}" ]; then
+            echo "Error: POSTGRES_PASSWORD is not set."
+            exit 1
+          else
+            echo "POSTGRES_PASSWORD is set."
+          fi
+
+    - run:
+        name: Create .env File
+        command: |
+          echo "POSTGRES_PASSWORD=${POSTGRES_PASSWORD}" > backend/.env
+          echo "RAILS_ENV=test" >> backend/.env
+
+    - run:
+        name: Build Backend Image
+        command: |
+          docker build --no-cache -t backend_image -f backend/Dockerfile.backend backend
+
+    - run:
+        name: Ensure Executable Permissions on wait-for-it.sh
+        command: |
+          chmod +x backend/wait-for-it.sh
+
+    - run:
+        name: Create Log and Tmp Files
+        command: |
+          touch backend/log/test.log
+          touch backend/tmp/local_secret.txt
+          chmod 666 backend/log/test.log
+          chmod 666 backend/tmp/local_secret.txt
+
+    - run:
+        name: Ensure Permissions for Log and Tmp Directories
+        command: |
+          chmod -R 777 backend/log
+          chmod -R 777 backend/tmp
+
+    - run:
+        name: Adjust Backend Folder Permissions on Host
+        command: sudo chmod -R 777 /home/circleci/project/backend
+
+    - run:
+        name: Run Backend and Frontend Services
+        command: |
+          docker-compose up -d db backend frontend
+
+    - run:
+        name: Wait for Backend to be Ready
+        command: |
+          ./backend/wait-for-it.sh localhost:3000 -t 60 -- echo "Backend is ready"
+
+    - run:
+        name: Run Playwright Tests
+        command: |
+          docker-compose up --abort-on-container-exit playwright
+
+    - store_test_results:
+        path: frontend/test-results  # Adjust this to your actual results path
+
+    - store_artifacts:
+        path: frontend/log  # Adjust this to your actual log path
+
+
 workflows:
   version: 2
   test:
     jobs:
-      - test
+      - rspec
+      - playwright
 ```
 - `git add .` 
 - `git commit -m "Add circleci"`
