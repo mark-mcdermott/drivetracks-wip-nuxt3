@@ -69,6 +69,7 @@ AWS details:
 - `cd ~/app/backend`
   - let's init our backend fly.io app. The name part has to be unique in their system I think, so if you run the below line as is, it will probably tell you your app name is already chosen and you'll have to keep trying with more obscure app names until you find a unique one that works.
   - `fly launch --name app-backend`
+    - (if this ever hangs at `Waiting for depot`, kill the launch with `control + c`, delete the partially-installed app in the fly.io dashboard and then relaunch with `fly launch --name app-backend --depot=false`)
     - hit enter (for "no") when it asks a question about wanting to tweak the settings
     - watch the output and look for the `Postgres cluster` details, which end with the line, `Save your credentials in a secure place -- you won't be able to see them again!` When you see it, copy and paste it to the corresponding section in your `~/app/.secrets` file.
     - at the end of all the output it will say, `Visit your newly deployed app at https://<your backend app name>.fly.dev/` - copy/paste the backend app name url it gives you to the `backend url:` part of your `.secrets` file
@@ -76,6 +77,7 @@ AWS details:
 - `cd ~/app/frontend`
   - like in the backend `fly launch` line above, your fly.io frontend app name has to be unique in their system, so you may have to run this a few times with different names after the `--name ` part until you find a unique one that works
   - `fly launch --name app-frontend`
+    - (if this ever hangs at `Waiting for depot`, kill the launch with `control + c`, delete the partially-installed app in the fly.io dashboard and then relaunch with `fly launch --name app-frontend --depot=false`)
     - hit enter (for "no") when it asks a question about wanting to tweak the settings
     - copy the frontend app url it gives you at the end of all the output and paste it into your `.secrets` file at the `frontend url:` line
 - in a browser, go to your fly.io frontend app url. You should see the default Nuxt placeholder homepage.
