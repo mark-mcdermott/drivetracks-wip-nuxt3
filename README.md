@@ -214,7 +214,10 @@ end
 ```
 - `rspec spec/requests/api/v1/health_controller_spec.rb` -> should pass
 
-### Deploy Backend And Run Tests
+## Deploy Backend And Run RSpec Tests
+
+### Deploy Backend To Fly.io
+- `cd ~/app/backend`
 - make `~/app/backend/fly.toml` look like this (replacing `<backend url>` with your backend url from `.secretes` and `<backend app name>` with the backend app name, which is the the backend url with out `https://` at the beginning and without `.fly.dev` at the end):
 ```
 app = '<backend app name>'
@@ -260,9 +263,14 @@ CMD ["./bin/rails", "server", "-b", "0.0.0.0", "-p", "8080"]
 ```
 - `fly deploy` <- this may show a couple errors mid-deploy, but should not hang (ie, it should complete and bring you back to the terminal prompt) and it should not show `WARNING The app is not listening on the expected address` at any point
 - `curl <backend url from .secrets>/api/v1/up` <- should return `{"status":"OK"}`
+
+### Run RSpec On Fly.io
+- `cd ~/app/backend`
 - `fly ssh console`
   - `RAILS_ENV=test bundle exec rspec` <- should pass
   - `exit`
+
+## RSpec Docker Setup
 
 ### Docker Prelimnary Setup
 - `cd ~/app`
@@ -576,12 +584,14 @@ volumes:
   backend_data:
     driver: local
 ```
+
+### Run Docker RSpec
 - `cd ~/app`
 - `docker-compose down -v --remove-orphans`
 - `docker volume ls`
 - `docker-compose build`
 - `docker-compose up -d db backend`
-- `docker-compose ps` <- should see `db` and `backend` (and maybe `postgres`?) services running
+- `docker-compose ps` <- should see `db` and `backend` services running
 - `docker-compose run --rm rspec` <-- should pass
 
 ### Playwright Docker Setup
