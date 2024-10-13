@@ -599,7 +599,7 @@ volumes:
 ### Initialize CircleCI
 - `cd ~/app`
 - `mkdir .circleci`
-- `touch .circleci/config.yml
+- `touch .circleci/config.yml`
 - make `.circleci/config.yml` look like this:
 ```
 version: 2.1
