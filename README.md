@@ -596,230 +596,106 @@ volumes:
 - `docker-compose ps` <- should see `db` and `backend` services running
 - `docker-compose run --rm rspec` <-- should pass
 
-### Playwright Docker Setup
-- `cd ~/app/frontend`
-- `touch Dockerfile.playwright`
-- make `~/app/frontend/Dockerfile.playwright look like this:`
-```
-FROM mcr.microsoft.com/playwright:v1.47.2-focal
-
-WORKDIR /app/frontend
-
-# Copy package.json and package-lock.json
-COPY package.json package-lock.json ./
-
-# Install Node.js dependencies
-RUN npm ci
-
-# Copy the rest of your application code
-COPY . .
-
-# Set the default command
-CMD ["npx", "playwright", "test"]
-```
-- make `~/app/docker-compose.yml` look like this:
-```
-services:
-  db:
-    image: postgres:15
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_DB: backend_${RAILS_ENV:-development}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    ports:
-      - '5432:5432'
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 20s
-      timeout: 10s
-      retries: 10
-
-  backend:
-    user: "${DOCKER_USER:-circleci}"
-    build:
-      context: ./backend
-      dockerfile: Dockerfile 
-    image: backend_image
-    environment:
-      BACKEND_PATH: /app/backend
-      RAILS_ENV: ${RAILS_ENV:-development}
-      DATABASE_URL: "postgres://postgres:${POSTGRES_PASSWORD}@db:5432/backend_${RAILS_ENV:-development}"
-    volumes:
-      - ./backend:/app/backend
-    working_dir: /app/backend  # Align with WORKDIR in Dockerfile
-    ports:
-      - '3000:3000'
-    depends_on:
-      db:
-        condition: service_healthy
-    command: >
-      bash -c '
-        rm -f /app/backend/tmp/pids/server.pid &&
-        bundle exec rails db:prepare &&
-        bundle exec rails s -b 0.0.0.0 -p 3000
-      '
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:3000/ || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-
-  rspec:
-    image: backend_image
-    environment:
-      RAILS_ENV: test
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      DATABASE_URL: "postgres://postgres:${POSTGRES_PASSWORD}@db:5432/backend_test"
-    volumes:
-      - bundle_data:/usr/local/bundle
-      - ./backend:/app/backend
-    working_dir: /app/backend
-    depends_on:
-      db:
-        condition: service_healthy
-    user: "${DOCKER_USER:-circleci}"
-    command: >
-      bash -c '
-        ./wait-for-it.sh db:5432 -- bundle exec rails db:drop db:create db:migrate &&
-        bundle exec rspec
-      '
-
-  frontend:
-    build:
-      context: ./frontend 
-      dockerfile: Dockerfile
-    working_dir: /app
-    ports:
-      - '3001:3000'
-    depends_on:
-      backend:
-        condition: service_healthy
-    environment:
-      NODE_ENV: production
-      API_URL: http://backend:3000
-      BASE_URL: http://frontend:3000
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:3000/ || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  playwright:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile.playwright
-    working_dir: /app/frontend
-    depends_on:
-      backend:
-        condition: service_started
-      frontend:
-        condition: service_healthy
-      db:
-        condition: service_healthy
-    environment:
-      BASE_URL: http://frontend:3000
-      RAILS_ENV: test
-      DATABASE_URL: "postgres://postgres:${POSTGRES_PASSWORD}@db:5432/backend_test"
-      API_URL: http://backend:3000
-    command: npx playwright test
-
-
-volumes:
-  postgres_data:
-  bundle_data:
-  backend_data:
-    driver: local
-```
-- make `~/app/frontend/Dockerfile` look like this:
-```
-# syntax = docker/dockerfile:1
-
-# Adjust NODE_VERSION as desired
-ARG NODE_VERSION=21.7.2
-FROM node:${NODE_VERSION}-slim as base
-
-LABEL fly_launch_runtime="Nuxt"
-
-# Nuxt app lives here
-WORKDIR /app
-
-# Set production environment
-ENV NODE_ENV="production"
-ENV HOST=0.0.0.0
-ENV PORT=3000
-
-# Install curl in the base image
-RUN apt-get update && apt-get install --no-install-recommends -y curl
-
-# Throw-away build stage to reduce size of final image
-FROM base as build
-
-# Install packages needed to build node modules
-RUN apt-get install --no-install-recommends -y build-essential node-gyp pkg-config python-is-python3
-
-# Install node modules
-COPY package-lock.json package.json ./
-RUN npm ci --include=dev
-
-# Copy application code
-COPY . .
-
-# Build application
-RUN npm run build
-
-# Remove development dependencies
-RUN npm prune --omit=dev
-
-# Final stage for app image
-FROM base
-
-# Copy built application
-COPY --from=build /app /app
-
-# Expose port and set start command
-EXPOSE 3000
-CMD [ "node", ".output/server/index.mjs" ]
-```
-- make `~/app/frontend/playwright.config.ts` look like this:
-```
-import { defineConfig, devices } from "@playwright/test";
-
-export default defineConfig({
-  testDir: "./spec/e2e",
-  outputDir: "./spec/e2e/videos",
-  use: { video: "on", baseURL: process.env.BASE_URL || 'http://localhost:3001' },
-  projects: [
-    { name: "chromium", use: { ...devices["Desktop Chrome"] } },
-    { name: "firefox", use: { ...devices["Desktop Firefox"] } },
-    { name: "webkit", use: { ...devices["Desktop Safari"] } },
-  ],
-});
-```
-- make `~/app/frontend/spec/e2e/homepage-functionality.spec.ts` look like this:
-```
-import { test, expect } from '@playwright/test';
-
-test('get started link', async ({ page }) => {
-  await page.goto('/')
-  await expect(page.getByRole('heading').filter({ hasText: 'There was a wall.'})).toBeVisible()
-  await expect(page.getByRole('heading').filter({ hasText: 'It did not look important.'})).toBeVisible()
-  await expect(page.getByRole('paragraph').filter({ hasText: '{"status":"OK"}'})).toBeVisible()
-  await expect(page.getByRole('link').filter({ hasText: 'Log in'})).toBeVisible()
-});
-```
-- `cd ~/app`
-- `docker-compose down -v --remove-orphans`
-- `docker-compose build --no-cache`
-- `docker-compose up -d db backend frontend`
-- `docker-compose run --rm playwright` <- tests should run, but are failing at the moment
-
 ### Initialize CircleCI
 - `cd ~/app`
 - `mkdir .circleci`
-- `touch .circleci/config.yml`
+- `touch .circleci/config.yml
+- make `.circleci/config.yml` look like this:
+```
+version: 2.1
+
+executors:
+  ubuntu_machine_executor:
+    machine:
+      image: ubuntu-2004:current
+
+commands:
+  install_docker_compose:
+    steps:
+      - run:
+          name: Install Docker Compose
+          command: |
+            DOCKER_COMPOSE_VERSION=2.20.2
+            sudo curl -L "https://github.com/docker/compose/releases/download/v${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+            sudo chmod +x /usr/local/bin/docker-compose
+            docker-compose version
+
+  create_env_file:
+    steps:
+      - run:
+          name: Create .env File
+          command: |
+            echo "POSTGRES_PASSWORD=${POSTGRES_PASSWORD}" > backend/.env
+            echo "RAILS_ENV=test" >> backend/.env
+
+  ensure_permissions:
+    steps:
+      - run:
+          name: Ensure Permissions for Backend Files
+          command: |
+            chmod -R 777 backend/log
+            chmod -R 777 backend/tmp
+            chmod +x backend/wait-for-it.sh
+            touch backend/log/test.log
+            touch backend/tmp/local_secret.txt
+            chmod 666 backend/log/test.log
+            chmod 666 backend/tmp/local_secret.txt
+
+  build_backend_image:
+    steps:
+      - run:
+          name: Build Backend Image
+          command: docker build --no-cache -t backend_image -f backend/Dockerfile.backend backend
+
+jobs:
+  rspec:
+    executor: ubuntu_machine_executor
+    steps:
+      - checkout
+      - run:
+          name: Set Absolute Path for Backend Directory
+          command: |
+            export BACKEND_PATH=$(pwd)/backend
+            echo "export BACKEND_PATH=${BACKEND_PATH}" >> $BASH_ENV
+
+      - install_docker_compose
+      - create_env_file
+      - ensure_permissions
+      - build_backend_image
+
+      - run:
+          name: Adjust Backend Folder Permissions on Host
+          command: sudo chmod -R 777 /home/circleci/project/backend
+
+      - run:
+          name: Verify Permissions Inside Backend Container
+          command: |
+            docker-compose run --rm rspec bash -c 'ls -la /app/backend/log /app/backend/tmp'
+
+      - run:
+          name: Run RSpec Tests
+          command: |
+            cd backend
+            docker-compose up --no-build --abort-on-container-exit rspec
+
+      - store_test_results:
+          path: backend/tmp/rspec_results
+
+      - store_artifacts:
+          path: backend/log
+
+workflows:
+  version: 2
+  test:
+    jobs:
+      - rspec
+```
+- `git add .` 
+- `git commit -m "Add circleci"`
+- `git push`
+- go to `https://app.circleci.com/projects/project-dashboard/github/mark-mcdermott/`
+- next to repo name (`drivetracks-api`), click Set Up Project
+- click `Fastest` -> `main` -> `Set Up Project`
 
 ## Frontend
 
@@ -1313,6 +1189,226 @@ runtimeConfig: { public: { apiBase: process.env.API_BASE || '<backend url>/api/v
 ```
 - `fly deploy`
 - now go to the frontend url that's in your `.secrets` file <- the app should look the way it looked locally
+
+## Playwright Docker Setup
+- `cd ~/app/frontend`
+- `touch Dockerfile.playwright`
+- make `~/app/frontend/Dockerfile.playwright look like this:`
+```
+FROM mcr.microsoft.com/playwright:v1.47.2-focal
+
+WORKDIR /app/frontend
+
+# Copy package.json and package-lock.json
+COPY package.json package-lock.json ./
+
+# Install Node.js dependencies
+RUN npm ci
+
+# Copy the rest of your application code
+COPY . .
+
+# Set the default command
+CMD ["npx", "playwright", "test"]
+```
+- make `~/app/docker-compose.yml` look like this:
+```
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: backend_${RAILS_ENV:-development}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 20s
+      timeout: 10s
+      retries: 10
+
+  backend:
+    user: "${DOCKER_USER:-circleci}"
+    build:
+      context: ./backend
+      dockerfile: Dockerfile 
+    image: backend_image
+    environment:
+      BACKEND_PATH: /app/backend
+      RAILS_ENV: ${RAILS_ENV:-development}
+      DATABASE_URL: "postgres://postgres:${POSTGRES_PASSWORD}@db:5432/backend_${RAILS_ENV:-development}"
+    volumes:
+      - ./backend:/app/backend
+    working_dir: /app/backend  # Align with WORKDIR in Dockerfile
+    ports:
+      - '3000:3000'
+    depends_on:
+      db:
+        condition: service_healthy
+    command: >
+      bash -c '
+        rm -f /app/backend/tmp/pids/server.pid &&
+        bundle exec rails db:prepare &&
+        bundle exec rails s -b 0.0.0.0 -p 3000
+      '
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3000/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+
+  rspec:
+    image: backend_image
+    environment:
+      RAILS_ENV: test
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      DATABASE_URL: "postgres://postgres:${POSTGRES_PASSWORD}@db:5432/backend_test"
+    volumes:
+      - bundle_data:/usr/local/bundle
+      - ./backend:/app/backend
+    working_dir: /app/backend
+    depends_on:
+      db:
+        condition: service_healthy
+    user: "${DOCKER_USER:-circleci}"
+    command: >
+      bash -c '
+        ./wait-for-it.sh db:5432 -- bundle exec rails db:drop db:create db:migrate &&
+        bundle exec rspec
+      '
+
+  frontend:
+    build:
+      context: ./frontend 
+      dockerfile: Dockerfile
+    working_dir: /app
+    ports:
+      - '3001:3000'
+    depends_on:
+      backend:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      API_URL: http://backend:3000
+      BASE_URL: http://frontend:3000
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3000/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  playwright:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.playwright
+    working_dir: /app/frontend
+    depends_on:
+      backend:
+        condition: service_started
+      frontend:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+    environment:
+      BASE_URL: http://frontend:3000
+      RAILS_ENV: test
+      DATABASE_URL: "postgres://postgres:${POSTGRES_PASSWORD}@db:5432/backend_test"
+      API_URL: http://backend:3000
+    command: npx playwright test
+
+
+volumes:
+  postgres_data:
+  bundle_data:
+  backend_data:
+    driver: local
+```
+- make `~/app/frontend/Dockerfile` look like this:
+```
+# syntax = docker/dockerfile:1
+
+# Adjust NODE_VERSION as desired
+ARG NODE_VERSION=21.7.2
+FROM node:${NODE_VERSION}-slim as base
+
+LABEL fly_launch_runtime="Nuxt"
+
+# Nuxt app lives here
+WORKDIR /app
+
+# Set production environment
+ENV NODE_ENV="production"
+ENV HOST=0.0.0.0
+ENV PORT=3000
+
+# Install curl in the base image
+RUN apt-get update && apt-get install --no-install-recommends -y curl
+
+# Throw-away build stage to reduce size of final image
+FROM base as build
+
+# Install packages needed to build node modules
+RUN apt-get install --no-install-recommends -y build-essential node-gyp pkg-config python-is-python3
+
+# Install node modules
+COPY package-lock.json package.json ./
+RUN npm ci --include=dev
+
+# Copy application code
+COPY . .
+
+# Build application
+RUN npm run build
+
+# Remove development dependencies
+RUN npm prune --omit=dev
+
+# Final stage for app image
+FROM base
+
+# Copy built application
+COPY --from=build /app /app
+
+# Expose port and set start command
+EXPOSE 3000
+CMD [ "node", ".output/server/index.mjs" ]
+```
+- make `~/app/frontend/playwright.config.ts` look like this:
+```
+import { defineConfig, devices } from "@playwright/test";
+
+export default defineConfig({
+  testDir: "./spec/e2e",
+  outputDir: "./spec/e2e/videos",
+  use: { video: "on", baseURL: process.env.BASE_URL || 'http://localhost:3001' },
+  projects: [
+    { name: "chromium", use: { ...devices["Desktop Chrome"] } },
+    { name: "firefox", use: { ...devices["Desktop Firefox"] } },
+    { name: "webkit", use: { ...devices["Desktop Safari"] } },
+  ],
+});
+```
+- make `~/app/frontend/spec/e2e/homepage-functionality.spec.ts` look like this:
+```
+import { test, expect } from '@playwright/test';
+
+test('get started link', async ({ page }) => {
+  await page.goto('/')
+  await expect(page.getByRole('heading').filter({ hasText: 'There was a wall.'})).toBeVisible()
+  await expect(page.getByRole('heading').filter({ hasText: 'It did not look important.'})).toBeVisible()
+  await expect(page.getByRole('paragraph').filter({ hasText: '{"status":"OK"}'})).toBeVisible()
+  await expect(page.getByRole('link').filter({ hasText: 'Log in'})).toBeVisible()
+});
+```
+- `cd ~/app`
+- `docker-compose down -v --remove-orphans`
+- `docker-compose build --no-cache`
+- `docker-compose up -d db backend frontend`
+- `docker-compose run --rm playwright` <- tests should run, but are failing at the moment
 
 ### Initialize CircleCI (New One - Works)
 - `cd ~/app/frontend`
