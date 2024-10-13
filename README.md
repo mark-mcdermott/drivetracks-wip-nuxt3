@@ -722,7 +722,7 @@ workflows:
 - `git add .` 
 - `git commit -m "Add RSpec To CircleCI"`
 - `git push`
-
+- check your CircleCI project page <-- it should have started a build which will run RSpec and it should pass
 
 ## Frontend
 
