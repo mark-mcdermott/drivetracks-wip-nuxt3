@@ -62,6 +62,39 @@ AWS details:
   s3 bucket dev: 
   s3 bucket prod: 
 ```
+- `mkdir .circleci`
+- `touch .circleci/config.yml`
+- make `.circleci/config.yml` look like this:
+```
+version: 2.1
+
+jobs:
+  say-hello:
+    docker:
+      - image: cimg/base:current
+
+    steps:
+      - checkout
+      - run:
+          name: "Say hello"
+          command: "echo Hello, World!"
+
+workflows:
+  say-hello-workflow:
+    jobs:
+      - say-hello
+```
+- `git init`
+- `git add .`
+- `git commit -m "Init app"`
+- create an empty repo on github and note the git url (something like https://github.com/mark-mcdermott/ruxtmin-nuxt3.git)
+- `git remote add origin <git url>`
+- `git push origin main`
+- go to your CircleCI projects page (something like `https://app.circleci.com/projects/project-dashboard/github/mark-mcdermott/`)
+- next to repo name (`drivetracks-api`), click Set Up Project
+- click `Fastest` -> `main` -> `Set Up Project`
+
+
 
 ### Init On fly.io
 - We'll host our app on [Fly.io](https://fly.io). It's not free, but relatively cheap and is more headache-free than AWS for a toy app like this. We'll actually have two apps one fly.io, one for the backend and one for the frontend. And since we use postgres for the database, fly.io automatically will create a third fly.io app for that, but we don't have to mess with the fly.io database app much or think about it too much for now.
@@ -598,8 +631,6 @@ volumes:
 
 ### Initialize CircleCI
 - `cd ~/app`
-- `mkdir .circleci`
-- `touch .circleci/config.yml`
 - make `.circleci/config.yml` look like this:
 ```
 version: 2.1
@@ -693,9 +724,7 @@ workflows:
 - `git add .` 
 - `git commit -m "Add circleci"`
 - `git push`
-- go to `https://app.circleci.com/projects/project-dashboard/github/mark-mcdermott/`
-- next to repo name (`drivetracks-api`), click Set Up Project
-- click `Fastest` -> `main` -> `Set Up Project`
+
 
 ## Frontend
 
