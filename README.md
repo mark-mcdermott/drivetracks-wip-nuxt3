@@ -89,7 +89,7 @@ workflows:
 - `git commit -m "Init app"`
 - create an empty repo on github and note the git url (something like https://github.com/mark-mcdermott/ruxtmin-nuxt3.git)
 - `git remote add origin <git url>`
-- `git push origin main`
+- `git push --set-upstream origin main`
 - go to your CircleCI projects page (something like `https://app.circleci.com/projects/project-dashboard/github/mark-mcdermott/`)
 - next to repo name (`drivetracks-api`), click Set Up Project
 - click `Fastest` -> `main` -> `Set Up Project`
@@ -720,7 +720,7 @@ workflows:
       - rspec
 ```
 - `git add .` 
-- `git commit -m "Add circleci"`
+- `git commit -m "Add RSpec To CircleCI"`
 - `git push`
 
 
