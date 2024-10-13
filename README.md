@@ -94,8 +94,6 @@ workflows:
 - next to repo name (`drivetracks-api`), click Set Up Project
 - click `Fastest` -> `main` -> `Set Up Project`
 
-
-
 ### Init On fly.io
 - We'll host our app on [Fly.io](https://fly.io). It's not free, but relatively cheap and is more headache-free than AWS for a toy app like this. We'll actually have two apps one fly.io, one for the backend and one for the frontend. And since we use postgres for the database, fly.io automatically will create a third fly.io app for that, but we don't have to mess with the fly.io database app much or think about it too much for now.
 - make sure you have a [fly.io](https://fly.io) account and have the [fly.io CLI program](https://fly.io/docs/flyctl/install) installed. Follow their docs if you run into trouble, I haven't done those parts in awhile.
