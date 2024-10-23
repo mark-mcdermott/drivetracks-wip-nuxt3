@@ -906,6 +906,19 @@ export default defineNuxtConfig({
 - `npm run dev` -> "Hello World" in serif font Times New Roman
 - `^ + c`
 
+### Placeholder Playwright Test
+- `cd ~/app/frontend`
+- `touch spec/e2e/homepage-functionality.spec.ts`
+- make `~/app/frontend/spec/e2e/homepage-functionality.spec.ts` look like this:
+```
+import { test, expect } from '@playwright/test';
+
+test('get started link', async ({ page }) => {
+  await page.goto('http://localhost:3001')
+  await expect(page.getByRole('heading').filter({ hasText: 'Hello World'})).toBeVisible({ timeout: 30000 })
+});
+```
+
 ### Nuxt /pages Folder
 - Right now our app lives in `~/frontend/app.vue` and just says "Hello World". Nuxt can use a folder called `/pages` for any content pages and automatically creates urls for the based on their filenames. `/pages/index.vue` will be available at `/`, `pages/about.vue` will be available at `/about`, `pages/contact.vue` will be available at `/contact`, etc. Here we'll make our `/pages/index.vue` file and then to make the `/pages` folder work, we'll add `<NuxtPage />` to `app.vue` and remove the "Hello World" part from `app.vue`
 - `cd ~/app/frontend`
