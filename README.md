@@ -967,7 +967,6 @@ export default defineNuxtConfig({
 });
 ```
 
-### TODO: Here are placeholder tests for the new playwright setup
 - `cd ~/app/frontend`
 - `touch spec/e2e/homepage-functionality.spec.ts spec/e2e/homepage-screenshot.spec.ts`
 - make `~/app/frontend/spec/e2e/homepage-functionality.spec.ts` look like this:
@@ -982,6 +981,7 @@ test('Homepage body text', async ({ page }) => {
   await expect(page.getByTestId('hero-link-login').filter({ hasText: 'Log in'})).toBeVisible()
 });
 ```
+- TODO: Test this screenshot test
 - make `~/app/frontend/spec/e2e/homepage-screenshot.spec.ts` look like this:
 ```
 import { test, expect } from '@playwright/test';
@@ -1696,23 +1696,23 @@ it('can mount some component', async () => {
           <UiNavigationMenuList class="gap-2">
             <UiNavigationMenuItem>
               <UiNavigationMenuLink as-child>
-                <UiButton to="/" variant="ghost" size="sm">
+                <UiThingDataButtonWrapper data-testid="header-link-home" to="/" variant="ghost" size="sm">
                   Home
-                </UiButton>
+                </UiThingDataButtonWrapper>
               </UiNavigationMenuLink>
             </UiNavigationMenuItem>
             <UiNavigationMenuItem>
               <UiNavigationMenuLink as-child>
-                <UiButton to="/public" variant="ghost" size="sm">
+                <UiThingDataButtonWrapper data-testid="header-link-public" to="/public" variant="ghost" size="sm">
                   Public
-                </UiButton>
+                </UiThingDataButtonWrapper>
               </UiNavigationMenuLink>
             </UiNavigationMenuItem>
             <UiNavigationMenuItem>
               <UiNavigationMenuLink as-child>
-                <UiButton to="/private" variant="ghost" size="sm">
+                <UiThingDataButtonWrapper data-testid="header-link-private" to="/private" variant="ghost" size="sm">
                   Private
-                </UiButton>
+                </UiThingDataButtonWrapper>
               </UiNavigationMenuLink>
             </UiNavigationMenuItem>
           </UiNavigationMenuList>
@@ -1754,12 +1754,12 @@ it('can mount some component', async () => {
         </UiSheet>
       </div>
       <div class="header-login-nav hidden items-center gap-3 md:flex">
-        <UiButton to="/login" variant="ghost" size="sm">
+        <UiThingDataButtonWrapper data-testid="header-link-login" to="/login" variant="ghost" size="sm">
           Log in
-        </UiButton>
-        <UiButton to="/signup" size="sm">
+        </UiThingDataButtonWrapper>
+        <UiThingDataButtonWrapper data-testid="header-link-signup" to="/signup" variant="ghost" size="sm">
           Sign up
-        </UiButton>
+        </UiThingDataButtonWrapper>
       </div>
     </UiContainer>
   </header>
