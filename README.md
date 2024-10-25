@@ -1356,7 +1356,7 @@ export default defineConfig({
 - `docker-compose up -d db backend frontend`
 - `docker-compose run --rm playwright` <- playwright tests should pass
 
-### Initialize CircleCI
+### Add Playwright To CircleCI
 - `cd ~/app/frontend`
 - `npm install --save-dev wait-on`
 - `cd ~/app`
