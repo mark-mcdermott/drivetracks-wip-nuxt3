@@ -1248,6 +1248,9 @@ RUN npm ci
 # Copy the rest of your application code
 COPY . .
 
+# Install playwright
+RUN npx playwright install
+
 # Set the default command
 CMD ["npx", "playwright", "test"]
 ```
@@ -1448,7 +1451,7 @@ test('get started link', async ({ page }) => {
 - `docker-compose down -v --remove-orphans`
 - `docker-compose build --no-cache`
 - `docker-compose up -d db backend frontend`
-- `docker-compose run --rm playwright` <- tests should run, but are failing at the moment
+- `docker-compose run --rm playwright` <- playwright tests should pass
 
 ### Initialize CircleCI (New One - Works)
 - `cd ~/app/frontend`
