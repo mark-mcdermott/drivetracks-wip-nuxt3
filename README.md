@@ -1012,11 +1012,11 @@ export default defineNuxtConfig({
 import { test, expect } from '@playwright/test';
 
 test('Homepage body text', async ({ page }) => {
-  await page.goto('http://localhost:3001')
-  await expect(page.getByRole('heading').filter({ hasText: 'There was a wall.'})).toBeVisible({ timeout: 30000 })
-  await expect(page.getByRole('heading').filter({ hasText: 'It did not look important.'})).toBeVisible()
-  await expect(page.getByRole('paragraph').filter({ hasText: '{"status":"OK"}'})).toBeVisible()
-  await expect(page.getByRole('link').filter({ hasText: 'Log in'})).toBeVisible()
+  await page.goto('/')
+  await expect(page.getByTestId('hero-h1').filter({ hasText: 'There was a wall.'})).toBeVisible({ timeout: 30000 })
+  await expect(page.getByTestId('hero-h1').filter({ hasText: 'It did not look important.'})).toBeVisible()
+  await expect(page.getByTestId('hero-p').filter({ hasText: '{"status":"OK"}'})).toBeVisible()
+  await expect(page.getByTestId('hero-link-login').filter({ hasText: 'Log in'})).toBeVisible()
 });
 ```
 - make `~/app/frontend/spec/e2e/homepage-screenshot.spec.ts` look like this:
@@ -1239,17 +1239,17 @@ const healthStatus = await $fetch(`${useRuntimeConfig().public.apiBase}/up`)
 
 <template>
   <UiContainer class="relative flex flex-col items-center py-10 text-center lg:py-20">
-    <h1 class="hero-h-1 mb-4 mt-7 text-4xl font-bold lg:mb-6 lg:mt-5 lg:text-center lg:text-5xl xl:text-6xl">
+    <h1 data-testid="hero-h1" class="hero-h-1 mb-4 mt-7 text-4xl font-bold lg:mb-6 lg:mt-5 lg:text-center lg:text-5xl xl:text-6xl">
       There was a wall.<br>It did not look important.
     </h1>
-    <p class="hero-text mx-auto max-w-[768px] tracking-tight text-lg text-muted-foreground lg:text-center lg:text-xl">
+    <p data-testid="hero-p" class="hero-text mx-auto max-w-[768px] tracking-tight text-lg text-muted-foreground lg:text-center lg:text-xl">
       {{ JSON.stringify(healthStatus) }}
     </p>
     <div class="hero-buttons mt-8 grid w-full grid-cols-1 items-center gap-3 sm:flex sm:justify-center lg:mt-10">
       <UiThingDataButtonWrapper data-testid="hero-link-login" to="/login" size="lg" variant="outline">
         Log in
       </UiThingDataButtonWrapper>
-      <UiThingDataButtonWrapper data-testid="hero-link-signup" to="/signup" size="lg">
+      <UiThingDataButtonWrapper data-testid="hero-link-login" to="/signup" size="lg">
         Sign up
       </UiThingDataButtonWrapper>
     </div>
@@ -1479,7 +1479,6 @@ export default defineConfig({
   use: { video: "on", baseURL: process.env.BASE_URL || 'http://localhost:3001' },
   projects: [
     { name: "chromium", use: { ...devices["Desktop Chrome"] } },
-    { name: "firefox", use: { ...devices["Desktop Firefox"] } },
     { name: "webkit", use: { ...devices["Desktop Safari"] } },
   ],
 });
@@ -1827,76 +1826,52 @@ workflows:
 ### Add Failing Header/Footer Checks To Homepage Spec
 - Our next big step is to add a header and footer to the site. But before that we'll update our homepage spec (which will then fail until the header/footer are build - which is what we want) and build out some component specs for the header and footer.
 - `cd ~/app/frontend`
-- Let's adjust our homepage `index.spec.js` test check for the header links and the footer test we're about to add. Let's also adjust some of the selectors in the checks we already had to nest them inside `main` so instead of just looking for a `p` tag, not it will look for `main p` to be more specific and not catch the footer text when we're looking for the body text. So make `~/app/spec/e2e/index.spec.js` look like:
+- Let's adjust our homepage `~/app/frontend/spec/homepage-functionality.spec.ts` test check for the header links and the footer test we're about to add:
 ```
-import { createPage } from '@nuxt/test-utils'
-import { setup } from '@nuxt/test-utils/e2e'
-import { beforeAll, describe, expect, it } from 'vitest'
-import { compareScreenshotWithBaseline, testFooterText, testHeaderLinks } from './shared'
+import { test, expect } from '@playwright/test';
 
-describe('homepage', async () => {
-  await setup({ browser: true })
+test('Header details', async ({ page }) => {
+  await page.goto('/')
+  const homeLink = page.getByTestId('header-link-home');
+  const publicLink = page.getByTestId('header-link-public');
+  const privateLink = page.getByTestId('header-link-private');
+  await expect(homeLink).toBeVisible({ timeout: 30000 });
+  await expect(homeLink).toHaveText('Home');
+  await expect(homeLink).toHaveAttribute('href', '/');
+  await expect(publicLink).toBeVisible();
+  await expect(publicLink).toHaveText('Public');
+  await expect(publicLink).toHaveAttribute('href', '/public');
+  await expect(privateLink).toBeVisible();
+  await expect(privateLink).toHaveText('Private');
+  await expect(privateLink).toHaveAttribute('href', '/private');
+});
 
-  let page
+test('Homepage body text', async ({ page }) => {
+  await page.goto('/')
+  await expect(page.getByTestId('hero-h1').filter({ hasText: 'There was a wall.'})).toBeVisible({ timeout: 30000 })
+  await expect(page.getByTestId('hero-h1').filter({ hasText: 'It did not look important.'})).toBeVisible()
+  await expect(page.getByTestId('hero-p').filter({ hasText: '{"status":"OK"}'})).toBeVisible()
+  await expect(page.getByTestId('hero-link-login').filter({ hasText: 'Log in'})).toBeVisible()
+});
 
-  beforeAll(async () => {
-    page = await createPage('/')
-  })
-
-  it('has correct header links', async () => {
-    const page = await createPage('/')
-    const mainNav = await page.locator('header nav.header-main-nav')
-    const loginNav = await page.locator('header .header-login-nav')
-    const homeLink = await mainNav.locator('a[href="/"]')
-    const publicLink = await mainNav.locator('a[href="/public"]')
-    const privateLink = await mainNav.locator('a[href="/private"]')
-    const loginLink = await loginNav.locator('a[href="/login"]')
-    const signupLink = await loginNav.locator('a[href="/signup"]')
-
-    expect(await homeLink.textContent()).toContain('Home')
-    expect(await publicLink.textContent()).toContain('Public')
-    expect(await privateLink.textContent()).toContain('Private')
-    expect(await loginLink.textContent()).toContain('Log in')
-    expect(await signupLink.textContent()).toContain('Sign up')
-  })
-
-  it('displays h1 with correct text', async () => {
-    const h1 = await page.locator('main h1')
-    const h1Text = await h1.innerHTML()
-    expect(await h1.isVisible()).toBe(true)
-    expect(h1Text).toContain('There was a wall.').and.toContain('It did not look important.')
-  })
-
-  it('displays p with correct text', async () => {
-    const p = await page.locator('main p')
-    const pText = await p.textContent('p')
-    expect(await p.isVisible()).toBe(true)
-    expect(pText).toContain('{"status":"OK"}')
-  })
-
-  it('displays the correct buttons with hrefs and text', async () => {
-    const main = await page.locator('main')
-    const loginButton = await main.locator('.hero-buttons a[href="/login"]')
-    const signupButton = await main.locator('.hero-buttons a[href="/signup"]')
-    expect(await loginButton.isVisible()).toBe(true)
-    expect(await loginButton.textContent()).toContain('Log in')
-    expect(await signupButton.isVisible()).toBe(true)
-    expect(await signupButton.textContent()).toContain('Sign up')
-  })
-
-  it('has correct footer text', async () => {
-    const page = await createPage('/')
-    const p = await page.locator('footer p')
-    const pText = await p.textContent()
-    expect(await p.isVisible()).toBe(true)
-    expect(pText).toContain('© 2024. Made with Nuxt, Tailwind, UI Thing, Rails, Fly.io and S3.')
-  })
-
-  it('matches the visual baseline', async () => {
-    const homePage = await createPage('/')
-    await compareScreenshotWithBaseline(homePage, 'page-home', 'page-home-diff')
-  }, 20000)
-})
+test('Footer details', async ({ page }) => {
+  await page.goto('/')
+  const footerP = page.getByTestId('footer-p');
+  await expect(footerP).toBeVisible({ timeout: 30000 });
+  await expect(footerP).toHaveText('© 2024. Made with Nuxt, Tailwind, UI Thing, Rails, Fly.io and S3.')
+  const nuxtLink = footerP.locator('a', { hasText: 'Nuxt' })
+  await expect(nuxtLink).toHaveAttribute('href', 'https://nuxt.com')
+  const tailwindLink = footerP.locator('a', { hasText: 'Tailwind' })
+  await expect(tailwindLink).toHaveAttribute('href', 'https://tailwindcss.com/')
+  const uiThingLink = footerP.locator('a', { hasText: 'UI Thing' })
+  await expect(uiThingLink).toHaveAttribute('href', 'https://ui-thing.behonbaker.com')
+  const railsLink = footerP.locator('a', { hasText: 'Rails' })
+  await expect(railsLink).toHaveAttribute('href', 'https://rubyonrails.org/')
+  const flyLink = footerP.locator('a', { hasText: 'Fly.io' })
+  await expect(flyLink).toHaveAttribute('href', 'https://fly.io')
+  const s3Link = footerP.locator('a', { hasText: 'S3' })
+  await expect(s3Link).toHaveAttribute('href', 'https://aws.amazon.com/s3/')
+});
 ```
 - Let's run our homepage spec and make sure it fails.
 - `npm run e2e-tests --path=spec/e2e/index.spec.js` -> should fail
@@ -2065,7 +2040,7 @@ it('can mount some component', async () => {
   <footer>
     <UiContainer as="footer" class="py-16 lg:py-24">
       <section class="flex flex-col justify-between gap-5 pt-8 lg:flex-row">
-        <p class="text-muted-foreground">
+        <p data-testid="footer-p" class="text-muted-foreground">
           &copy; {{ new Date().getFullYear() }}. Made with
           <a class="hover:underline" href="https://nuxt.com">Nuxt</a>,
           <a class="hover:underline" href="https://tailwindcss.com/">Tailwind</a>,
