@@ -514,7 +514,7 @@ fi
 - `touch Dockerfile.backend`
 - make `~/app/backend/Dockerfile.backend look like this:`
 ```
-FROM ruby:3.2.2
+FROM ruby:3.3.0
 
 # Create a non-root user named circleci
 RUN useradd -m circleci
@@ -565,7 +565,7 @@ services:
     user: "${DOCKER_USER:-circleci}"
     build:
       context: ./backend
-      dockerfile: Dockerfile 
+      dockerfile: Dockerfile.backend
     image: backend_image
     environment:
       BACKEND_PATH: /app/backend
