@@ -913,7 +913,7 @@ export default defineNuxtConfig({
 ```
 import { test, expect } from '@playwright/test';
 
-test('get started link', async ({ page }) => {
+test('Homepage body text', async ({ page }) => {
   await page.goto('http://localhost:3001')
   await expect(page.getByRole('heading').filter({ hasText: 'Hello World'})).toBeVisible({ timeout: 30000 })
 });
@@ -1011,7 +1011,7 @@ export default defineNuxtConfig({
 ```
 import { test, expect } from '@playwright/test';
 
-test('get started link', async ({ page }) => {
+test('Homepage body text', async ({ page }) => {
   await page.goto('http://localhost:3001')
   await expect(page.getByRole('heading').filter({ hasText: 'There was a wall.'})).toBeVisible({ timeout: 30000 })
   await expect(page.getByRole('heading').filter({ hasText: 'It did not look important.'})).toBeVisible()
@@ -1439,7 +1439,7 @@ export default defineConfig({
 ```
 import { test, expect } from '@playwright/test';
 
-test('get started link', async ({ page }) => {
+test('Homepage body text', async ({ page }) => {
   await page.goto('/')
   await expect(page.getByRole('heading').filter({ hasText: 'There was a wall.'})).toBeVisible()
   await expect(page.getByRole('heading').filter({ hasText: 'It did not look important.'})).toBeVisible()
