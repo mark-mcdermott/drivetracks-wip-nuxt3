@@ -1637,10 +1637,7 @@ workflows:
 - `git add .` 
 - `git commit -m "Add circleci"`
 - `git push`
-- (if you check the circleci tests at this point, it will start a test here which will fail because there are no specs yet)
-- go to `https://app.circleci.com/projects/project-dashboard/github/mark-mcdermott/`
-- next to repo name (`drivetracks-api`), click Set Up Project
-- click `Fastest` -> `main` -> `Set Up Project`
+- check the project CircleCI dashboard - a test will run and both rspec and playwright should pass
 
 ### Initialize CircleCI (Old one - RSpec & Playwright but doesn't work)
 - `cd ~/app/frontend`
