@@ -988,9 +988,12 @@ import { promises as fs } from 'fs';
 import pixelmatch from 'pixelmatch';
 import { PNG } from 'pngjs';
 
+const targetPage = 'http://localhost:3001'
+const targetBrowser = 'chromium'
+
 test('homepage visual comparison', async ({ page, browserName }) => {
   await page.setViewportSize({ width: 1280, height: 720 });
-  await page.goto('http://localhost:3001');
+  await page.goto(targetPage);
   await page.waitForSelector('[data-testid="header-link-home"]');
 
   const screenshotPath = 'spec/e2e/screenshots/current/homepage.png';
@@ -1000,7 +1003,7 @@ test('homepage visual comparison', async ({ page, browserName }) => {
   const baselinePath = 'spec/e2e/screenshots/baseline/homepage.png';
   const baselineExists = await fs.access(baselinePath).then(() => true).catch(() => false);
 
-  if (!baselineExists && browserName === 'chromium') {
+  if (!baselineExists && browserName === targetBrowser) {
     console.log('Baseline image not found. Creating new baseline...');
     await fs.mkdir('spec/e2e/screenshots/baseline', { recursive: true });
     await fs.copyFile(screenshotPath, baselinePath);
