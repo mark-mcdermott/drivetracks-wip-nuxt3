@@ -1855,7 +1855,6 @@ services:
       timeout: 5s
       retries: 5
 
-
   rspec:
     image: backend_image
     environment:
