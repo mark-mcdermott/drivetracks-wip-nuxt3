@@ -1784,7 +1784,166 @@ it('can mount some component', async () => {
 - `npm run e2e-tests` -> homepage end-to-end test should also pass
 - `^ + c`
 
-### Refactor Homepage Spec - Move Header/Footer Checks Into Shared.js
+### Docker Component Test Setup
+- Now that we have vitest component unit tests, let's add them to docker.
+- `cd ~/app/frontend`
+- `touch Dockerfile.component-tests`
+- make `~/app/Dockerfile.component-tests` look like this:
+```
+FROM mcr.microsoft.com/playwright:v1.47.2-focal
+
+WORKDIR /app/frontend
+
+# Copy package.json and lock file
+COPY package.json package-lock.json ./
+
+# Install all dependencies including dev
+RUN npm ci --include=dev
+
+# Copy application code
+COPY . .
+
+# Set the command for component tests
+CMD ["npm", "run", "component-tests"]
+```
+- make `~/app/docker-compose.yml` look like this:
+```
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: backend_${RAILS_ENV:-development}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 20s
+      timeout: 10s
+      retries: 10
+
+  backend:
+    user: "${DOCKER_USER:-circleci}"
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.backend
+    image: backend_image
+    environment:
+      BACKEND_PATH: /app/backend
+      RAILS_ENV: ${RAILS_ENV:-development}
+      DATABASE_URL: "postgres://postgres:${POSTGRES_PASSWORD}@db:5432/backend_${RAILS_ENV:-development}"
+    volumes:
+      - ./backend:/app/backend
+    working_dir: /app/backend  # Align with WORKDIR in Dockerfile
+    ports:
+      - '3000:3000'
+    depends_on:
+      db:
+        condition: service_healthy
+    command: >
+      bash -c '
+        rm -f /app/backend/tmp/pids/server.pid &&
+        bundle exec rails db:prepare &&
+        bundle exec rails s -b 0.0.0.0 -p 3000
+      '
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3000/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+
+  rspec:
+    image: backend_image
+    environment:
+      RAILS_ENV: test
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      DATABASE_URL: "postgres://postgres:${POSTGRES_PASSWORD}@db:5432/backend_test"
+    volumes:
+      - bundle_data:/usr/local/bundle
+      - ./backend:/app/backend
+    working_dir: /app/backend
+    depends_on:
+      db:
+        condition: service_healthy
+    user: "${DOCKER_USER:-circleci}"
+    command: >
+      bash -c '
+        ./wait-for-it.sh db:5432 -- bundle exec rails db:drop db:create db:migrate &&
+        bundle exec rspec
+      '
+
+  frontend:
+    build:
+      context: ./frontend 
+      dockerfile: Dockerfile
+    working_dir: /app
+    ports:
+      - '3001:3000'
+    depends_on:
+      backend:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      API_URL: http://backend:3000
+      BASE_URL: http://frontend:3000
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3000/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  playwright:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.playwright
+    working_dir: /app/frontend
+    depends_on:
+      backend:
+        condition: service_started
+      frontend:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+    environment:
+      BASE_URL: http://frontend:3000
+      RAILS_ENV: test
+      DATABASE_URL: "postgres://postgres:${POSTGRES_PASSWORD}@db:5432/backend_test"
+      API_URL: http://backend:3000
+    command: npx playwright test
+
+  component-tests:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.component-tests
+    working_dir: /app/frontend
+    depends_on:
+      frontend:
+        condition: service_healthy
+    environment:
+      BASE_URL: http://frontend:3000
+    command: ["npm", "run", "component-tests"]
+
+volumes:
+  postgres_data:
+  bundle_data:
+  backend_data:
+    driver: local
+```
+
+Run Docker Component Tests
+cd ~/app
+docker compose down -v --remove-orphans
+docker volume ls
+docker compose build
+docker compose up -d frontend component-tests
+docker compose ps <- should see frontend and component-tests services running
+docker compose run --rm component-tests <-- should pass
+
+### Refactor Homepage Spec - Move Header/Footer E2E Tests Into Shared.js
 - The next big thing we'll do is build out some subpages at `/public` and `/private`. But first of course, we'll build out some end-to-end tests for our new pages. And even before that, since we'll use the same header link and footer text checks (that we wrote for the homepage spec) in our new public and private page specs, we'll refactor a little and move them into `shared.js` so we don't have to rewrite them all two more times.
 - `cd ~/app/frontend`
 - `touch spec/e2e/shared.js`
