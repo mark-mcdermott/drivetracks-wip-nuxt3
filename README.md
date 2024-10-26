@@ -1788,6 +1788,7 @@ it('can mount some component', async () => {
 ### Refactor Homepage Spec - Move Header/Footer Checks Into Shared.js
 - The next big thing we'll do is build out some subpages at `/public` and `/private`. But first of course, we'll build out some end-to-end tests for our new pages. And even before that, since we'll use the same header link and footer text checks (that we wrote for the homepage spec) in our new public and private page specs, we'll refactor a little and move them into `shared.js` so we don't have to rewrite them all two more times.
 - `cd ~/app/frontend`
+- `touch spec/e2e/shared.js`
 - make `~/app/frontend/spec/e2e/shared.js` look like this:
 ```
 import fs from 'node:fs'
