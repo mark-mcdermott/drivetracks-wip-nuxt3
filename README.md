@@ -797,6 +797,7 @@ export default antfu({
 - We'll be using [Playwright](https://playwright.dev) for end-to-end tests. As mentioned above, we won't be running Playwright as a vitest test runner. We'll just run Playwright directly as a standalone testing package. We'll also use pixelmatch for Playwright visual regression testing.
 - `cd ~/app/frontend`
 - `npm install @playwright/test pixelmatch playwright-expect`
+- `npx playwright install`
 - `touch playwright.config.ts`
 - make `~/app/frontend/playwright.config.ts` look like this:
 ```
