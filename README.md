@@ -789,8 +789,9 @@ export default antfu({
 - to `~/app/frontend/package.json` in the `scripts` section add:
 ```
     "vitest": "npx vitest",
+    "component-tests": "npx vitest run spec/components/*",
 ```
-- `npm run vitest` -> vitest should run (it will try to run the component tests, but there are no tests yet)
+- `npm run component-tests` -> vitest should run (it will try to run the component tests, but there are no tests yet)
 - `^ + c` -> to kill the server
 
 ### Playwright (End-To-End Tests)
@@ -1649,10 +1650,7 @@ it('can mount some component', async () => {
     )
 })
 ```
-- `npm run vitest spec/components/Header.nuxt.spec.js` -> should fail
-- `^ + c`
-- `npm run vitest spec/components/Footer.nuxt.spec.js` -> should fail
-- `^ + c`
+- `npm run component-tests -> header & footer tests should fail
 
 ### Header & Footer
 - Let's finally build out our header and footer components.
@@ -1782,7 +1780,8 @@ it('can mount some component', async () => {
 - `npm run front-and-back-dev`-> Should be our homepage from before, but now also with a header and footer section
 - `^ + c`
 - now that we've changed the way our homepage looks again, we'll have to delete our pixelmatch baseline homepage image, which is `~/app/frontend/spec/e2e/screenshots/baseline/page-home.png` so it will take a new baseline image screenshot to compare to going forward.
-- `npm run e2e-tests` -> header and footer component tests should pass and homepage end-to-end test should also pass
+- `npm run component-tests` -> header and footer component tests should pass
+- `npm run e2e-tests` -> homepage end-to-end test should also pass
 - `^ + c`
 
 ### Refactor Homepage Spec - Move Header/Footer Checks Into Shared.js
