@@ -980,7 +980,7 @@ test('Homepage body text', async ({ page }) => {
   await expect(page.getByTestId('hero-link-login').filter({ hasText: 'Log in'})).toBeVisible()
 });
 ```
-- TODO: Test this screenshot test
+
 - make `~/app/frontend/spec/e2e/homepage-screenshot.spec.ts` look like this:
 ```
 import { test, expect } from '@playwright/test';
@@ -988,26 +988,29 @@ import { promises as fs } from 'fs';
 import pixelmatch from 'pixelmatch';
 import { PNG } from 'pngjs';
 
-test('homepage visual comparison', async ({ page }) => {
-  // Navigate to the page
+test('homepage visual comparison', async ({ page, browserName }) => {
+  await page.setViewportSize({ width: 1280, height: 720 });
   await page.goto('http://localhost:3001');
+  await page.waitForSelector('[data-testid="header-link-home"]');
 
-  // Capture the current screenshot
   const screenshotPath = 'spec/e2e/screenshots/current/homepage.png';
+  await fs.mkdir('spec/e2e/screenshots/current', { recursive: true });
   await page.screenshot({ path: screenshotPath });
 
-  // Define the baseline path
   const baselinePath = 'spec/e2e/screenshots/baseline/homepage.png';
+  const baselineExists = await fs.access(baselinePath).then(() => true).catch(() => false);
 
-  // Check if the baseline image exists
-  try {
-    await fs.access(baselinePath);
+  if (!baselineExists && browserName === 'chromium') {
+    console.log('Baseline image not found. Creating new baseline...');
+    await fs.mkdir('spec/e2e/screenshots/baseline', { recursive: true });
+    await fs.copyFile(screenshotPath, baselinePath);
+    console.log('New baseline image created at:', baselinePath);
+  }
 
-    // Baseline exists, proceed with comparison
+  if (baselineExists) {
     const baselineImage = PNG.sync.read(await fs.readFile(baselinePath));
     const currentImage = PNG.sync.read(await fs.readFile(screenshotPath));
 
-    // Create a diff image
     const { width, height } = baselineImage;
     const diff = new PNG({ width, height });
     const pixelDiffCount = pixelmatch(
@@ -1019,21 +1022,14 @@ test('homepage visual comparison', async ({ page }) => {
       { threshold: 0.1 }
     );
 
-    // Save the diff image if there are differences
     if (pixelDiffCount > 0) {
       const diffPath = 'spec/e2e/screenshots/diff/homepage-diff.png';
+      await fs.mkdir('spec/e2e/screenshots/diff', { recursive: true });
       await fs.writeFile(diffPath, PNG.sync.write(diff));
       console.log(`Difference found! Diff image saved at ${diffPath}`);
     }
 
-    // Assert no differences
     expect(pixelDiffCount).toBe(0);
-
-  } catch (error) {
-    // Baseline does not exist, save current screenshot as the baseline
-    await fs.mkdir('spec/e2e/screenshots/baseline', { recursive: true });
-    await fs.copyFile(screenshotPath, baselinePath);
-    console.log('Baseline image not found. Created a new baseline image.');
   }
 });
 ```
