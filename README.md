@@ -989,7 +989,7 @@ import { promises as fs } from 'fs';
 import pixelmatch from 'pixelmatch';
 import { PNG } from 'pngjs';
 
-const targetPage = 'http://localhost:3001'
+const targetPage = process.env.DOCKER_ENV ? 'http://frontend:3000' : 'http://localhost:3001';
 const targetBrowser = 'chromium'
 
 test('homepage visual comparison', async ({ page, browserName }) => {
@@ -1273,6 +1273,7 @@ services:
         condition: service_healthy
     environment:
       BASE_URL: http://frontend:3000
+      DOCKER_ENV: true
       RAILS_ENV: test
       DATABASE_URL: "postgres://postgres:${POSTGRES_PASSWORD}@db:5432/backend_test"
       API_URL: http://backend:3000
@@ -1909,6 +1910,7 @@ services:
         condition: service_healthy
     environment:
       BASE_URL: http://frontend:3000
+      DOCKER_ENV: true
       RAILS_ENV: test
       DATABASE_URL: "postgres://postgres:${POSTGRES_PASSWORD}@db:5432/backend_test"
       API_URL: http://backend:3000
