@@ -1942,6 +1942,9 @@ docker compose up -d frontend component-tests
 docker compose ps <- should see frontend and component-tests services running
 docker compose run --rm component-tests <-- should pass
 
+### Add Component Tests To CircleCI
+- TODO!!!
+
 ### Refactor Homepage Spec - Move Header/Footer E2E Tests Into Shared.js
 - The next big thing we'll do is build out some subpages at `/public` and `/private`. But first of course, we'll build out some end-to-end tests for our new pages. And even before that, since we'll use the same header link and footer text checks (that we wrote for the homepage spec) in our new public and private page specs, we'll refactor a little and move them into `shared.js` so we don't have to rewrite them all two more times.
 - `cd ~/app/frontend`
