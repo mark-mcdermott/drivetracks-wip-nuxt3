@@ -1786,9 +1786,9 @@ it('can mount some component', async () => {
 
 ### Docker Component Test Setup
 - Now that we have vitest component unit tests, let's add them to docker.
-- `cd ~/app/frontend`
-- `touch Dockerfile.component-tests`
-- make `~/app/Dockerfile.component-tests` look like this:
+- `cd ~/app`
+- `touch frontend/Dockerfile.component-tests`
+- make `~/app/frontend/Dockerfile.component-tests` look like this:
 ```
 FROM mcr.microsoft.com/playwright:v1.47.2-focal
 
@@ -1919,9 +1919,6 @@ services:
       context: ./frontend
       dockerfile: Dockerfile.component-tests
     working_dir: /app/frontend
-    depends_on:
-      frontend:
-        condition: service_healthy
     environment:
       BASE_URL: http://frontend:3000
     command: ["npm", "run", "component-tests"]
@@ -1933,17 +1930,222 @@ volumes:
     driver: local
 ```
 
-Run Docker Component Tests
-cd ~/app
-docker compose down -v --remove-orphans
-docker volume ls
-docker compose build
-docker compose up -d frontend component-tests
-docker compose ps <- should see frontend and component-tests services running
-docker compose run --rm component-tests <-- should pass
+### Run Docker Component Tests
+- `cd ~/app`
+- `docker compose down -v --remove-orphans`
+- `docker volume ls`
+- `docker compose build`
+- `docker compose up -d frontend component-tests`
+- `docker compose ps` <- should see frontend and component-tests services running
+- `docker compose run --rm component-tests` <-- should pass
 
 ### Add Component Tests To CircleCI
-- TODO!!!
+- make `~/app/.circleci/config.yml` look like this:
+```
+version: 2.1
+
+executors:
+  ubuntu_machine_executor:
+    machine:
+      image: ubuntu-2004:current
+
+commands:
+  install_docker_compose:
+    steps:
+      - run:
+          name: Install Docker Compose
+          command: |
+            DOCKER_COMPOSE_VERSION=2.20.2
+            sudo curl -L "https://github.com/docker/compose/releases/download/v${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+            sudo chmod +x /usr/local/bin/docker-compose
+            docker-compose version
+
+  create_env_file:
+    steps:
+      - run:
+          name: Create .env File
+          command: |
+            echo "POSTGRES_PASSWORD=${POSTGRES_PASSWORD}" > backend/.env
+            echo "RAILS_ENV=test" >> backend/.env
+
+  ensure_permissions:
+    steps:
+      - run:
+          name: Ensure Permissions for Backend Files
+          command: |
+            chmod -R 777 backend/log
+            chmod -R 777 backend/tmp
+            chmod +x backend/wait-for-it.sh
+            touch backend/log/test.log
+            touch backend/tmp/local_secret.txt
+            chmod 666 backend/log/test.log
+            chmod 666 backend/tmp/local_secret.txt
+
+  build_backend_image:
+    steps:
+      - run:
+          name: Build Backend Image
+          command: docker build --no-cache -t backend_image -f backend/Dockerfile.backend backend
+
+jobs:
+  rspec:
+    executor: ubuntu_machine_executor
+    steps:
+      - checkout
+      - run:
+          name: Set Absolute Path for Backend Directory
+          command: |
+            export BACKEND_PATH=$(pwd)/backend
+            echo "export BACKEND_PATH=${BACKEND_PATH}" >> $BASH_ENV
+
+      - install_docker_compose
+      - create_env_file
+      - ensure_permissions
+      - build_backend_image
+
+      - run:
+          name: Adjust Backend Folder Permissions on Host
+          command: sudo chmod -R 777 /home/circleci/project/backend
+
+      - run:
+          name: Verify Permissions Inside Backend Container
+          command: |
+            docker-compose run --rm rspec bash -c 'ls -la /app/backend/log /app/backend/tmp'
+
+      - run:
+          name: Run RSpec Tests
+          command: |
+            cd backend
+            docker-compose up --no-build --abort-on-container-exit rspec
+
+      - store_test_results:
+          path: backend/tmp/rspec_results
+
+      - store_artifacts:
+          path: backend/log
+
+  playwright:
+    machine:
+      image: ubuntu-2004:current
+    steps:
+      - checkout
+
+      - run:
+          name: Set Absolute Path for Backend Directory
+          command: |
+            export BACKEND_PATH=$(pwd)/backend
+            echo "export BACKEND_PATH=${BACKEND_PATH}" >> $BASH_ENV
+
+      - run:
+          name: Install Docker Compose
+          command: |
+            DOCKER_COMPOSE_VERSION=2.20.2
+            sudo curl -L "https://github.com/docker/compose/releases/download/v${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+            sudo chmod +x /usr/local/bin/docker-compose
+            docker-compose version
+
+      - run:
+          name: Verify POSTGRES_PASSWORD
+          command: |
+            if [ -z "${POSTGRES_PASSWORD}" ]; then
+              echo "Error: POSTGRES_PASSWORD is not set."
+              exit 1
+            else
+              echo "POSTGRES_PASSWORD is set."
+            fi
+
+      - run:
+          name: Create .env File
+          command: |
+            echo "POSTGRES_PASSWORD=${POSTGRES_PASSWORD}" > backend/.env
+            echo "RAILS_ENV=test" >> backend/.env
+
+      - run:
+          name: Build Backend Image
+          command: |
+            docker build --no-cache -t backend_image -f backend/Dockerfile.backend backend
+
+      - run:
+          name: Ensure Executable Permissions on wait-for-it.sh
+          command: |
+            chmod +x backend/wait-for-it.sh
+
+      - run:
+          name: Create Log and Tmp Files
+          command: |
+            touch backend/log/test.log
+            touch backend/tmp/local_secret.txt
+            chmod 666 backend/log/test.log
+            chmod 666 backend/tmp/local_secret.txt
+
+      - run:
+          name: Ensure Permissions for Log and Tmp Directories
+          command: |
+            chmod -R 777 backend/log
+            chmod -R 777 backend/tmp
+
+      - run:
+          name: Adjust Backend Folder Permissions on Host
+          command: sudo chmod -R 777 /home/circleci/project/backend
+
+      - run:
+          name: Run Backend and Frontend Services
+          command: |
+            docker-compose up -d db backend frontend
+
+      - run:
+          name: Wait for Backend to be Ready
+          command: |
+            ./backend/wait-for-it.sh localhost:3000 -t 60 -- echo "Backend is ready"
+
+      - run:
+          name: Run Playwright Tests
+          command: |
+            docker-compose up --abort-on-container-exit playwright
+
+      - store_test_results:
+          path: frontend/test-results # Adjust this to your actual results path
+
+      - store_artifacts:
+          path: frontend/log # Adjust this to your actual log path
+
+  component-tests:
+    machine:
+      image: ubuntu-2004:current
+    steps:
+      - checkout
+
+      - run:
+          name: Install Docker Compose
+          command: |
+            DOCKER_COMPOSE_VERSION=2.20.2
+            sudo curl -L "https://github.com/docker/compose/releases/download/v${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+            sudo chmod +x /usr/local/bin/docker-compose
+            docker-compose version
+
+      - run:
+          name: Run Component Tests
+          command: |
+            docker-compose up --abort-on-container-exit component-tests
+
+      - store_test_results:
+          path: frontend/test-results
+
+      - store_artifacts:
+          path: frontend/log
+
+workflows:
+  version: 2
+  test:
+    jobs:
+      - rspec
+      - component-tests
+      - playwright
+```
+- `git add .`
+- `git commit -m "Add component tests to CircleCI"`
+- `git push`
+- check the CircleCI project dashboard and the `component-tests` job should pass
 
 ### Refactor Homepage Spec - Move Header/Footer E2E Tests Into Shared.js
 - The next big thing we'll do is build out some subpages at `/public` and `/private`. But first of course, we'll build out some end-to-end tests for our new pages. And even before that, since we'll use the same header link and footer text checks (that we wrote for the homepage spec) in our new public and private page specs, we'll refactor a little and move them into `shared.js` so we don't have to rewrite them all two more times.
