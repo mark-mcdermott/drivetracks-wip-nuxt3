@@ -620,12 +620,12 @@ volumes:
 
 ### Run Docker RSpec
 - `cd ~/app`
-- `docker-compose down -v --remove-orphans`
+- `docker compose down -v --remove-orphans`
 - `docker volume ls`
-- `docker-compose build`
-- `docker-compose up -d db backend`
-- `docker-compose ps` <- should see `db` and `backend` services running
-- `docker-compose run --rm rspec` <-- should pass
+- `docker compose build`
+- `docker compose up -d db backend`
+- `docker compose ps` <- should see `db` and `backend` services running
+- `docker compose run --rm rspec` <-- should pass
 
 ### Initialize CircleCI
 - `cd ~/app`
@@ -647,7 +647,7 @@ commands:
             DOCKER_COMPOSE_VERSION=2.20.2
             sudo curl -L "https://github.com/docker/compose/releases/download/v${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
             sudo chmod +x /usr/local/bin/docker-compose
-            docker-compose version
+            docker compose version
 
   create_env_file:
     steps:
@@ -699,13 +699,13 @@ jobs:
       - run:
           name: Verify Permissions Inside Backend Container
           command: |
-            docker-compose run --rm rspec bash -c 'ls -la /app/backend/log /app/backend/tmp'
+            docker compose run --rm rspec bash -c 'ls -la /app/backend/log /app/backend/tmp'
 
       - run:
           name: Run RSpec Tests
           command: |
             cd backend
-            docker-compose up --no-build --abort-on-container-exit rspec
+            docker compose up --no-build --abort-on-container-exit rspec
 
       - store_test_results:
           path: backend/tmp/rspec_results
@@ -1348,10 +1348,10 @@ export default defineConfig({
 });
 ```
 - `cd ~/app`
-- `docker-compose down -v --remove-orphans`
-- `docker-compose build --no-cache`
-- `docker-compose up -d db backend frontend`
-- `docker-compose run --rm playwright` <- playwright tests should pass
+- `docker compose down -v --remove-orphans`
+- `docker compose build --no-cache`
+- `docker compose up -d db backend frontend`
+- `docker compose run --rm playwright` <- playwright tests should pass
 
 ### Add Playwright To CircleCI
 - `cd ~/app/frontend`
@@ -1375,7 +1375,7 @@ commands:
             DOCKER_COMPOSE_VERSION=2.20.2
             sudo curl -L "https://github.com/docker/compose/releases/download/v${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
             sudo chmod +x /usr/local/bin/docker-compose
-            docker-compose version
+            docker compose version
 
   create_env_file:
     steps:
@@ -1427,13 +1427,13 @@ jobs:
       - run:
           name: Verify Permissions Inside Backend Container
           command: |
-            docker-compose run --rm rspec bash -c 'ls -la /app/backend/log /app/backend/tmp'
+            docker compose run --rm rspec bash -c 'ls -la /app/backend/log /app/backend/tmp'
 
       - run:
           name: Run RSpec Tests
           command: |
             cd backend
-            docker-compose up --no-build --abort-on-container-exit rspec
+            docker compose up --no-build --abort-on-container-exit rspec
 
       - store_test_results:
           path: backend/tmp/rspec_results
@@ -1459,7 +1459,7 @@ jobs:
           DOCKER_COMPOSE_VERSION=2.20.2
           sudo curl -L "https://github.com/docker/compose/releases/download/v${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
           sudo chmod +x /usr/local/bin/docker-compose
-          docker-compose version
+          docker compose version
 
     - run:
         name: Verify POSTGRES_PASSWORD
@@ -1508,7 +1508,7 @@ jobs:
     - run:
         name: Run Backend and Frontend Services
         command: |
-          docker-compose up -d db backend frontend
+          docker compose up -d db backend frontend
 
     - run:
         name: Wait for Backend to be Ready
@@ -1518,7 +1518,7 @@ jobs:
     - run:
         name: Run Playwright Tests
         command: |
-          docker-compose up --abort-on-container-exit playwright
+          docker compose up --abort-on-container-exit playwright
 
     - store_test_results:
         path: frontend/test-results  # Adjust this to your actual results path
