@@ -991,6 +991,13 @@ import { PNG } from 'pngjs';
 
 const targetPage = process.env.DOCKER_ENV ? 'http://frontend:3000' : 'http://localhost:3001';
 const targetBrowser = 'chromium'
+const baselineDir = process.env.CI
+  ? 'spec/e2e/screenshots/baseline/ci'
+  : process.env.DOCKER_ENV
+  ? 'spec/e2e/screenshots/baseline/docker'
+  : 'spec/e2e/screenshots/baseline/local'
+
+const baselinePath = `${baselineDir}/homepage.png`
 
 test('homepage visual comparison', async ({ page, browserName }) => {
   await page.setViewportSize({ width: 1280, height: 720 });
@@ -1001,12 +1008,12 @@ test('homepage visual comparison', async ({ page, browserName }) => {
   await fs.mkdir('spec/e2e/screenshots/current', { recursive: true });
   await page.screenshot({ path: screenshotPath });
 
-  const baselinePath = 'spec/e2e/screenshots/baseline/homepage.png';
+  // Check if baseline exists in the specific directory
   const baselineExists = await fs.access(baselinePath).then(() => true).catch(() => false);
 
   if (!baselineExists && browserName === targetBrowser) {
     console.log('Baseline image not found. Creating new baseline...');
-    await fs.mkdir('spec/e2e/screenshots/baseline', { recursive: true });
+    await fs.mkdir(baselineDir, { recursive: true });
     await fs.copyFile(screenshotPath, baselinePath);
     console.log('New baseline image created at:', baselinePath);
   }
@@ -1274,10 +1281,13 @@ services:
     environment:
       BASE_URL: http://frontend:3000
       DOCKER_ENV: true
+      CI: true 
       RAILS_ENV: test
       DATABASE_URL: "postgres://postgres:${POSTGRES_PASSWORD}@db:5432/backend_test"
       API_URL: http://backend:3000
     command: npx playwright test
+    volumes:
+      - ./frontend/spec/e2e/screenshots/baseline:/app/frontend/spec/e2e/screenshots/baseline
 
 
 volumes:
@@ -1445,87 +1455,91 @@ jobs:
   playwright:
     machine:
       image: ubuntu-2004:current
+    environment:
+      CI: true
     steps:
-    - checkout
+      - checkout
 
-    - run:
-        name: Set Absolute Path for Backend Directory
-        command: |
-          export BACKEND_PATH=$(pwd)/backend
-          echo "export BACKEND_PATH=${BACKEND_PATH}" >> $BASH_ENV
+      - run:
+          name: Unset DOCKER_ENV for CI
+          command: unset DOCKER_ENV
 
-    - run:
-        name: Install Docker Compose
-        command: |
-          DOCKER_COMPOSE_VERSION=2.20.2
-          sudo curl -L "https://github.com/docker/compose/releases/download/v${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-          sudo chmod +x /usr/local/bin/docker-compose
-          docker compose version
+      - run:
+          name: Set Absolute Path for Backend Directory
+          command: |
+            export BACKEND_PATH=$(pwd)/backend
+            echo "export BACKEND_PATH=${BACKEND_PATH}" >> $BASH_ENV
 
-    - run:
-        name: Verify POSTGRES_PASSWORD
-        command: |
-          if [ -z "${POSTGRES_PASSWORD}" ]; then
-            echo "Error: POSTGRES_PASSWORD is not set."
-            exit 1
-          else
-            echo "POSTGRES_PASSWORD is set."
-          fi
+      - run:
+          name: Install Docker Compose
+          command: |
+            DOCKER_COMPOSE_VERSION=2.20.2
+            sudo curl -L "https://github.com/docker/compose/releases/download/v${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+            sudo chmod +x /usr/local/bin/docker-compose
+            docker-compose version
 
-    - run:
-        name: Create .env File
-        command: |
-          echo "POSTGRES_PASSWORD=${POSTGRES_PASSWORD}" > backend/.env
-          echo "RAILS_ENV=test" >> backend/.env
+      - run:
+          name: Verify POSTGRES_PASSWORD
+          command: |
+            if [ -z "${POSTGRES_PASSWORD}" ]; then
+              echo "Error: POSTGRES_PASSWORD is not set."
+              exit 1
+            else
+              echo "POSTGRES_PASSWORD is set."
+            fi
 
-    - run:
-        name: Build Backend Image
-        command: |
-          docker build --no-cache -t backend_image -f backend/Dockerfile.backend backend
+      - run:
+          name: Create .env File
+          command: |
+            echo "POSTGRES_PASSWORD=${POSTGRES_PASSWORD}" > backend/.env
+            echo "RAILS_ENV=test" >> backend/.env
 
-    - run:
-        name: Ensure Executable Permissions on wait-for-it.sh
-        command: |
-          chmod +x backend/wait-for-it.sh
+      - run:
+          name: Build Backend Image
+          command: |
+            docker build --no-cache -t backend_image -f backend/Dockerfile.backend backend
 
-    - run:
-        name: Create Log and Tmp Files
-        command: |
-          touch backend/log/test.log
-          touch backend/tmp/local_secret.txt
-          chmod 666 backend/log/test.log
-          chmod 666 backend/tmp/local_secret.txt
+      - run:
+          name: Ensure Executable Permissions on wait-for-it.sh
+          command: |
+            chmod +x backend/wait-for-it.sh
 
-    - run:
-        name: Ensure Permissions for Log and Tmp Directories
-        command: |
-          chmod -R 777 backend/log
-          chmod -R 777 backend/tmp
+      - run:
+          name: Create Log and Tmp Files
+          command: |
+            touch backend/log/test.log
+            touch backend/tmp/local_secret.txt
+            chmod 666 backend/log/test.log
+            chmod 666 backend/tmp/local_secret.txt
 
-    - run:
-        name: Adjust Backend Folder Permissions on Host
-        command: sudo chmod -R 777 /home/circleci/project/backend
+      - run:
+          name: Ensure Permissions for Log and Tmp Directories
+          command: |
+            chmod -R 777 backend/log
+            chmod -R 777 backend/tmp
 
-    - run:
-        name: Run Backend and Frontend Services
-        command: |
-          docker compose up -d db backend frontend
+      - run:
+          name: Adjust Backend Folder Permissions on Host
+          command: sudo chmod -R 777 /home/circleci/project/backend
 
-    - run:
-        name: Wait for Backend to be Ready
-        command: |
-          ./backend/wait-for-it.sh localhost:3000 -t 60 -- echo "Backend is ready"
+      - run:
+          name: Run Backend and Frontend Services
+          command: |
+            docker-compose up -d db backend frontend
 
-    - run:
-        name: Run Playwright Tests
-        command: |
-          docker compose up --abort-on-container-exit playwright
+      - run:
+          name: Wait for Backend to be Ready
+          command: |
+            ./backend/wait-for-it.sh localhost:3000 -t 60 -- echo "Backend is ready"
 
-    - store_test_results:
-        path: frontend/test-results  # Adjust this to your actual results path
+      - run:
+          name: Run Playwright Tests
+          command: |
+            docker-compose up --abort-on-container-exit playwright
 
-    - store_artifacts:
-        path: frontend/log  # Adjust this to your actual log path
+      - store_artifacts:
+          path: frontend/spec/e2e/screenshots/baseline
+          destination: baseline_images
 
 
 workflows:
@@ -2029,8 +2043,14 @@ jobs:
   playwright:
     machine:
       image: ubuntu-2004:current
+    environment:
+      CI: true
     steps:
       - checkout
+
+      - run:
+          name: Unset DOCKER_ENV for CI
+          command: unset DOCKER_ENV
 
       - run:
           name: Set Absolute Path for Backend Directory
@@ -2105,11 +2125,9 @@ jobs:
           command: |
             docker-compose up --abort-on-container-exit playwright
 
-      - store_test_results:
-          path: frontend/test-results # Adjust this to your actual results path
-
       - store_artifacts:
-          path: frontend/log # Adjust this to your actual log path
+          path: frontend/spec/e2e/screenshots/baseline
+          destination: baseline_images
 
   component-tests:
     machine:
@@ -2155,126 +2173,140 @@ workflows:
 - `touch spec/e2e/shared.js`
 - make `~/app/frontend/spec/e2e/shared.js` look like this:
 ```
-import fs from 'node:fs'
-import path from 'node:path'
-import pixelmatch from 'pixelmatch'
-import { PNG } from 'pngjs'
-import { expect } from 'vitest'
+import { promises as fs } from 'fs';
+import pixelmatch from 'pixelmatch';
+import { PNG } from 'pngjs';
 
-export async function testHeaderLinks(page) {
-  const mainNav = await page.locator('header nav.header-main-nav')
-  const loginNav = await page.locator('header .header-login-nav')
-  const homeLink = await mainNav.locator('a[href="/"]')
-  const publicLink = await mainNav.locator('a[href="/public"]')
-  const privateLink = await mainNav.locator('a[href="/private"]')
-  const loginLink = await loginNav.locator('a[href="/login"]')
-  const signupLink = await loginNav.locator('a[href="/signup"]')
+// Sets baseline directory based on environment
+const getBaselineDir = () => {
+  if (process.env.CI) return 'spec/e2e/screenshots/baseline/ci';
+  if (process.env.DOCKER_ENV) return 'spec/e2e/screenshots/baseline/docker';
+  return 'spec/e2e/screenshots/baseline/local';
+};
 
-  expect(await homeLink.textContent()).toContain('Home')
-  expect(await publicLink.textContent()).toContain('Public')
-  expect(await privateLink.textContent()).toContain('Private')
-  expect(await loginLink.textContent()).toContain('Log in')
-  expect(await signupLink.textContent()).toContain('Sign up')
-}
+// Main function to compare screenshots
+export async function compareScreenshot(page, testName, { browserName = 'chromium' }) {
+  const targetPage = process.env.DOCKER_ENV ? 'http://frontend:3000' : 'http://localhost:3001';
+  const baselineDir = getBaselineDir();
+  const baselinePath = `${baselineDir}/${testName}.png`;
+  const screenshotPath = `spec/e2e/screenshots/current/${testName}.png`;
 
-export async function testFooterText(page) {
-  const p = await page.locator('footer p')
-  const pText = await p.textContent()
-  expect(await p.isVisible()).toBe(true)
-  expect(pText).toContain('© 2024. Made with Nuxt, Tailwind, UI Thing, Rails, Fly.io and S3.')
-}
+  await page.setViewportSize({ width: 1280, height: 720 });
+  await page.goto(targetPage);
+  await page.waitForSelector('[data-testid="header-link-home"]');
 
-export async function compareScreenshotWithBaseline(page, baselineName, diffName) {
-  // Capture the screenshot
-  const screenshotPath = path.resolve(__dirname, 'screenshots', 'current', `${baselineName}.png`)
-  await page.screenshot({ path: screenshotPath, fullPage: true })
+  await fs.mkdir('spec/e2e/screenshots/current', { recursive: true });
+  await page.screenshot({ path: screenshotPath });
 
-  // Load baseline image
-  const baselinePath = path.resolve(__dirname, 'screenshots', 'baseline', `${baselineName}.png`)
-  if (!fs.existsSync(baselinePath)) {
-    console.warn(`Baseline image not found for ${baselineName}, saving current screenshot as baseline.`)
-    fs.mkdirSync(path.dirname(baselinePath), { recursive: true })
-    fs.copyFileSync(screenshotPath, baselinePath)
-    return
+  const baselineExists = await fs.access(baselinePath).then(() => true).catch(() => false);
+
+  // Create baseline if not found
+  if (!baselineExists && browserName === 'chromium') {
+    console.log('Baseline image not found. Creating new baseline...');
+    await fs.mkdir(baselineDir, { recursive: true });
+    await fs.copyFile(screenshotPath, baselinePath);
+    console.log('New baseline image created at:', baselinePath);
   }
 
-  const baselineImg = PNG.sync.read(fs.readFileSync(baselinePath))
-  const currentImg = PNG.sync.read(fs.readFileSync(screenshotPath))
+  if (baselineExists) {
+    const baselineImage = PNG.sync.read(await fs.readFile(baselinePath));
+    const currentImage = PNG.sync.read(await fs.readFile(screenshotPath));
 
-  // Compare the images
-  const { width, height } = baselineImg
-  const diff = new PNG({ width, height })
-  const numDiffPixels = pixelmatch(baselineImg.data, currentImg.data, diff.data, width, height, { threshold: 0.1 })
+    const { width, height } = baselineImage;
+    const diff = new PNG({ width, height });
+    const pixelDiffCount = pixelmatch(
+      baselineImage.data,
+      currentImage.data,
+      diff.data,
+      width,
+      height,
+      { threshold: 0.1 }
+    );
 
-  // If images don't match, save the diff
-  if (numDiffPixels > 0) {
-    const diffPath = path.resolve(__dirname, 'screenshots', 'diff', `${diffName}.png`)
-    fs.mkdirSync(path.dirname(diffPath), { recursive: true })
-    fs.writeFileSync(diffPath, PNG.sync.write(diff))
+    if (pixelDiffCount > 0) {
+      const diffPath = `spec/e2e/screenshots/diff/${testName}-diff.png`;
+      await fs.mkdir('spec/e2e/screenshots/diff', { recursive: true });
+      await fs.writeFile(diffPath, PNG.sync.write(diff));
+      console.log(`Difference found! Diff image saved at ${diffPath}`);
+    }
+
+    return pixelDiffCount;
   }
 
-  // Assert that the number of different pixels is within the acceptable threshold
-  expect(numDiffPixels).toBe(0)
+  return 0;
 }
+
+// Header details verification
+export async function verifyHeaderDetails(page, expect) {
+  const homeLink = page.getByTestId('header-link-home');
+  const publicLink = page.getByTestId('header-link-public');
+  const privateLink = page.getByTestId('header-link-private');
+
+  await expect(homeLink).toBeVisible({ timeout: 30000 });
+  await expect(homeLink).toHaveText('Home');
+  await expect(homeLink).toHaveAttribute('href', '/');
+  await expect(publicLink).toBeVisible();
+  await expect(publicLink).toHaveText('Public');
+  await expect(publicLink).toHaveAttribute('href', '/public');
+  await expect(privateLink).toBeVisible();
+  await expect(privateLink).toHaveText('Private');
+  await expect(privateLink).toHaveAttribute('href', '/private');
+}
+
+// Footer details verification
+export async function verifyFooterDetails(page, expect) {
+  const footerP = page.getByTestId('footer-p');
+  await expect(footerP).toBeVisible({ timeout: 30000 });
+  await expect(footerP).toHaveText('© 2024. Made with Nuxt, Tailwind, UI Thing, Rails, Fly.io and S3.');
+
+  const nuxtLink = footerP.locator('a', { hasText: 'Nuxt' });
+  await expect(nuxtLink).toHaveAttribute('href', 'https://nuxt.com');
+  const tailwindLink = footerP.locator('a', { hasText: 'Tailwind' });
+  await expect(tailwindLink).toHaveAttribute('href', 'https://tailwindcss.com/');
+  const uiThingLink = footerP.locator('a', { hasText: 'UI Thing' });
+  await expect(uiThingLink).toHaveAttribute('href', 'https://ui-thing.behonbaker.com');
+  const railsLink = footerP.locator('a', { hasText: 'Rails' });
+  await expect(railsLink).toHaveAttribute('href', 'https://rubyonrails.org/');
+  const flyLink = footerP.locator('a', { hasText: 'Fly.io' });
+  await expect(flyLink).toHaveAttribute('href', 'https://fly.io');
+  const s3Link = footerP.locator('a', { hasText: 'S3' });
+  await expect(s3Link).toHaveAttribute('href', 'https://aws.amazon.com/s3/');
+}
+
 ```
-- Now we'll adjust out homepage `index.spec.js` test to pull the header/footer tests from `shared.js`.
-- make `~/app/frontend/spec/e2e/index.spec.js` look like this:
+- Now we'll refactor `~/app/frontend/spec/e2e/homepage-screenshot.spec.ts` to call `shared.js`:
 ```
-import { createPage } from '@nuxt/test-utils'
-import { setup } from '@nuxt/test-utils/e2e'
-import { beforeAll, describe, expect, it } from 'vitest'
-import { compareScreenshotWithBaseline, testFooterText, testHeaderLinks } from './shared'
+// homepage-screenshot.spec.ts
+import { test, expect } from '@playwright/test';
+import { compareScreenshot } from './shared';
 
-describe('homepage', async () => {
-  await setup({ browser: true })
+test('homepage visual comparison', async ({ page, browserName }) => {
+  const pixelDiffCount = await compareScreenshot(page, 'homepage', { browserName });
+  expect(pixelDiffCount).toBe(0);
+});
+```
+- Now we'll adjust our homepage spec `~/app/frontend/spec/e2e/homepage-functionality`, too:
+```
+import { test, expect } from '@playwright/test';
+import { verifyHeaderDetails, verifyFooterDetails } from './shared';
 
-  let page
+test('Header details', async ({ page }) => {
+  await page.goto('/');
+  await verifyHeaderDetails(page, expect);
+});
 
-  beforeAll(async () => {
-    page = await createPage('/')
-  })
+test('Homepage body text', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByTestId('hero-h1').filter({ hasText: 'There was a wall.' })).toBeVisible({ timeout: 30000 });
+  await expect(page.getByTestId('hero-h1').filter({ hasText: 'It did not look important.' })).toBeVisible();
+  await expect(page.getByTestId('hero-p').filter({ hasText: '{"status":"OK"}' })).toBeVisible();
+  await expect(page.getByTestId('hero-link-login').filter({ hasText: 'Log in' })).toBeVisible();
+});
 
-  it('has correct header links', async () => {
-    const page = await createPage('/')
-    testHeaderLinks(page)
-  })
-
-  it('displays h1 with correct text', async () => {
-    const page = await createPage('/')
-    const h1 = await page.locator('main h1')
-    const h1Text = await h1.innerHTML()
-    expect(await h1.isVisible()).toBe(true)
-    expect(h1Text).toContain('There was a wall.').and.toContain('It did not look important.')
-  })
-
-  it('displays p with correct text', async () => {
-    const p = await page.locator('main p')
-    const pText = await p.textContent('p')
-    expect(await p.isVisible()).toBe(true)
-    expect(pText).toContain('{"status":"OK"}')
-  })
-
-  it('displays the correct buttons with hrefs and text', async () => {
-    const homePage = await createPage('/')
-    const main = await homePage.locator('main')
-    const loginButton = await main.locator('.hero-buttons a[href="/login"]')
-    const signupButton = await main.locator('.hero-buttons a[href="/signup"]')
-    expect(await loginButton.isVisible()).toBe(true)
-    expect(await loginButton.textContent()).toContain('Log in')
-    expect(await signupButton.isVisible()).toBe(true)
-    expect(await signupButton.textContent()).toContain('Sign up')
-  })
-
-  it('has correct footer text', async () => {
-    const page = await createPage('/')
-    testFooterText(page)
-  })
-
-  it('matches the visual baseline', async () => {
-    const homePage = await createPage('/')
-    await compareScreenshotWithBaseline(homePage, 'page-home', 'page-home-diff')
-  }, 20000)
-})
+test('Footer details', async ({ page }) => {
+  await page.goto('/');
+  await verifyFooterDetails(page, expect);
+});
 ```
 - Before we do anything else, let's rerun our homepage spec to make sure we didn't break it in the refactor.
 - `npm run e2e-tests --path=spec/e2e/index.spec.js` -> should pass
