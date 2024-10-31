@@ -647,7 +647,7 @@ commands:
             DOCKER_COMPOSE_VERSION=2.20.2
             sudo curl -L "https://github.com/docker/compose/releases/download/v${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
             sudo chmod +x /usr/local/bin/docker-compose
-            docker compose version
+            docker-compose version
 
   create_env_file:
     steps:
@@ -699,13 +699,13 @@ jobs:
       - run:
           name: Verify Permissions Inside Backend Container
           command: |
-            docker compose run --rm rspec bash -c 'ls -la /app/backend/log /app/backend/tmp'
+            docker-compose run --rm rspec bash -c 'ls -la /app/backend/log /app/backend/tmp'
 
       - run:
           name: Run RSpec Tests
           command: |
             cd backend
-            docker compose up --no-build --abort-on-container-exit rspec
+            docker-compose up --no-build --abort-on-container-exit rspec
 
       - store_test_results:
           path: backend/tmp/rspec_results
@@ -871,8 +871,8 @@ export default defineNuxtConfig({
 
 ### Placeholder Playwright Test
 - `cd ~/app/frontend`
-- `touch spec/e2e/homepage-functionality.spec.ts`
-- make `~/app/frontend/spec/e2e/homepage-functionality.spec.ts` look like this:
+- `touch spec/e2e/home.spec.ts`
+- make `~/app/frontend/spec/e2e/home.spec.ts` look like this:
 ```
 import { test, expect } from '@playwright/test';
 
@@ -967,51 +967,40 @@ export default defineNuxtConfig({
 });
 ```
 
+### Playwright Spec For Non-Hello-World Homepage
+- Before we make our non-hello-world homepage, let's write our playwright spec for it. We'll break this into two files, a `shared.js` (which will contain the test logic used for the header, footer and screenshot tests, which will be called from several tests) and `home.spec.js`, which will call `shared.js` at some points.
 - `cd ~/app/frontend`
-- `touch spec/e2e/homepage-functionality.spec.ts spec/e2e/homepage-screenshot.spec.ts`
-- make `~/app/frontend/spec/e2e/homepage-functionality.spec.ts` look like this:
+- `touch spec/e2e/shared.js`
+- make `~/app/frontend/spec/e2e/shared.js` look like this:
 ```
-import { test, expect } from '@playwright/test';
-
-test('Homepage body text', async ({ page }) => {
-  await page.goto('/')
-  await expect(page.getByTestId('hero-h1').filter({ hasText: 'There was a wall.'})).toBeVisible({ timeout: 30000 })
-  await expect(page.getByTestId('hero-h1').filter({ hasText: 'It did not look important.'})).toBeVisible()
-  await expect(page.getByTestId('hero-p').filter({ hasText: '{"status":"OK"}'})).toBeVisible()
-  await expect(page.getByTestId('hero-link-login').filter({ hasText: 'Log in'})).toBeVisible()
-});
-```
-
-- make `~/app/frontend/spec/e2e/homepage-screenshot.spec.ts` look like this:
-```
-import { test, expect } from '@playwright/test';
+// shared.js
 import { promises as fs } from 'fs';
 import pixelmatch from 'pixelmatch';
 import { PNG } from 'pngjs';
 
-const targetPage = process.env.DOCKER_ENV ? 'http://frontend:3000' : 'http://localhost:3001';
-const targetBrowser = 'chromium'
-const baselineDir = process.env.CI
-  ? 'spec/e2e/screenshots/baseline/ci'
-  : process.env.DOCKER_ENV
-  ? 'spec/e2e/screenshots/baseline/docker'
-  : 'spec/e2e/screenshots/baseline/local'
+// Sets baseline directory based on environment
+const getBaselineDir = () => {
+  console.log(`CI: ${process.env.CI}, DOCKER_ENV: ${process.env.DOCKER_ENV}`);
+  if (process.env.CI) return 'spec/e2e/screenshots/baseline/ci';
+  if (process.env.DOCKER_ENV) return 'spec/e2e/screenshots/baseline/docker';
+  return 'spec/e2e/screenshots/baseline/local';
+};
 
-const baselinePath = `${baselineDir}/homepage.png`
+// Main function to compare screenshots, accepting a dynamic URL
+export async function compareScreenshot(page, testName, { browserName = 'chromium', targetUrl }) {
+  const baselineDir = getBaselineDir();
+  const baselinePath = `${baselineDir}/${testName}.png`;
+  const screenshotPath = `spec/e2e/screenshots/current/${testName}.png`;
 
-test('homepage visual comparison', async ({ page, browserName }) => {
   await page.setViewportSize({ width: 1280, height: 720 });
-  await page.goto(targetPage);
-  await page.waitForSelector('[data-testid="header-link-home"]');
-
-  const screenshotPath = 'spec/e2e/screenshots/current/homepage.png';
+  await page.goto(targetUrl); // Use the provided target URL
   await fs.mkdir('spec/e2e/screenshots/current', { recursive: true });
   await page.screenshot({ path: screenshotPath });
 
-  // Check if baseline exists in the specific directory
   const baselineExists = await fs.access(baselinePath).then(() => true).catch(() => false);
 
-  if (!baselineExists && browserName === targetBrowser) {
+  // Create baseline if not found
+  if (!baselineExists && browserName === 'chromium') {
     console.log('Baseline image not found. Creating new baseline...');
     await fs.mkdir(baselineDir, { recursive: true });
     await fs.copyFile(screenshotPath, baselinePath);
@@ -1034,16 +1023,85 @@ test('homepage visual comparison', async ({ page, browserName }) => {
     );
 
     if (pixelDiffCount > 0) {
-      const diffPath = 'spec/e2e/screenshots/diff/homepage-diff.png';
+      const diffPath = `spec/e2e/screenshots/diff/${testName}-diff.png`;
       await fs.mkdir('spec/e2e/screenshots/diff', { recursive: true });
       await fs.writeFile(diffPath, PNG.sync.write(diff));
       console.log(`Difference found! Diff image saved at ${diffPath}`);
     }
 
-    expect(pixelDiffCount).toBe(0);
+    return pixelDiffCount;
   }
-});
+
+  return 0;
+}
+
+// Header details verification
+export async function verifyHeaderDetails(page, expect) {
+  const homeLink = page.getByTestId('header-link-home');
+  const publicLink = page.getByTestId('header-link-public');
+  const privateLink = page.getByTestId('header-link-private');
+
+  await expect(homeLink).toBeVisible({ timeout: 30000 });
+  await expect(homeLink).toHaveText('Home');
+  await expect(homeLink).toHaveAttribute('href', '/');
+  await expect(publicLink).toBeVisible();
+  await expect(publicLink).toHaveText('Public');
+  await expect(publicLink).toHaveAttribute('href', '/public');
+  await expect(privateLink).toBeVisible();
+  await expect(privateLink).toHaveText('Private');
+  await expect(privateLink).toHaveAttribute('href', '/private');
+}
+
+// Footer details verification
+export async function verifyFooterDetails(page, expect) {
+  const footerP = page.getByTestId('footer-p');
+  await expect(footerP).toBeVisible({ timeout: 30000 });
+  await expect(footerP).toHaveText('© 2024. Made with Nuxt, Tailwind, UI Thing, Rails, Fly.io and S3.');
+
+  const nuxtLink = footerP.locator('a', { hasText: 'Nuxt' });
+  await expect(nuxtLink).toHaveAttribute('href', 'https://nuxt.com');
+  const tailwindLink = footerP.locator('a', { hasText: 'Tailwind' });
+  await expect(tailwindLink).toHaveAttribute('href', 'https://tailwindcss.com/');
+  const uiThingLink = footerP.locator('a', { hasText: 'UI Thing' });
+  await expect(uiThingLink).toHaveAttribute('href', 'https://ui-thing.behonbaker.com');
+  const railsLink = footerP.locator('a', { hasText: 'Rails' });
+  await expect(railsLink).toHaveAttribute('href', 'https://rubyonrails.org/');
+  const flyLink = footerP.locator('a', { hasText: 'Fly.io' });
+  await expect(flyLink).toHaveAttribute('href', 'https://fly.io');
+  const s3Link = footerP.locator('a', { hasText: 'S3' });
+  await expect(s3Link).toHaveAttribute('href', 'https://aws.amazon.com/s3/');
+}
 ```
+- make `~/app/frontend/spec/e2e/home.spec.ts` look like this:
+```
+// home.spec.ts
+import { test, expect } from '@playwright/test';
+import { compareScreenshot, verifyHeaderDetails, verifyFooterDetails } from './shared';
+
+test('Header details', async ({ page }) => {
+  await page.goto('/');
+  await verifyHeaderDetails(page, expect);
+});
+
+test('Homepage body text', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByTestId('hero-h1').filter({ hasText: 'There was a wall.' })).toBeVisible({ timeout: 30000 });
+  await expect(page.getByTestId('hero-h1').filter({ hasText: 'It did not look important.' })).toBeVisible();
+  await expect(page.getByTestId('hero-p').filter({ hasText: '{"status":"OK"}' })).toBeVisible();
+  await expect(page.getByTestId('hero-link-login').filter({ hasText: 'Log in' })).toBeVisible();
+});
+
+test('Footer details', async ({ page }) => {
+  await page.goto('/');
+  await verifyFooterDetails(page, expect);
+});
+
+test('current screenshot matches baseline', async ({ page, browserName }) => {
+  const pixelDiffCount = await compareScreenshot(page, 'home', { browserName, targetUrl: '/' })
+  expect(pixelDiffCount).toBe(0)
+})
+```
+
 run the failing test with npm run e2e-tests -> tests should fail
 ^ + c to kill the test server
 
@@ -1154,26 +1212,49 @@ runtimeConfig: { public: { apiBase: process.env.API_BASE || '<backend url>/api/v
 
 ## Playwright Docker Setup
 - `cd ~/app/frontend`
+- `touch playwright-package.json`
+- make `~/app/frontend/playwright-package.json` look like this:
+```
+{
+  "name": "playwright-tests",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "test": "playwright test"
+  },
+  "dependencies": {
+    "@playwright/test": "^1.48.1",
+    "pixelmatch": "^6.0.0",
+    "playwright-expect": "^0.1.2",
+    "@nuxt/test-utils": "^3.14.4"
+  }
+}
+```
 - `touch Dockerfile.playwright`
 - make `~/app/frontend/Dockerfile.playwright look like this:`
 ```
+# Dockerfile.playwright
 FROM mcr.microsoft.com/playwright:v1.47.2-focal
 
 WORKDIR /app/frontend
 
-# Copy package.json and package-lock.json
-COPY package.json package-lock.json ./
-
-# Install Node.js dependencies
+# Copy and install only Playwright-related dependencies
+COPY playwright-package.json ./package.json
+COPY package-lock.json ./
 RUN npm ci
 
-# Copy the rest of your application code
+# Ensure unwanted test dependencies are removed
+RUN rm -rf node_modules/@vitest node_modules/vitest node_modules/jest node_modules/@jest \
+    && find node_modules -name "*vitest*" -type d -exec rm -rf {} + \
+    && find node_modules -name "*jest*" -type d -exec rm -rf {} +
+
+# Copy application code without overwriting node_modules
 COPY . .
 
-# Install playwright
+# Install Playwright dependencies and browsers
 RUN npx playwright install
 
-# Set the default command
+# Set the default command to run Playwright tests
 CMD ["npx", "playwright", "test"]
 ```
 - make `~/app/docker-compose.yml` look like this:
@@ -1199,7 +1280,7 @@ services:
     user: "${DOCKER_USER:-circleci}"
     build:
       context: ./backend
-      dockerfile: Dockerfile 
+      dockerfile: Dockerfile.backend
     image: backend_image
     environment:
       BACKEND_PATH: /app/backend
@@ -1224,7 +1305,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-
 
   rspec:
     image: backend_image
@@ -1280,15 +1360,14 @@ services:
         condition: service_healthy
     environment:
       BASE_URL: http://frontend:3000
-      DOCKER_ENV: true
-      CI: true 
+      DOCKER_ENV: true  # Ensure this is explicitly set to trigger Docker path in shared.js
       RAILS_ENV: test
       DATABASE_URL: "postgres://postgres:${POSTGRES_PASSWORD}@db:5432/backend_test"
       API_URL: http://backend:3000
-    command: npx playwright test
+      CI: false
+    command: bash -c "ls -d node_modules/* | grep -E 'vitest|jest' || npx playwright test"
     volumes:
       - ./frontend/spec/e2e/screenshots/baseline:/app/frontend/spec/e2e/screenshots/baseline
-
 
 volumes:
   postgres_data:
@@ -1314,14 +1393,20 @@ ENV NODE_ENV="production"
 ENV HOST=0.0.0.0
 ENV PORT=3000
 
-# Install curl in the base image
-RUN apt-get update && apt-get install --no-install-recommends -y curl
+# Ensure /etc/apt/sources.list exists and set up alternative Debian mirrors
+RUN [ -f /etc/apt/sources.list ] || echo 'deb http://deb.debian.org/debian bookworm main' > /etc/apt/sources.list && \
+    sed -i 's|http://deb.debian.org|https://mirror.slu.cz|g' /etc/apt/sources.list && \
+    apt-get update && \
+    apt-get install --no-install-recommends -y curl && \
+    rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
 
 # Throw-away build stage to reduce size of final image
 FROM base as build
 
 # Install packages needed to build node modules
-RUN apt-get install --no-install-recommends -y build-essential node-gyp pkg-config python-is-python3
+RUN apt-get update && \
+    apt-get install --no-install-recommends -y build-essential node-gyp pkg-config python-is-python3 && \
+    rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
 
 # Install node modules
 COPY package-lock.json package.json ./
@@ -1386,7 +1471,7 @@ commands:
             DOCKER_COMPOSE_VERSION=2.20.2
             sudo curl -L "https://github.com/docker/compose/releases/download/v${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
             sudo chmod +x /usr/local/bin/docker-compose
-            docker compose version
+            docker-compose version
 
   create_env_file:
     steps:
@@ -1438,13 +1523,13 @@ jobs:
       - run:
           name: Verify Permissions Inside Backend Container
           command: |
-            docker compose run --rm rspec bash -c 'ls -la /app/backend/log /app/backend/tmp'
+            docker-compose run --rm rspec bash -c 'ls -la /app/backend/log /app/backend/tmp'
 
       - run:
           name: Run RSpec Tests
           command: |
             cd backend
-            docker compose up --no-build --abort-on-container-exit rspec
+            docker-compose up --no-build --abort-on-container-exit rspec
 
       - store_test_results:
           path: backend/tmp/rspec_results
@@ -1457,12 +1542,9 @@ jobs:
       image: ubuntu-2004:current
     environment:
       CI: true
+      DOCKER_ENV: false # Explicitly set to false in CI environment
     steps:
       - checkout
-
-      - run:
-          name: Unset DOCKER_ENV for CI
-          command: unset DOCKER_ENV
 
       - run:
           name: Set Absolute Path for Backend Directory
@@ -1470,13 +1552,7 @@ jobs:
             export BACKEND_PATH=$(pwd)/backend
             echo "export BACKEND_PATH=${BACKEND_PATH}" >> $BASH_ENV
 
-      - run:
-          name: Install Docker Compose
-          command: |
-            DOCKER_COMPOSE_VERSION=2.20.2
-            sudo curl -L "https://github.com/docker/compose/releases/download/v${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-            sudo chmod +x /usr/local/bin/docker-compose
-            docker-compose version
+      - install_docker_compose
 
       - run:
           name: Verify POSTGRES_PASSWORD
@@ -1488,35 +1564,15 @@ jobs:
               echo "POSTGRES_PASSWORD is set."
             fi
 
-      - run:
-          name: Create .env File
-          command: |
-            echo "POSTGRES_PASSWORD=${POSTGRES_PASSWORD}" > backend/.env
-            echo "RAILS_ENV=test" >> backend/.env
-
-      - run:
-          name: Build Backend Image
-          command: |
-            docker build --no-cache -t backend_image -f backend/Dockerfile.backend backend
+      - create_env_file
+      - build_backend_image
 
       - run:
           name: Ensure Executable Permissions on wait-for-it.sh
           command: |
             chmod +x backend/wait-for-it.sh
 
-      - run:
-          name: Create Log and Tmp Files
-          command: |
-            touch backend/log/test.log
-            touch backend/tmp/local_secret.txt
-            chmod 666 backend/log/test.log
-            chmod 666 backend/tmp/local_secret.txt
-
-      - run:
-          name: Ensure Permissions for Log and Tmp Directories
-          command: |
-            chmod -R 777 backend/log
-            chmod -R 777 backend/tmp
+      - ensure_permissions
 
       - run:
           name: Adjust Backend Folder Permissions on Host
@@ -1924,11 +1980,14 @@ services:
         condition: service_healthy
     environment:
       BASE_URL: http://frontend:3000
-      DOCKER_ENV: true
+      DOCKER_ENV: true  # Ensure this is explicitly set to trigger Docker path in shared.js
       RAILS_ENV: test
       DATABASE_URL: "postgres://postgres:${POSTGRES_PASSWORD}@db:5432/backend_test"
       API_URL: http://backend:3000
-    command: npx playwright test
+      CI: false
+    command: bash -c "ls -d node_modules/* | grep -E 'vitest|jest' || npx playwright test"
+    volumes:
+      - ./frontend/spec/e2e/screenshots/baseline:/app/frontend/spec/e2e/screenshots/baseline
 
   component-tests:
     build:
@@ -2045,12 +2104,9 @@ jobs:
       image: ubuntu-2004:current
     environment:
       CI: true
+      DOCKER_ENV: false # Explicitly set to false in CI environment
     steps:
       - checkout
-
-      - run:
-          name: Unset DOCKER_ENV for CI
-          command: unset DOCKER_ENV
 
       - run:
           name: Set Absolute Path for Backend Directory
@@ -2058,13 +2114,7 @@ jobs:
             export BACKEND_PATH=$(pwd)/backend
             echo "export BACKEND_PATH=${BACKEND_PATH}" >> $BASH_ENV
 
-      - run:
-          name: Install Docker Compose
-          command: |
-            DOCKER_COMPOSE_VERSION=2.20.2
-            sudo curl -L "https://github.com/docker/compose/releases/download/v${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-            sudo chmod +x /usr/local/bin/docker-compose
-            docker-compose version
+      - install_docker_compose
 
       - run:
           name: Verify POSTGRES_PASSWORD
@@ -2076,35 +2126,15 @@ jobs:
               echo "POSTGRES_PASSWORD is set."
             fi
 
-      - run:
-          name: Create .env File
-          command: |
-            echo "POSTGRES_PASSWORD=${POSTGRES_PASSWORD}" > backend/.env
-            echo "RAILS_ENV=test" >> backend/.env
-
-      - run:
-          name: Build Backend Image
-          command: |
-            docker build --no-cache -t backend_image -f backend/Dockerfile.backend backend
+      - create_env_file
+      - build_backend_image
 
       - run:
           name: Ensure Executable Permissions on wait-for-it.sh
           command: |
             chmod +x backend/wait-for-it.sh
 
-      - run:
-          name: Create Log and Tmp Files
-          command: |
-            touch backend/log/test.log
-            touch backend/tmp/local_secret.txt
-            chmod 666 backend/log/test.log
-            chmod 666 backend/tmp/local_secret.txt
-
-      - run:
-          name: Ensure Permissions for Log and Tmp Directories
-          command: |
-            chmod -R 777 backend/log
-            chmod -R 777 backend/tmp
+      - ensure_permissions
 
       - run:
           name: Adjust Backend Folder Permissions on Host
@@ -2167,198 +2197,43 @@ workflows:
 - `git push`
 - check the CircleCI project dashboard and the `component-tests` job should pass
 
-### Refactor Homepage Spec - Move Header/Footer E2E Tests Into Shared.js
-- The next big thing we'll do is build out some subpages at `/public` and `/private`. But first of course, we'll build out some end-to-end tests for our new pages. And even before that, since we'll use the same header link and footer text checks (that we wrote for the homepage spec) in our new public and private page specs, we'll refactor a little and move them into `shared.js` so we don't have to rewrite them all two more times.
-- `cd ~/app/frontend`
-- `touch spec/e2e/shared.js`
-- make `~/app/frontend/spec/e2e/shared.js` look like this:
-```
-import { promises as fs } from 'fs';
-import pixelmatch from 'pixelmatch';
-import { PNG } from 'pngjs';
-
-// Sets baseline directory based on environment
-const getBaselineDir = () => {
-  if (process.env.CI) return 'spec/e2e/screenshots/baseline/ci';
-  if (process.env.DOCKER_ENV) return 'spec/e2e/screenshots/baseline/docker';
-  return 'spec/e2e/screenshots/baseline/local';
-};
-
-// Main function to compare screenshots
-export async function compareScreenshot(page, testName, { browserName = 'chromium' }) {
-  const targetPage = process.env.DOCKER_ENV ? 'http://frontend:3000' : 'http://localhost:3001';
-  const baselineDir = getBaselineDir();
-  const baselinePath = `${baselineDir}/${testName}.png`;
-  const screenshotPath = `spec/e2e/screenshots/current/${testName}.png`;
-
-  await page.setViewportSize({ width: 1280, height: 720 });
-  await page.goto(targetPage);
-  await page.waitForSelector('[data-testid="header-link-home"]');
-
-  await fs.mkdir('spec/e2e/screenshots/current', { recursive: true });
-  await page.screenshot({ path: screenshotPath });
-
-  const baselineExists = await fs.access(baselinePath).then(() => true).catch(() => false);
-
-  // Create baseline if not found
-  if (!baselineExists && browserName === 'chromium') {
-    console.log('Baseline image not found. Creating new baseline...');
-    await fs.mkdir(baselineDir, { recursive: true });
-    await fs.copyFile(screenshotPath, baselinePath);
-    console.log('New baseline image created at:', baselinePath);
-  }
-
-  if (baselineExists) {
-    const baselineImage = PNG.sync.read(await fs.readFile(baselinePath));
-    const currentImage = PNG.sync.read(await fs.readFile(screenshotPath));
-
-    const { width, height } = baselineImage;
-    const diff = new PNG({ width, height });
-    const pixelDiffCount = pixelmatch(
-      baselineImage.data,
-      currentImage.data,
-      diff.data,
-      width,
-      height,
-      { threshold: 0.1 }
-    );
-
-    if (pixelDiffCount > 0) {
-      const diffPath = `spec/e2e/screenshots/diff/${testName}-diff.png`;
-      await fs.mkdir('spec/e2e/screenshots/diff', { recursive: true });
-      await fs.writeFile(diffPath, PNG.sync.write(diff));
-      console.log(`Difference found! Diff image saved at ${diffPath}`);
-    }
-
-    return pixelDiffCount;
-  }
-
-  return 0;
-}
-
-// Header details verification
-export async function verifyHeaderDetails(page, expect) {
-  const homeLink = page.getByTestId('header-link-home');
-  const publicLink = page.getByTestId('header-link-public');
-  const privateLink = page.getByTestId('header-link-private');
-
-  await expect(homeLink).toBeVisible({ timeout: 30000 });
-  await expect(homeLink).toHaveText('Home');
-  await expect(homeLink).toHaveAttribute('href', '/');
-  await expect(publicLink).toBeVisible();
-  await expect(publicLink).toHaveText('Public');
-  await expect(publicLink).toHaveAttribute('href', '/public');
-  await expect(privateLink).toBeVisible();
-  await expect(privateLink).toHaveText('Private');
-  await expect(privateLink).toHaveAttribute('href', '/private');
-}
-
-// Footer details verification
-export async function verifyFooterDetails(page, expect) {
-  const footerP = page.getByTestId('footer-p');
-  await expect(footerP).toBeVisible({ timeout: 30000 });
-  await expect(footerP).toHaveText('© 2024. Made with Nuxt, Tailwind, UI Thing, Rails, Fly.io and S3.');
-
-  const nuxtLink = footerP.locator('a', { hasText: 'Nuxt' });
-  await expect(nuxtLink).toHaveAttribute('href', 'https://nuxt.com');
-  const tailwindLink = footerP.locator('a', { hasText: 'Tailwind' });
-  await expect(tailwindLink).toHaveAttribute('href', 'https://tailwindcss.com/');
-  const uiThingLink = footerP.locator('a', { hasText: 'UI Thing' });
-  await expect(uiThingLink).toHaveAttribute('href', 'https://ui-thing.behonbaker.com');
-  const railsLink = footerP.locator('a', { hasText: 'Rails' });
-  await expect(railsLink).toHaveAttribute('href', 'https://rubyonrails.org/');
-  const flyLink = footerP.locator('a', { hasText: 'Fly.io' });
-  await expect(flyLink).toHaveAttribute('href', 'https://fly.io');
-  const s3Link = footerP.locator('a', { hasText: 'S3' });
-  await expect(s3Link).toHaveAttribute('href', 'https://aws.amazon.com/s3/');
-}
-
-```
-- Now we'll refactor `~/app/frontend/spec/e2e/homepage-screenshot.spec.ts` to call `shared.js`:
-```
-// homepage-screenshot.spec.ts
-import { test, expect } from '@playwright/test';
-import { compareScreenshot } from './shared';
-
-test('homepage visual comparison', async ({ page, browserName }) => {
-  const pixelDiffCount = await compareScreenshot(page, 'homepage', { browserName });
-  expect(pixelDiffCount).toBe(0);
-});
-```
-- Now we'll adjust our homepage spec `~/app/frontend/spec/e2e/homepage-functionality`, too:
-```
-import { test, expect } from '@playwright/test';
-import { verifyHeaderDetails, verifyFooterDetails } from './shared';
-
-test('Header details', async ({ page }) => {
-  await page.goto('/');
-  await verifyHeaderDetails(page, expect);
-});
-
-test('Homepage body text', async ({ page }) => {
-  await page.goto('/');
-  await expect(page.getByTestId('hero-h1').filter({ hasText: 'There was a wall.' })).toBeVisible({ timeout: 30000 });
-  await expect(page.getByTestId('hero-h1').filter({ hasText: 'It did not look important.' })).toBeVisible();
-  await expect(page.getByTestId('hero-p').filter({ hasText: '{"status":"OK"}' })).toBeVisible();
-  await expect(page.getByTestId('hero-link-login').filter({ hasText: 'Log in' })).toBeVisible();
-});
-
-test('Footer details', async ({ page }) => {
-  await page.goto('/');
-  await verifyFooterDetails(page, expect);
-});
-```
-- Before we do anything else, let's rerun our homepage spec to make sure we didn't break it in the refactor.
-- `npm run e2e-tests --path=spec/e2e/index.spec.js` -> should pass
-- `^ + c`
-
 ### Subpages E2E Specs
 - We're going to add a couple subpages, one at `/public` and another at `/private`. But we'll write some specs for them first.
 - `cd ~/app/frontend`
 - `touch spec/e2e/public.spec.js spec/e2e/private.spec.js`
 - make `~/app/frontend/specs/e2e/public.spec.js` look like this:
 ```
-import { createPage } from '@nuxt/test-utils'
-import { setup } from '@nuxt/test-utils/e2e'
-import { beforeAll, describe, expect, it } from 'vitest'
-import { compareScreenshotWithBaseline, testFooterText, testHeaderLinksLoggedOut } from './shared'
+import { test, expect } from '@playwright/test'
+import { compareScreenshot, verifyHeaderDetails, verifyFooterDetails } from './shared'
 
-describe('public', async () => {
-  await setup({ browser: true })
-
-  let page
-
-  beforeAll(async () => {
-    page = await createPage('/public')
+test.describe('Public Page', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/public')
   })
 
-  it('links correctly from homepage', async () => {
-    const homePage = await createPage('/')
+  test('links correctly from homepage', async ({ page }) => {
+    const homePage = await page.context().newPage()
+    await homePage.goto('/')
     const publicLink = await homePage.locator('a[href="/public"]')
     await publicLink.click()
     await page.waitForLoadState('load')
     expect(page.url()).toContain('/public')
   })
 
-  it('has correct header links', async () => {
-    testHeaderLinksLoggedOut(page)
+  test('has correct header links', async ({ page }) => {
+    await verifyHeaderDetails(page, expect)
   })
 
-  it('displays the correct h1 text', async () => {
-    const h1 = page.locator('.page h1')
-    await page.waitForSelector('.page h1', { state: 'visible' })
-    expect(await h1.isVisible()).toBe(true)
-    expect(await h1.textContent()).toContain('Public')
-  })
-
-  it('displays the correct first p tag text', async () => {
-    await page.waitForTimeout(2000)
+  test('displays the correct first p tag text', async ({ page }) => {
     const firstP = page.locator('.page p').first()
     expect(await firstP.isVisible()).toBe(true)
-    expect(await firstP.textContent()).toContain('Looked at from one side, the wall enclosed a barren sixty-acre field called the Port of Anarres. On the field there were a couple of large gantry cranes, a rocket pad, three warehouses, a truck garage, and a dormitory. The dormitory looked durable, grimy, and mournful; it had no gardens, no children; plainly nobody lived there or was even meant to stay there long. It was in fact a quarantine. The wall shut in not only the landing field but also the ships that came down out of space, and the men that came on the ships, and the worlds they came from, and the rest of the universe. It enclosed the universe, leaving Anarres outside, free.')
+    const firstPText = (await firstP.textContent()).trim()
+    expect(firstPText).toContain(
+      'Looked at from one side, the wall enclosed a barren sixty-acre field called the Port of Anarres. On the field there were a couple of large gantry cranes, a rocket pad, three warehouses, a truck garage, and a dormitory. The dormitory looked durable, grimy, and mournful; it had no gardens, no children; plainly nobody lived there or was even meant to stay there long. It was in fact a quarantine. The wall shut in not only the landing field but also the ships that came down out of space, and the men that came on the ships, and the worlds they came from, and the rest of the universe. It enclosed the universe, leaving Anarres outside, free.'
+    )
   })
 
-  it('displays the correct second p tag text', async () => {
+  test('displays the correct second p tag text', async ({ page }) => {
     const secondP = page.locator('.page p').nth(1)
     await page.waitForSelector('.page p:nth-child(2)', { state: 'visible' })
     expect(await secondP.isVisible()).toBe(true)
@@ -2366,13 +2241,14 @@ describe('public', async () => {
     expect(secondPText).toMatch(/Looked at from the other side/i)
   })
 
-  it('has correct footer text', async () => {
-    await testFooterText(page)
+  test('has correct footer text', async ({ page }) => {
+    await verifyFooterDetails(page, expect)
   })
 
-  it('matches the visual baseline', async () => {
-    await compareScreenshotWithBaseline(page, 'page-public', 'page-public-diff')
-  }, 20000)
+  test('current screenshot matches baseline', async ({ page, browserName }) => {
+    const pixelDiffCount = await compareScreenshot(page, 'public', { browserName, targetUrl: '/public' });
+    expect(pixelDiffCount).toBe(0);
+  });
 })
 ```
 - make `~/app/frontend/specs/pages/private.spec.js` look like this:
