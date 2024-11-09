@@ -980,11 +980,13 @@ import { PNG } from 'pngjs';
 
 // Sets baseline directory based on environment
 const getBaselineDir = () => {
-  console.log(`CI: ${process.env.CI}, DOCKER_ENV: ${process.env.DOCKER_ENV}`);
-  if (process.env.CI) return 'spec/e2e/screenshots/baseline/ci';
-  if (process.env.DOCKER_ENV) return 'spec/e2e/screenshots/baseline/docker';
-  return 'spec/e2e/screenshots/baseline/local';
-};
+  const ciValue = process.env.CI || 'undefined'
+  const dockerValue = process.env.DOCKER_ENV || 'undefined'
+  console.log(`CI: ${ciValue}, DOCKER_ENV: ${dockerValue}`)
+  if (process.env.CI === 'true') return 'spec/e2e/screenshots/baseline/ci'
+  if (process.env.DOCKER_ENV === 'true') return 'spec/e2e/screenshots/baseline/docker'
+  return 'spec/e2e/screenshots/baseline/local'
+}
 
 // Main function to compare screenshots, accepting a dynamic URL
 export async function compareScreenshot(page, testName, { browserName = 'chromium', targetUrl }) {
@@ -1636,11 +1638,13 @@ import { PNG } from 'pngjs';
 
 // Sets baseline directory based on environment
 const getBaselineDir = () => {
-  console.log(`CI: ${process.env.CI}, DOCKER_ENV: ${process.env.DOCKER_ENV}`);
-  if (process.env.CI) return 'spec/e2e/screenshots/baseline/ci';
-  if (process.env.DOCKER_ENV) return 'spec/e2e/screenshots/baseline/docker';
-  return 'spec/e2e/screenshots/baseline/local';
-};
+  const ciValue = process.env.CI || 'undefined'
+  const dockerValue = process.env.DOCKER_ENV || 'undefined'
+  console.log(`CI: ${ciValue}, DOCKER_ENV: ${dockerValue}`)
+  if (process.env.CI === 'true') return 'spec/e2e/screenshots/baseline/ci'
+  if (process.env.DOCKER_ENV === 'true') return 'spec/e2e/screenshots/baseline/docker'
+  return 'spec/e2e/screenshots/baseline/local'
+}
 
 // Main function to compare screenshots, accepting a dynamic URL
 export async function compareScreenshot(page, testName, { browserName = 'chromium', targetUrl }) {
