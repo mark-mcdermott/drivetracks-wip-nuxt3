@@ -1622,7 +1622,7 @@ it('can mount some component', async () => {
     )
 })
 ```
-- `npm run component-tests -> header & footer tests should fail
+- `npm run component-tests` -> header & footer tests should fail
 
 ### Add Header/Footer End-To-End Tests To shared.js
 - Our next big step is to add a header and footer to the site. But before that we'll update our homepage spec (which will then fail until the header/footer are build - which is what we want) and build out some component specs for the header and footer.
