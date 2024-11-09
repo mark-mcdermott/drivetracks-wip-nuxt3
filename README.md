@@ -1901,7 +1901,7 @@ test('current screenshot matches baseline', async ({ page, browserName }) => {
 - `^ + c`
 
 ### Docker Component Test Setup
-- Now that we have vitest component unit tests, let's add them to docker.
+- Now that our local component and end-to-end tests are passing, let's add our component tests to docker.
 - `cd ~/app`
 - `touch frontend/Dockerfile.component-tests`
 - make `~/app/frontend/Dockerfile.component-tests` look like this:
