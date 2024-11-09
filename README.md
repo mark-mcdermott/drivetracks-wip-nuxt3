@@ -1034,43 +1034,6 @@ export async function compareScreenshot(page, testName, { browserName = 'chromiu
 
   return 0;
 }
-
-// Header details verification
-export async function verifyHeaderDetails(page, expect) {
-  const homeLink = page.getByTestId('header-link-home');
-  const publicLink = page.getByTestId('header-link-public');
-  const privateLink = page.getByTestId('header-link-private');
-
-  await expect(homeLink).toBeVisible({ timeout: 30000 });
-  await expect(homeLink).toHaveText('Home');
-  await expect(homeLink).toHaveAttribute('href', '/');
-  await expect(publicLink).toBeVisible();
-  await expect(publicLink).toHaveText('Public');
-  await expect(publicLink).toHaveAttribute('href', '/public');
-  await expect(privateLink).toBeVisible();
-  await expect(privateLink).toHaveText('Private');
-  await expect(privateLink).toHaveAttribute('href', '/private');
-}
-
-// Footer details verification
-export async function verifyFooterDetails(page, expect) {
-  const footerP = page.getByTestId('footer-p');
-  await expect(footerP).toBeVisible({ timeout: 30000 });
-  await expect(footerP).toHaveText('© 2024. Made with Nuxt, Tailwind, UI Thing, Rails, Fly.io and S3.');
-
-  const nuxtLink = footerP.locator('a', { hasText: 'Nuxt' });
-  await expect(nuxtLink).toHaveAttribute('href', 'https://nuxt.com');
-  const tailwindLink = footerP.locator('a', { hasText: 'Tailwind' });
-  await expect(tailwindLink).toHaveAttribute('href', 'https://tailwindcss.com/');
-  const uiThingLink = footerP.locator('a', { hasText: 'UI Thing' });
-  await expect(uiThingLink).toHaveAttribute('href', 'https://ui-thing.behonbaker.com');
-  const railsLink = footerP.locator('a', { hasText: 'Rails' });
-  await expect(railsLink).toHaveAttribute('href', 'https://rubyonrails.org/');
-  const flyLink = footerP.locator('a', { hasText: 'Fly.io' });
-  await expect(flyLink).toHaveAttribute('href', 'https://fly.io');
-  const s3Link = footerP.locator('a', { hasText: 'S3' });
-  await expect(s3Link).toHaveAttribute('href', 'https://aws.amazon.com/s3/');
-}
 ```
 - make `~/app/frontend/spec/e2e/home.spec.ts` look like this:
 ```
@@ -1078,22 +1041,12 @@ export async function verifyFooterDetails(page, expect) {
 import { test, expect } from '@playwright/test';
 import { compareScreenshot, verifyHeaderDetails, verifyFooterDetails } from './shared';
 
-test('Header details', async ({ page }) => {
-  await page.goto('/');
-  await verifyHeaderDetails(page, expect);
-});
-
 test('Homepage body text', async ({ page }) => {
   await page.goto('/');
   await expect(page.getByTestId('hero-h1').filter({ hasText: 'There was a wall.' })).toBeVisible({ timeout: 30000 });
   await expect(page.getByTestId('hero-h1').filter({ hasText: 'It did not look important.' })).toBeVisible();
   await expect(page.getByTestId('hero-p').filter({ hasText: '{"status":"OK"}' })).toBeVisible();
   await expect(page.getByTestId('hero-link-login').filter({ hasText: 'Log in' })).toBeVisible();
-});
-
-test('Footer details', async ({ page }) => {
-  await page.goto('/');
-  await verifyFooterDetails(page, expect);
 });
 
 test('current screenshot matches baseline', async ({ page, browserName }) => {
@@ -1187,6 +1140,8 @@ const healthStatus = await $fetch(`${useRuntimeConfig().public.apiBase}/up`)
   </UiContainer>
 </template>
 ```
+- run playwright tests with `npm run e2e-tests` -> tests should pass
+- `^ + c` to kill the test server
 
 ### Frontend Prod Setup & Deploy
 - If we check our app's frontend url in prod (on fly.io) right now it won't load and nuxt will say `404 [GET] "http://localhost:3000/api/v1/up": 404 Page not found: /api/v1/up`. The frontend is still making backend calls to `localhost` and we need to change that to our API on fly.io.
@@ -1610,61 +1565,7 @@ workflows:
 - `git push`
 - check the project CircleCI dashboard - a test will run and both rspec and playwright should pass
 
-### Add Failing Header/Footer Checks To Homepage Spec
-- Our next big step is to add a header and footer to the site. But before that we'll update our homepage spec (which will then fail until the header/footer are build - which is what we want) and build out some component specs for the header and footer.
-- `cd ~/app/frontend`
-- Let's adjust our homepage `~/app/frontend/spec/homepage-functionality.spec.ts` test check for the header links and the footer test we're about to add:
-```
-import { test, expect } from '@playwright/test';
-
-test('Header details', async ({ page }) => {
-  await page.goto('/')
-  const homeLink = page.getByTestId('header-link-home');
-  const publicLink = page.getByTestId('header-link-public');
-  const privateLink = page.getByTestId('header-link-private');
-  await expect(homeLink).toBeVisible({ timeout: 30000 });
-  await expect(homeLink).toHaveText('Home');
-  await expect(homeLink).toHaveAttribute('href', '/');
-  await expect(publicLink).toBeVisible();
-  await expect(publicLink).toHaveText('Public');
-  await expect(publicLink).toHaveAttribute('href', '/public');
-  await expect(privateLink).toBeVisible();
-  await expect(privateLink).toHaveText('Private');
-  await expect(privateLink).toHaveAttribute('href', '/private');
-});
-
-test('Homepage body text', async ({ page }) => {
-  await page.goto('/')
-  await expect(page.getByTestId('hero-h1').filter({ hasText: 'There was a wall.'})).toBeVisible({ timeout: 30000 })
-  await expect(page.getByTestId('hero-h1').filter({ hasText: 'It did not look important.'})).toBeVisible()
-  await expect(page.getByTestId('hero-p').filter({ hasText: '{"status":"OK"}'})).toBeVisible()
-  await expect(page.getByTestId('hero-link-login').filter({ hasText: 'Log in'})).toBeVisible()
-});
-
-test('Footer details', async ({ page }) => {
-  await page.goto('/')
-  const footerP = page.getByTestId('footer-p');
-  await expect(footerP).toBeVisible({ timeout: 30000 });
-  await expect(footerP).toHaveText('© 2024. Made with Nuxt, Tailwind, UI Thing, Rails, Fly.io and S3.')
-  const nuxtLink = footerP.locator('a', { hasText: 'Nuxt' })
-  await expect(nuxtLink).toHaveAttribute('href', 'https://nuxt.com')
-  const tailwindLink = footerP.locator('a', { hasText: 'Tailwind' })
-  await expect(tailwindLink).toHaveAttribute('href', 'https://tailwindcss.com/')
-  const uiThingLink = footerP.locator('a', { hasText: 'UI Thing' })
-  await expect(uiThingLink).toHaveAttribute('href', 'https://ui-thing.behonbaker.com')
-  const railsLink = footerP.locator('a', { hasText: 'Rails' })
-  await expect(railsLink).toHaveAttribute('href', 'https://rubyonrails.org/')
-  const flyLink = footerP.locator('a', { hasText: 'Fly.io' })
-  await expect(flyLink).toHaveAttribute('href', 'https://fly.io')
-  const s3Link = footerP.locator('a', { hasText: 'S3' })
-  await expect(s3Link).toHaveAttribute('href', 'https://aws.amazon.com/s3/')
-});
-```
-- Let's run our homepage spec and make sure it fails.
-- `npm run e2e-tests --path=spec/e2e/index.spec.js` -> should fail
-- `^ + c`
-
-### Header/Footer Component Specs
+### Add Header/Footer Component Specs
 - Now let's build some component specs for the header and footer we're about to build.
 - `cd ~/app/frontend`
 - `mkdir spec/components`
@@ -1722,6 +1623,146 @@ it('can mount some component', async () => {
 })
 ```
 - `npm run component-tests -> header & footer tests should fail
+
+### Add Header/Footer End-To-End Tests To shared.js
+- Our next big step is to add a header and footer to the site. But before that we'll update our homepage spec (which will then fail until the header/footer are build - which is what we want) and build out some component specs for the header and footer.
+- `cd ~/app/frontend`
+- make `~/app/frontend/spec/e2e/shared.js` look like this:
+```
+// shared.js
+import { promises as fs } from 'fs';
+import pixelmatch from 'pixelmatch';
+import { PNG } from 'pngjs';
+
+// Sets baseline directory based on environment
+const getBaselineDir = () => {
+  console.log(`CI: ${process.env.CI}, DOCKER_ENV: ${process.env.DOCKER_ENV}`);
+  if (process.env.CI) return 'spec/e2e/screenshots/baseline/ci';
+  if (process.env.DOCKER_ENV) return 'spec/e2e/screenshots/baseline/docker';
+  return 'spec/e2e/screenshots/baseline/local';
+};
+
+// Main function to compare screenshots, accepting a dynamic URL
+export async function compareScreenshot(page, testName, { browserName = 'chromium', targetUrl }) {
+  const baselineDir = getBaselineDir();
+  const baselinePath = `${baselineDir}/${testName}.png`;
+  const screenshotPath = `spec/e2e/screenshots/current/${testName}.png`;
+
+  await page.setViewportSize({ width: 1280, height: 720 });
+  await page.goto(targetUrl); // Use the provided target URL
+  await fs.mkdir('spec/e2e/screenshots/current', { recursive: true });
+  await page.screenshot({ path: screenshotPath });
+
+  const baselineExists = await fs.access(baselinePath).then(() => true).catch(() => false);
+
+  // Create baseline if not found
+  if (!baselineExists && browserName === 'chromium') {
+    console.log('Baseline image not found. Creating new baseline...');
+    await fs.mkdir(baselineDir, { recursive: true });
+    await fs.copyFile(screenshotPath, baselinePath);
+    console.log('New baseline image created at:', baselinePath);
+  }
+
+  if (baselineExists) {
+    const baselineImage = PNG.sync.read(await fs.readFile(baselinePath));
+    const currentImage = PNG.sync.read(await fs.readFile(screenshotPath));
+
+    const { width, height } = baselineImage;
+    const diff = new PNG({ width, height });
+    const pixelDiffCount = pixelmatch(
+      baselineImage.data,
+      currentImage.data,
+      diff.data,
+      width,
+      height,
+      { threshold: 0.1 }
+    );
+
+    if (pixelDiffCount > 0) {
+      const diffPath = `spec/e2e/screenshots/diff/${testName}-diff.png`;
+      await fs.mkdir('spec/e2e/screenshots/diff', { recursive: true });
+      await fs.writeFile(diffPath, PNG.sync.write(diff));
+      console.log(`Difference found! Diff image saved at ${diffPath}`);
+    }
+
+    return pixelDiffCount;
+  }
+
+  return 0;
+}
+
+// Header details verification
+export async function verifyHeaderDetails(page, expect) {
+  const homeLink = page.getByTestId('header-link-home');
+  const publicLink = page.getByTestId('header-link-public');
+  const privateLink = page.getByTestId('header-link-private');
+
+  await expect(homeLink).toBeVisible({ timeout: 30000 });
+  await expect(homeLink).toHaveText('Home');
+  await expect(homeLink).toHaveAttribute('href', '/');
+  await expect(publicLink).toBeVisible();
+  await expect(publicLink).toHaveText('Public');
+  await expect(publicLink).toHaveAttribute('href', '/public');
+  await expect(privateLink).toBeVisible();
+  await expect(privateLink).toHaveText('Private');
+  await expect(privateLink).toHaveAttribute('href', '/private');
+}
+
+// Footer details verification
+export async function verifyFooterDetails(page, expect) {
+  const footerP = page.getByTestId('footer-p');
+  await expect(footerP).toBeVisible({ timeout: 30000 });
+  await expect(footerP).toHaveText('© 2024. Made with Nuxt, Tailwind, UI Thing, Rails, Fly.io and S3.');
+
+  const nuxtLink = footerP.locator('a', { hasText: 'Nuxt' });
+  await expect(nuxtLink).toHaveAttribute('href', 'https://nuxt.com');
+  const tailwindLink = footerP.locator('a', { hasText: 'Tailwind' });
+  await expect(tailwindLink).toHaveAttribute('href', 'https://tailwindcss.com/');
+  const uiThingLink = footerP.locator('a', { hasText: 'UI Thing' });
+  await expect(uiThingLink).toHaveAttribute('href', 'https://ui-thing.behonbaker.com');
+  const railsLink = footerP.locator('a', { hasText: 'Rails' });
+  await expect(railsLink).toHaveAttribute('href', 'https://rubyonrails.org/');
+  const flyLink = footerP.locator('a', { hasText: 'Fly.io' });
+  await expect(flyLink).toHaveAttribute('href', 'https://fly.io');
+  const s3Link = footerP.locator('a', { hasText: 'S3' });
+  await expect(s3Link).toHaveAttribute('href', 'https://aws.amazon.com/s3/');
+}
+```
+
+### Add Header/Footer End-To-End Tests to Home Spec
+- `cd ~/app/frontend`
+- make `~/app/frontend/spec/e2e/home.spec.ts` look like this:
+```
+// home.spec.ts
+import { test, expect } from '@playwright/test';
+import { compareScreenshot, verifyHeaderDetails, verifyFooterDetails } from './shared';
+
+test('Header details', async ({ page }) => {
+  await page.goto('/');
+  await verifyHeaderDetails(page, expect);
+});
+
+test('Homepage body text', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByTestId('hero-h1').filter({ hasText: 'There was a wall.' })).toBeVisible({ timeout: 30000 });
+  await expect(page.getByTestId('hero-h1').filter({ hasText: 'It did not look important.' })).toBeVisible();
+  await expect(page.getByTestId('hero-p').filter({ hasText: '{"status":"OK"}' })).toBeVisible();
+  await expect(page.getByTestId('hero-link-login').filter({ hasText: 'Log in' })).toBeVisible();
+});
+
+test('Footer details', async ({ page }) => {
+  await page.goto('/');
+  await verifyFooterDetails(page, expect);
+});
+
+test('current screenshot matches baseline', async ({ page, browserName }) => {
+  const pixelDiffCount = await compareScreenshot(page, 'home', { browserName, targetUrl: '/' })
+  expect(pixelDiffCount).toBe(0)
+})
+```
+- Let's run our homepage spec and make sure it fails.
+- `npm run e2e-tests --path=spec/e2e/home.spec.js` -> should fail
+- `^ + c`
 
 ### Header & Footer
 - Let's finally build out our header and footer components.
