@@ -2841,7 +2841,7 @@ const uuid = computed(() => {
                   <UiButton variant="ghost" class="justify-start text-base" to="/public">
                     Public
                   </UiButton>
-                  <UiButton variant="ghost" class="justify-start text-base" to="/private">
+                  <UiButton v-if="status === 'authenticated'" variant="ghost" class="justify-start text-base" to="/private">
                     Private
                   </UiButton>
                   <UiGradientDivider class="my-5" />
