@@ -4102,6 +4102,7 @@ User.create!(email: 'test2@mail.com', password: 'password')
 - in the second terminal now run `curl -H 'Content-Type: application/json' -X POST -d '{"user": { "email": "test@mail.com", "password" : "password" }}' http://localhost:3000/api/v1/auth/login`
 - you should see a `status: 200` in the response somewhere a long `token` string and now our user is logged in
 - kill the server with `^ + c`
+- `rm spec/requests/api/v1/current_user_spec.rb` (TODO: I'm not 100% the correct path here)
 
 ### Test The UI Locally
 - `cd ~/app/frontend`
@@ -4111,9 +4112,17 @@ User.create!(email: 'test2@mail.com', password: 'password')
   - logging in (with the default `test@mail.com` / `password`) should work and should show the Private page link and the user avatar for the user menu
   - logging out should work
 
-### Run Rspec
-- `cd ~/app/backend`
-- `rspec` <- all 21 test should pass
+### Run Auth/Registration/User Specs
+- Run locally
+  - `cd ~/app/backend`
+  - `rspec` <- all 15 tests should pass
+- Run on local docker
+  - `cd ~/app`
+  - `docker compose down -v --remove-orphans`
+  - `docker compose build`
+  - `docker compose up -d db backend`
+  - `docker compose run --rm rspec` <- all 15 tests should pass
+
 
 ### Update Backend For Prod
 - Our fly.io API was working last time we checked, but that was just a simple API call that wasn't pulling anything from the database at all. We've now added database calls to our frontend and backend code and everything is working locally. But if we deploy either our frontend or backend code to fly.io now, we'll see quite a few errors. So let's fix all that now.
