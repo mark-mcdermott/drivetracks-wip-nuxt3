@@ -2404,20 +2404,23 @@ test.describe('Private Page', () => {
 - If you go to your frontend url (from `~/app/.secrets`) in a browser you can check that /public and /private now work (but the private page isn't locked yet, i.e., it isn't really private yet).
 
 ### Run E2E Tests
-- `cd ~/app/frontend`
-- We want to check our public and private specs locally now, which should pass. But since we've changed the way they look (ie, we created them), we'll have to delete our pixelmatch baseline public and private page images, which are at `~/app/frontend/spec/e2e/screenshots/baseline/page-public.png` and `~/app/frontend/spec/e2e/screenshots/baseline/page-private.png`, respectively.
-- `npm run e2e-tests` -> all 15 specs should pass
-- `^ + c`
-- Now we'll check our public and private specs on local docker.
-- `cd ~/app`
-- `docker compose down -v --remove-orphans`
-- `docker compose build`
-- `docker compose up -d`
-- `docker compose run --rm playwright` -> all 15 specs should pass
-- Now we'll check our public and private specs on CircleCI.
-- `git add .`
-- `git commit -m "Add public/private pages"`
-- `git push`
+- Locally
+  - `cd ~/app/frontend`
+  - We want to check our public and private specs locally now, which should pass. But since we've changed the way they look (ie, we created them), we'll have to delete our pixelmatch baseline public and private page images, which are at `~/app/frontend/spec/e2e/screenshots/baseline/page-public.png` and `~/app/frontend/spec/e2e/screenshots/baseline/page-private.png`, respectively.
+  - `npm run e2e-tests` -> all 15 specs should pass
+  - `^ + c`
+- Local Docker
+  - Now we'll check our public and private specs on local docker.
+  - `cd ~/app`
+  - `docker compose down -v --remove-orphans`
+  - `docker compose build`
+  - `docker compose up -d`
+  - `docker compose run --rm playwright` -> all 15 specs should pass
+- CircleCI
+  - Now we'll check our public and private specs on CircleCI.
+  - `git add .`
+  - `git commit -m "Add public/private pages"`
+  - `git push`
 
 ### Install Sidebase Nuxt-Auth
 - Next we'll setup our signup/login functionality with `@sidebase/nuxt-auth`
