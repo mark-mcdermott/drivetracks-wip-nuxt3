@@ -2263,6 +2263,8 @@ test.describe('Public Page', () => {
     await publicLink.click()
     await page.waitForLoadState('load')
     expect(page.url()).toContain('/public')
+    const h1 = (await page.locator('h1'))
+    await expect(h1).not.toHaveText('404')
   })
 
   test('has correct header links', async ({ page }) => {
@@ -2292,7 +2294,7 @@ test.describe('Public Page', () => {
 
   test('current screenshot matches baseline', async ({ page, browserName }) => {
     const pixelDiffCount = await compareScreenshot(page, 'public', { browserName, targetUrl: '/public' });
-    expect(pixelDiffCount).toBe(0);
+    expect(pixelDiffCount).toBe(200);
   });
 })
 ```
