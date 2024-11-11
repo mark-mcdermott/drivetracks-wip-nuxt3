@@ -2903,30 +2903,30 @@ async function logout() {
           <UiNavigationMenuList class="gap-2">
             <UiNavigationMenuItem>
               <UiNavigationMenuLink as-child>
-                <UiButton to="/" variant="ghost" size="sm">
+                <UiThingDataButtonWrapper data-testid="header-link-home" to="/" variant="ghost" size="sm">
                   Home
-                </UiButton>
-              </UiNavigationMenuLink>
-            </UiNavigationMenuItem>
-            <UiNavigationMenuItem>
-              <UiNavigationMenuLink as-child>
-                <UiButton v-if="status === 'authenticated'" to="/users" variant="ghost" size="sm">
-                  Users
-                </UiButton>
-              </UiNavigationMenuLink>
-            </UiNavigationMenuItem>
-            <UiNavigationMenuItem>
-              <UiNavigationMenuLink as-child>
-                <UiButton to="/public" variant="ghost" size="sm">
-                  Public
-                </UiButton>
+                </UiThingDataButtonWrapper>
               </UiNavigationMenuLink>
             </UiNavigationMenuItem>
             <UiNavigationMenuItem v-if="status === 'authenticated'">
               <UiNavigationMenuLink as-child>
-                <UiButton to="/private" variant="ghost" size="sm">
+                <UiThingDataButtonWrapper data-testid="header-link-private" to="/users" variant="ghost" size="sm">
+                  Users
+                </UiThingDataButtonWrapper>
+              </UiNavigationMenuLink>
+            </UiNavigationMenuItem>
+            <UiNavigationMenuItem>
+              <UiNavigationMenuLink as-child>
+                <UiThingDataButtonWrapper data-testid="header-link-public" to="/public" variant="ghost" size="sm">
+                  Public
+                </UiThingDataButtonWrapper>
+              </UiNavigationMenuLink>
+            </UiNavigationMenuItem>
+            <UiNavigationMenuItem v-if="status === 'authenticated'">
+              <UiNavigationMenuLink as-child>
+                <UiThingDataButtonWrapper data-testid="header-link-private" to="/private" variant="ghost" size="sm">
                   Private
-                </UiButton>
+                </UiThingDataButtonWrapper>
               </UiNavigationMenuLink>
             </UiNavigationMenuItem>
           </UiNavigationMenuList>
@@ -2939,46 +2939,44 @@ async function logout() {
               <Icon name="lucide:menu" class="h-5 w-5" />
             </UiButton>
             <UiSheetContent class="w-[90%] p-0">
-              <template #content>
-                <UiSheetTitle class="sr-only" title="Mobile menu" />
-                <UiSheetDescription class="sr-only" description="Mobile menu" />
-                <UiSheetX class="z-20" />
+              <UiSheetTitle class="sr-only" title="Mobile menu" />
+              <UiSheetDescription class="sr-only" description="Mobile menu" />
+              <UiSheetX class="z-20" />
 
-                <UiScrollArea class="h-full p-5">
-                  <div class="flex flex-col gap-2">
-                    <UiButton variant="ghost" class="justify-start text-base" to="/">
-                      Home
-                    </UiButton>
-                    <UiButton v-if="status === 'authenticated'" variant="ghost" class="justify-start text-base" to="/users">
-                      Users
-                    </UiButton>
-                    <UiButton variant="ghost" class="justify-start text-base" to="/public">
-                      Public
-                    </UiButton>
-                    <UiButton v-if="status === 'authenticated'" variant="ghost" class="justify-start text-base" to="/private">
-                      Private
-                    </UiButton>
-                    <UiGradientDivider class="my-5" />
-                    <UiButton to="/signup">
-                      Sign up
-                    </UiButton>
-                    <UiButton variant="outline" to="/login">
-                      Log in
-                    </UiButton>
-                  </div>
-                </UiScrollArea>
-              </template>
+              <UiScrollArea class="h-full p-5">
+                <div class="flex flex-col gap-2">
+                  <UiButton variant="ghost" class="justify-start text-base" to="/">
+                    Home
+                  </UiButton>
+                  <UiButton v-if="status === 'authenticated'" variant="ghost" class="justify-start text-base" to="/users">
+                    Users
+                  </UiButton>
+                  <UiButton variant="ghost" class="justify-start text-base" to="/public">
+                    Public
+                  </UiButton>
+                  <UiButton v-if="status === 'authenticated'" variant="ghost" class="justify-start text-base" to="/private">
+                    Private
+                  </UiButton>
+                  <UiGradientDivider class="my-5" />
+                  <UiButton to="#">
+                    Sign up
+                  </UiButton>
+                  <UiButton variant="outline" to="#">
+                    Log in
+                  </UiButton>
+                </div>
+              </UiScrollArea>
             </UiSheetContent>
           </UiSheetTrigger>
         </UiSheet>
       </div>
       <div class="header-login-nav hidden items-center gap-3 md:flex">
-        <UiButton v-if="status === 'unauthenticated'" to="/login" variant="ghost" size="sm">
+        <UiThingDataButtonWrapper v-if="status === 'unauthenticated'" data-testid="header-link-login" to="/login" variant="ghost" size="sm">
           Log in
-        </UiButton>
-        <UiButton v-if="status === 'unauthenticated'" to="/signup" size="sm">
+        </UiThingDataButtonWrapper>
+        <UiThingDataButtonWrapper v-if="status === 'unauthenticated'" data-testid="header-link-signup" to="/signup" variant="ghost" size="sm">
           Sign up
-        </UiButton>
+        </UiThingDataButtonWrapper>
 
         <div v-if="status === 'authenticated'" class="flex items-center justify-center">
           <UiDropdownMenu>
@@ -3002,9 +3000,9 @@ async function logout() {
           </UiDropdownMenu>
         </div>
 
-        <UiButton v-if="status === 'authenticated'" variant="ghost" size="sm" @click.prevent="logout">
+        <UiThingDataButtonWrapper v-if="status === 'authenticated'" data-testid="header-link-logout" variant="ghost" size="sm" @click.prevent="logout">
           Log out
-        </UiButton>
+        </UiThingDataButtonWrapper>
       </div>
     </UiContainer>
   </header>
