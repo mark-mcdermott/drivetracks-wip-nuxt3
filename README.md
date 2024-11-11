@@ -817,6 +817,11 @@ export default defineConfig({
 ```
     "playwright": "npx playwright test",
 ```
+- at the bottom of `~/app/frontend/.gitignore`, add:
+```
+# Playwright videos
+spec/e2e/videos
+```
 - `npm run playwright` -> playwright should run (it will try to run the end-to-end tests, but there are no tests yet)
 
 ### Concurrently
@@ -2394,11 +2399,25 @@ test.describe('Private Page', () => {
 ```
 - `npm run front-and-back-dev` -> home, public & private links work (private page is not yet locked)
 - `^ + c`
-- We want to run our public and private specs now, which should pass. But since we've changed the way they look (ie, we created them), we'll have to delete our pixelmatch baseline public and private page images, which are at `~/app/frontend/spec/e2e/screenshots/baseline/page-public.png` and `~/app/frontend/spec/e2e/screenshots/baseline/page-private.png`, respectively.
-- `npm run e2e-tests --path=spec/e2e/public.spec.js` -> public tests should pass now
+- Let's push our changes to prod.
+- `fly deploy`
+- If you go to your frontend url (from `~/app/.secrets`) in a browser you can check that /public and /private now work (but the private page isn't locked yet, i.e., it isn't really private yet).
+
+### Run E2E Tests
+- `cd ~/app/frontend`
+- We want to check our public and private specs locally now, which should pass. But since we've changed the way they look (ie, we created them), we'll have to delete our pixelmatch baseline public and private page images, which are at `~/app/frontend/spec/e2e/screenshots/baseline/page-public.png` and `~/app/frontend/spec/e2e/screenshots/baseline/page-private.png`, respectively.
+- `npm run e2e-tests` -> all 15 specs should pass
 - `^ + c`
-- `npm run e2e-tests --path=spec/e2e/private.spec.js` -> private tests should pass now
-- `^ + c`
+- Now we'll check our public and private specs on local docker.
+- `cd ~/app`
+- `docker compose down -v --remove-orphans`
+- `docker compose build`
+- `docker compose up -d`
+- `docker compose run --rm playwright` -> all 15 specs should pass
+- Now we'll check our public and private specs on CircleCI.
+- `git add .`
+- `git commit -m "Add public/private pages"`
+- `git push`
 
 ### Install Sidebase Nuxt-Auth
 - Next we'll setup our signup/login functionality with `@sidebase/nuxt-auth`
