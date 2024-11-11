@@ -3577,6 +3577,7 @@ require 'rails_helper'
 
 RSpec.describe 'Login/logout requests' do
   before(:all) do
+    User.delete_all
     @user1 = create(:user, :confirmed)
     @user2 = create(:user, :confirmed)
     @user3 = create(:user)
