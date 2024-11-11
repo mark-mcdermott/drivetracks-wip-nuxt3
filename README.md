@@ -4122,7 +4122,12 @@ User.create!(email: 'test2@mail.com', password: 'password')
   - `docker compose build`
   - `docker compose up -d db backend`
   - `docker compose run --rm rspec` <- all 15 tests should pass
-
+- Run on CircleCI
+  - `cd ~/app`
+  - `git add .`
+  - `git commit -m "Add backend auth/registration specs"`
+  - `git push`
+  - check the project CircleCI dashboard - `rspec`, `playwright` and `component-tests` should all pass
 
 ### Update Backend For Prod
 - Our fly.io API was working last time we checked, but that was just a simple API call that wasn't pulling anything from the database at all. We've now added database calls to our frontend and backend code and everything is working locally. But if we deploy either our frontend or backend code to fly.io now, we'll see quite a few errors. So let's fix all that now.
