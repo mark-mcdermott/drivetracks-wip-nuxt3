@@ -2812,9 +2812,9 @@ const uuid = computed(() => {
                 </UiThingDataButtonWrapper>
               </UiNavigationMenuLink>
             </UiNavigationMenuItem>
-            <UiNavigationMenuItem>
+            <UiNavigationMenuItem v-if="status === 'authenticated'">
               <UiNavigationMenuLink as-child>
-                <UiThingDataButtonWrapper v-if="status === 'authenticated'" data-testid="header-link-private" to="/private" variant="ghost" size="sm">
+                <UiThingDataButtonWrapper data-testid="header-link-private" to="/private" variant="ghost" size="sm">
                   Private
                 </UiThingDataButtonWrapper>
               </UiNavigationMenuLink>
@@ -2872,7 +2872,7 @@ const uuid = computed(() => {
 - `npm run front-and-back-dev` -> Private page link now not showing on homepage. When logged in (we'll build out login functionality shortly here), Private page link will show. Also, tests are a mess right now - don't run them yet.
 - `^ + c`
 
-### Add User Dropdown To Nav
+### Add User Link & User Dropdown To Nav
 - If a user is logged in we want their avatar to show in the main nav and if they click it, a dropdown menu will show which has a link to their profile and a link to log out.
 - `cd ~/app/frontend`
 - `npx ui-thing@latest add avatar dropdown-menu`
@@ -2924,7 +2924,7 @@ async function logout() {
             </UiNavigationMenuItem>
             <UiNavigationMenuItem v-if="status === 'authenticated'">
               <UiNavigationMenuLink as-child>
-                <UiButton v-if="status === 'authenticated'" to="/private" variant="ghost" size="sm">
+                <UiButton to="/private" variant="ghost" size="sm">
                   Private
                 </UiButton>
               </UiNavigationMenuLink>
