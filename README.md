@@ -2421,6 +2421,7 @@ test.describe('Private Page', () => {
   - `git add .`
   - `git commit -m "Add public/private pages"`
   - `git push`
+  - check the project CircleCI dashboard - `rspec`, `playwright` and `component-tests` should pass
 
 ### Install Sidebase Nuxt-Auth
 - Next we'll setup our signup/login functionality with `@sidebase/nuxt-auth`
@@ -2799,23 +2800,23 @@ const uuid = computed(() => {
           <UiNavigationMenuList class="gap-2">
             <UiNavigationMenuItem>
               <UiNavigationMenuLink as-child>
-                <UiButton to="/" variant="ghost" size="sm">
+                <UiThingDataButtonWrapper data-testid="header-link-home" to="/" variant="ghost" size="sm">
                   Home
-                </UiButton>
+                </UiThingDataButtonWrapper>
               </UiNavigationMenuLink>
             </UiNavigationMenuItem>
             <UiNavigationMenuItem>
               <UiNavigationMenuLink as-child>
-                <UiButton to="/public" variant="ghost" size="sm">
+                <UiThingDataButtonWrapper data-testid="header-link-public" to="/public" variant="ghost" size="sm">
                   Public
-                </UiButton>
+                </UiThingDataButtonWrapper>
               </UiNavigationMenuLink>
             </UiNavigationMenuItem>
             <UiNavigationMenuItem>
               <UiNavigationMenuLink as-child>
-                <UiButton v-if="status === 'authenticated'" to="/private" variant="ghost" size="sm">
+                <UiThingDataButtonWrapper v-if="status === 'authenticated'" data-testid="header-link-private" to="/private" variant="ghost" size="sm">
                   Private
-                </UiButton>
+                </UiThingDataButtonWrapper>
               </UiNavigationMenuLink>
             </UiNavigationMenuItem>
           </UiNavigationMenuList>
@@ -2840,7 +2841,7 @@ const uuid = computed(() => {
                   <UiButton variant="ghost" class="justify-start text-base" to="/public">
                     Public
                   </UiButton>
-                  <UiButton v-if="status === 'authenticated'" variant="ghost" class="justify-start text-base" to="/private">
+                  <UiButton variant="ghost" class="justify-start text-base" to="/private">
                     Private
                   </UiButton>
                   <UiGradientDivider class="my-5" />
@@ -2857,12 +2858,12 @@ const uuid = computed(() => {
         </UiSheet>
       </div>
       <div class="header-login-nav hidden items-center gap-3 md:flex">
-        <UiButton to="/login" variant="ghost" size="sm">
+        <UiThingDataButtonWrapper data-testid="header-link-login" to="/login" variant="ghost" size="sm">
           Log in
-        </UiButton>
-        <UiButton to="/signup" size="sm">
+        </UiThingDataButtonWrapper>
+        <UiThingDataButtonWrapper data-testid="header-link-signup" to="/signup" variant="ghost" size="sm">
           Sign up
-        </UiButton>
+        </UiThingDataButtonWrapper>
       </div>
     </UiContainer>
   </header>
