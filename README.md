@@ -4087,6 +4087,30 @@ User.create!(email: 'test@mail.com', password: 'password', admin: true)
 User.create!(email: 'test2@mail.com', password: 'password')
 ```
 
+### Update Backend For Prod
+- Our backend API was working on prod last time we checked, but that was just a simple API call that wasn't pulling anything from the database at all. We've now added database calls to our frontend and backend code and everything is working locally. But if we deploy either our frontend or backend code to fly.io now, we'll see quite a few errors. So let's fix all that now.
+- `cd ~/app/backend`
+- in `~/app/backend/config/puma.rb`, below the `port ENV.fetch('PORT', 3000)` on line 37, add this:
+```
+# Specifies the `bind` address that Puma will listen on.
+bind "tcp://0.0.0.0:#{ENV.fetch('PORT', 3000)}"
+```
+- `touch config/initializers/default_url_options.rb`
+- make `~/app/backend/config/initializers/default_url_options.rb` look like this:
+```
+# config/initializers/default_url_options.rb
+
+Rails.application.routes.default_url_options = {
+  host: ENV['DEFAULT_URL_HOST'] || 'localhost',
+  port: ENV['DEFAULT_URL_PORT'] || 3000
+}
+
+# Optionally, you can set different options for different environments
+Rails.application.configure do
+  config.action_mailer.default_url_options = { host: ENV['DEFAULT_URL_HOST'] || 'localhost', port: ENV['DEFAULT_URL_PORT'] || 3000 }
+end
+```
+
 ### Test The API
 - `cd ~/app/backend`
 - `rails server`
@@ -4128,30 +4152,6 @@ User.create!(email: 'test2@mail.com', password: 'password')
   - `git commit -m "Add backend auth/registration specs"`
   - `git push`
   - check the project CircleCI dashboard - `rspec`, `playwright` and `component-tests` should all pass
-
-### Update Backend For Prod
-- Our backend API was working on prod last time we checked, but that was just a simple API call that wasn't pulling anything from the database at all. We've now added database calls to our frontend and backend code and everything is working locally. But if we deploy either our frontend or backend code to fly.io now, we'll see quite a few errors. So let's fix all that now.
-- `cd ~/app/backend`
-- in `~/app/backend/config/puma.rb`, below the `port ENV.fetch('PORT', 3000)` on line 37, add this:
-```
-# Specifies the `bind` address that Puma will listen on.
-bind "tcp://0.0.0.0:#{ENV.fetch('PORT', 3000)}"
-```
-- `touch config/initializers/default_url_options.rb`
-- make `~/app/backend/config/initializers/default_url_options.rb` look like this:
-```
-# config/initializers/default_url_options.rb
-
-Rails.application.routes.default_url_options = {
-  host: ENV['DEFAULT_URL_HOST'] || 'localhost',
-  port: ENV['DEFAULT_URL_PORT'] || 3000
-}
-
-# Optionally, you can set different options for different environments
-Rails.application.configure do
-  config.action_mailer.default_url_options = { host: ENV['DEFAULT_URL_HOST'] || 'localhost', port: ENV['DEFAULT_URL_PORT'] || 3000 }
-end
-```
 
 ### Setup Email
 - I believe our Devise setup will try to send confirmation emails automatically if we seed our users and if we don't have our server setup for email properly, it will error and possibly shut down our machine.
