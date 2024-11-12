@@ -316,7 +316,7 @@ log/*
 tmp/*
 ```
 - `touch .env`
-- make `~/.env` look like this: (TODO: can you just make this any random string here and it will work?)
+- make `~/.env` look like this: (TODO: 1) I also have this set in the CI UI - remove here? 2) can you just make this any random string here and it will work?)
 ```
 POSTGRES_PASSWORD=048O7vwZ-r5
 ```
@@ -4110,6 +4110,9 @@ Rails.application.configure do
   config.action_mailer.default_url_options = { host: ENV['DEFAULT_URL_HOST'] || 'localhost', port: ENV['DEFAULT_URL_PORT'] || 3000 }
 end
 ```
+
+### Add SECRET_KEY_BASE To CircleCI
+
 
 ### Test The API
 - `cd ~/app/backend`
