@@ -320,6 +320,7 @@ tmp/*
 ```
 POSTGRES_PASSWORD=048O7vwZ-r5
 ```
+- TODO: I have POSTGRES_PASSWORD & SECRET_KEY_BASE in the CI UI - add a step to add them here?
 - `cd ~/app/backend`
 - `touch wait-for-it.sh`
 - make `~/app/backend/wait-for-it.sh` look like this:
