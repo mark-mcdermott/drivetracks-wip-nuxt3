@@ -114,6 +114,7 @@ workflows:
 - in a browser, go to your fly.io frontend app url. You should see the default Nuxt placeholder homepage.
 
 ### Set Bundler Version
+- TODO: I'm pretty sure this section can be deleted
 - check your bundler version - this is at the bottom of ~/app/backend/Gemfile.lock. We want it to say `2.4.19`. If it doesn't, try this:
   - `gem install bundler -v 2.4.19`
   - `bundle _2.4.19_ lock --update`
