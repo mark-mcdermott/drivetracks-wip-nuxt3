@@ -657,6 +657,9 @@ commands:
           command: |
             echo "POSTGRES_PASSWORD=${POSTGRES_PASSWORD}" > backend/.env
             echo "RAILS_ENV=test" >> backend/.env
+      - run:
+          name: Display .env for Verification
+          command: cat backend/.env
 
   ensure_permissions:
     steps:
@@ -682,35 +685,33 @@ jobs:
     executor: ubuntu_machine_executor
     steps:
       - checkout
-      - run:
-          name: Set Absolute Path for Backend Directory
-          command: |
-            export BACKEND_PATH=$(pwd)/backend
-            echo "export BACKEND_PATH=${BACKEND_PATH}" >> $BASH_ENV
-
       - install_docker_compose
       - create_env_file
       - ensure_permissions
       - build_backend_image
-
+      - run:
+          name: Confirm .env File Exists in Docker
+          command: docker-compose run --rm rspec ls -l /app/backend/.env
+      - run:
+          name: Check First Few Characters of SECRET_KEY_BASE
+          command: echo "SECRET_KEY_BASE=${SECRET_KEY_BASE:0:6}"
       - run:
           name: Adjust Backend Folder Permissions on Host
           command: sudo chmod -R 777 /home/circleci/project/backend
-
       - run:
-          name: Verify Permissions Inside Backend Container
-          command: |
-            docker-compose run --rm rspec bash -c 'ls -la /app/backend/log /app/backend/tmp'
-
+          name: Remove Existing Containers (if any)
+          command: docker-compose down -v
       - run:
           name: Run RSpec Tests
           command: |
             cd backend
             docker-compose up --no-build --abort-on-container-exit rspec
-
+      - run:
+          name: Verify Permissions Inside Backend Container
+          command: |
+            docker-compose run --rm rspec bash -c 'ls -la /app/backend/log /app/backend/tmp'
       - store_test_results:
           path: backend/tmp/rspec_results
-
       - store_artifacts:
           path: backend/log
 
@@ -1443,6 +1444,9 @@ commands:
           command: |
             echo "POSTGRES_PASSWORD=${POSTGRES_PASSWORD}" > backend/.env
             echo "RAILS_ENV=test" >> backend/.env
+      - run:
+          name: Display .env for Verification
+          command: cat backend/.env
 
   ensure_permissions:
     steps:
@@ -1468,35 +1472,33 @@ jobs:
     executor: ubuntu_machine_executor
     steps:
       - checkout
-      - run:
-          name: Set Absolute Path for Backend Directory
-          command: |
-            export BACKEND_PATH=$(pwd)/backend
-            echo "export BACKEND_PATH=${BACKEND_PATH}" >> $BASH_ENV
-
       - install_docker_compose
       - create_env_file
       - ensure_permissions
       - build_backend_image
-
+      - run:
+          name: Confirm .env File Exists in Docker
+          command: docker-compose run --rm rspec ls -l /app/backend/.env
+      - run:
+          name: Check First Few Characters of SECRET_KEY_BASE
+          command: echo "SECRET_KEY_BASE=${SECRET_KEY_BASE:0:6}"
       - run:
           name: Adjust Backend Folder Permissions on Host
           command: sudo chmod -R 777 /home/circleci/project/backend
-
       - run:
-          name: Verify Permissions Inside Backend Container
-          command: |
-            docker-compose run --rm rspec bash -c 'ls -la /app/backend/log /app/backend/tmp'
-
+          name: Remove Existing Containers (if any)
+          command: docker-compose down -v
       - run:
           name: Run RSpec Tests
           command: |
             cd backend
             docker-compose up --no-build --abort-on-container-exit rspec
-
+      - run:
+          name: Verify Permissions Inside Backend Container
+          command: |
+            docker-compose run --rm rspec bash -c 'ls -la /app/backend/log /app/backend/tmp'
       - store_test_results:
           path: backend/tmp/rspec_results
-
       - store_artifacts:
           path: backend/log
 
@@ -1542,6 +1544,17 @@ jobs:
           command: sudo chmod -R 777 /home/circleci/project/backend
 
       - run:
+          name: Set DOCKER_ENV to False in CI
+          command: |
+            echo "DOCKER_ENV=false" >> $BASH_ENV
+            source $BASH_ENV
+
+      - run:
+          name: Check CI and DOCKER_ENV Values
+          command: |
+            echo "CI=$CI, DOCKER_ENV=$DOCKER_ENV"
+
+      - run:
           name: Run Backend and Frontend Services
           command: |
             docker-compose up -d db backend frontend
@@ -1557,9 +1570,28 @@ jobs:
             docker-compose up --abort-on-container-exit playwright
 
       - store_artifacts:
-          path: frontend/spec/e2e/screenshots/baseline
-          destination: baseline_images
+          path: frontend/spec/e2e/screenshots/baseline/ci
+          destination: images_baseline_ci
 
+      - store_artifacts:
+          path: frontend/spec/e2e/screenshots/baseline/docker
+          destination: images_baseline_docker
+
+      - store_artifacts:
+          path: frontend/spec/e2e/screenshots/baseline/local
+          destination: images_baseline_local
+
+      - store_artifacts:
+          path: frontend/spec/e2e/screenshots/current
+          destination: images_current
+
+      - store_artifacts:
+          path: frontend/spec/e2e/screenshots/diff
+          destination: images_diffs
+
+      - store_artifacts:
+          path: frontend/spec/e2e/videos
+          destination: videos
 
 workflows:
   version: 2
@@ -1567,6 +1599,7 @@ workflows:
     jobs:
       - rspec
       - playwright
+
 ```
 - `git add .` 
 - `git commit -m "Add circleci"`
@@ -2093,6 +2126,9 @@ commands:
           command: |
             echo "POSTGRES_PASSWORD=${POSTGRES_PASSWORD}" > backend/.env
             echo "RAILS_ENV=test" >> backend/.env
+      - run:
+          name: Display .env for Verification
+          command: cat backend/.env
 
   ensure_permissions:
     steps:
@@ -2118,35 +2154,33 @@ jobs:
     executor: ubuntu_machine_executor
     steps:
       - checkout
-      - run:
-          name: Set Absolute Path for Backend Directory
-          command: |
-            export BACKEND_PATH=$(pwd)/backend
-            echo "export BACKEND_PATH=${BACKEND_PATH}" >> $BASH_ENV
-
       - install_docker_compose
       - create_env_file
       - ensure_permissions
       - build_backend_image
-
+      - run:
+          name: Confirm .env File Exists in Docker
+          command: docker-compose run --rm rspec ls -l /app/backend/.env
+      - run:
+          name: Check First Few Characters of SECRET_KEY_BASE
+          command: echo "SECRET_KEY_BASE=${SECRET_KEY_BASE:0:6}"
       - run:
           name: Adjust Backend Folder Permissions on Host
           command: sudo chmod -R 777 /home/circleci/project/backend
-
       - run:
-          name: Verify Permissions Inside Backend Container
-          command: |
-            docker-compose run --rm rspec bash -c 'ls -la /app/backend/log /app/backend/tmp'
-
+          name: Remove Existing Containers (if any)
+          command: docker-compose down -v
       - run:
           name: Run RSpec Tests
           command: |
             cd backend
             docker-compose up --no-build --abort-on-container-exit rspec
-
+      - run:
+          name: Verify Permissions Inside Backend Container
+          command: |
+            docker-compose run --rm rspec bash -c 'ls -la /app/backend/log /app/backend/tmp'
       - store_test_results:
           path: backend/tmp/rspec_results
-
       - store_artifacts:
           path: backend/log
 
@@ -2192,6 +2226,17 @@ jobs:
           command: sudo chmod -R 777 /home/circleci/project/backend
 
       - run:
+          name: Set DOCKER_ENV to False in CI
+          command: |
+            echo "DOCKER_ENV=false" >> $BASH_ENV
+            source $BASH_ENV
+
+      - run:
+          name: Check CI and DOCKER_ENV Values
+          command: |
+            echo "CI=$CI, DOCKER_ENV=$DOCKER_ENV"
+
+      - run:
           name: Run Backend and Frontend Services
           command: |
             docker-compose up -d db backend frontend
@@ -2207,14 +2252,35 @@ jobs:
             docker-compose up --abort-on-container-exit playwright
 
       - store_artifacts:
-          path: frontend/spec/e2e/screenshots/baseline
-          destination: baseline_images
+          path: frontend/spec/e2e/screenshots/baseline/ci
+          destination: images_baseline_ci
+
+      - store_artifacts:
+          path: frontend/spec/e2e/screenshots/baseline/docker
+          destination: images_baseline_docker
+
+      - store_artifacts:
+          path: frontend/spec/e2e/screenshots/baseline/local
+          destination: images_baseline_local
+
+      - store_artifacts:
+          path: frontend/spec/e2e/screenshots/current
+          destination: images_current
+
+      - store_artifacts:
+          path: frontend/spec/e2e/screenshots/diff
+          destination: images_diffs
+
+      - store_artifacts:
+          path: frontend/spec/e2e/videos
+          destination: videos
 
   component-tests:
     machine:
       image: ubuntu-2004:current
     steps:
       - checkout
+      - create_env_file
 
       - run:
           name: Install Docker Compose
@@ -2546,87 +2612,108 @@ it('has a login navigation', async () => {
 ### Update Page Specs For Logged In/Out Functionality
 - make `~/app/frontend/spec/e2e/shared.js` look like this:
 ```
-import fs from 'node:fs'
-import path from 'node:path'
-import pixelmatch from 'pixelmatch'
-import { PNG } from 'pngjs'
-import { expect } from 'vitest'
+// shared.js
+import { promises as fs } from 'fs';
+import pixelmatch from 'pixelmatch';
+import { PNG } from 'pngjs';
 
-export async function testHeaderLinksLoggedOut(page) {
-  const mainNav = await page.locator('header nav.header-main-nav')
-  const loginNav = await page.locator('header .header-login-nav')
-  const homeLink = await mainNav.locator('a[href="/"]')
-  const publicLink = await mainNav.locator('a[href="/public"]')
-  const privateLink = await mainNav.locator('a[href="/private"]')
-  const loginLink = await loginNav.locator('a[href="/login"]')
-  const signupLink = await loginNav.locator('a[href="/signup"]')
-
-  expect(await homeLink.textContent()).toContain('Home')
-  expect(await publicLink.textContent()).toContain('Public')
-  expect(await privateLink.count()).toBe(0)
-  expect(await loginLink.textContent()).toContain('Log in')
-  expect(await signupLink.textContent()).toContain('Sign up')
+// Sets baseline directory based on environment
+const getBaselineDir = () => {
+  const ciValue = process.env.CI || 'undefined'
+  const dockerValue = process.env.DOCKER_ENV || 'undefined'
+  console.log(`CI: ${ciValue}, DOCKER_ENV: ${dockerValue}`)
+  if (process.env.CI === 'true') return 'spec/e2e/screenshots/baseline/ci'
+  if (process.env.DOCKER_ENV === 'true') return 'spec/e2e/screenshots/baseline/docker'
+  return 'spec/e2e/screenshots/baseline/local'
 }
 
-export async function testHeaderLinksLoggedIn(page) {
-  const mainNav = await page.locator('header nav.header-main-nav')
-  const loginNav = await page.locator('header .header-login-nav')
-  const homeLink = await mainNav.locator('a[href="/"]')
-  const publicLink = await mainNav.locator('a[href="/public"]')
-  const privateLink = await mainNav.locator('a[href="/private"]')
-  const loginLink = await loginNav.locator('a[href="/login"]')
-  const signupLink = await loginNav.locator('a[href="/signup"]')
-  const signOutButton = await loginNav.locator('button:has-text("Log out")')
+// Main function to compare screenshots, accepting a dynamic URL
+export async function compareScreenshot(page, testName, { browserName = 'chromium', targetUrl }) {
+  const baselineDir = getBaselineDir();
+  const baselinePath = `${baselineDir}/${testName}.png`;
+  const screenshotPath = `spec/e2e/screenshots/current/${testName}.png`;
 
-  expect(await homeLink.textContent()).toContain('Home')
-  expect(await publicLink.textContent()).toContain('Public')
-  expect(await privateLink.textContent()).toContain('Private')
-  expect(await loginLink.count()).toBe(0)
-  expect(await signupLink.count()).toBe(0)
-  expect(await signOutButton.textContent()).toContain('Log out')
-expect(await signOutButton.isVisible()).toBe(true)
-}
+  await page.setViewportSize({ width: 1280, height: 720 });
+  await page.goto(targetUrl); // Use the provided target URL
+  await fs.mkdir('spec/e2e/screenshots/current', { recursive: true });
+  await page.screenshot({ path: screenshotPath });
 
-export async function testFooterText(page) {
-  const p = await page.locator('footer p')
-  const pText = await p.textContent()
-  expect(await p.isVisible()).toBe(true)
-  expect(pText).toContain('© 2024. Made with Nuxt, Tailwind, UI Thing, Rails, Fly.io and S3.')
-}
+  const baselineExists = await fs.access(baselinePath).then(() => true).catch(() => false);
 
-export async function compareScreenshotWithBaseline(page, baselineName, diffName) {
-  // Capture the screenshot
-  const screenshotPath = path.resolve(__dirname, 'screenshots', 'current', `${baselineName}.png`)
-  await page.screenshot({ path: screenshotPath, fullPage: true })
-
-  // Load baseline image
-  const baselinePath = path.resolve(__dirname, 'screenshots', 'baseline', `${baselineName}.png`)
-  if (!fs.existsSync(baselinePath)) {
-    console.warn(`Baseline image not found for ${baselineName}, saving current screenshot as baseline.`)
-    fs.mkdirSync(path.dirname(baselinePath), { recursive: true })
-    fs.copyFileSync(screenshotPath, baselinePath)
-    return
+  // Create baseline if not found
+  if (!baselineExists && browserName === 'chromium') {
+    console.log('Baseline image not found. Creating new baseline...');
+    await fs.mkdir(baselineDir, { recursive: true });
+    await fs.copyFile(screenshotPath, baselinePath);
+    console.log('New baseline image created at:', baselinePath);
   }
 
-  const baselineImg = PNG.sync.read(fs.readFileSync(baselinePath))
-  const currentImg = PNG.sync.read(fs.readFileSync(screenshotPath))
+  if (baselineExists) {
+    const baselineImage = PNG.sync.read(await fs.readFile(baselinePath));
+    const currentImage = PNG.sync.read(await fs.readFile(screenshotPath));
 
-  // Compare the images
-  const { width, height } = baselineImg
-  const diff = new PNG({ width, height })
-  const numDiffPixels = pixelmatch(baselineImg.data, currentImg.data, diff.data, width, height, { threshold: 0.1 })
+    const { width, height } = baselineImage;
+    const diff = new PNG({ width, height });
+    const pixelDiffCount = pixelmatch(
+      baselineImage.data,
+      currentImage.data,
+      diff.data,
+      width,
+      height,
+      { threshold: 0.1 }
+    );
 
-  // If images don't match, save the diff
-  if (numDiffPixels > 0) {
-    const diffPath = path.resolve(__dirname, 'screenshots', 'diff', `${diffName}.png`)
-    fs.mkdirSync(path.dirname(diffPath), { recursive: true })
-    fs.writeFileSync(diffPath, PNG.sync.write(diff))
+    if (pixelDiffCount > 0) {
+      const diffPath = `spec/e2e/screenshots/diff/${testName}-diff.png`;
+      await fs.mkdir('spec/e2e/screenshots/diff', { recursive: true });
+      await fs.writeFile(diffPath, PNG.sync.write(diff));
+      console.log(`Difference found! Diff image saved at ${diffPath}`);
+    }
+
+    return pixelDiffCount;
   }
 
-  // Assert that the number of different pixels is within the acceptable threshold
-  expect(numDiffPixels).toBeLessThan(100)
+  return 0;
 }
 
+// Header details verification
+export async function verifyHeaderDetails(page, expect) {
+  const homeLink = page.getByTestId('header-link-home');
+  const publicLink = page.getByTestId('header-link-public');
+  const privateLink = page.getByTestId('header-link-private');
+
+  await expect(homeLink).toBeVisible({ timeout: 30000 });
+  await expect(homeLink).toHaveText('Home');
+  await expect(homeLink).toHaveAttribute('href', '/');
+  await expect(publicLink).toBeVisible();
+  await expect(publicLink).toHaveText('Public');
+  await expect(publicLink).toHaveAttribute('href', '/public');
+  await expect(privateLink).toBeVisible();
+  await expect(privateLink).toHaveText('Private');
+  await expect(privateLink).toHaveAttribute('href', '/private');
+}
+
+// Footer details verification
+export async function verifyFooterDetails(page, expect) {
+  const footerP = page.getByTestId('footer-p');
+  await expect(footerP).toBeVisible({ timeout: 30000 });
+  await expect(footerP).toHaveText('© 2024. Made with Nuxt, Tailwind, UI Thing, Rails, Fly.io and S3.');
+
+  const nuxtLink = footerP.locator('a', { hasText: 'Nuxt' });
+  await expect(nuxtLink).toHaveAttribute('href', 'https://nuxt.com');
+  const tailwindLink = footerP.locator('a', { hasText: 'Tailwind' });
+  await expect(tailwindLink).toHaveAttribute('href', 'https://tailwindcss.com/');
+  const uiThingLink = footerP.locator('a', { hasText: 'UI Thing' });
+  await expect(uiThingLink).toHaveAttribute('href', 'https://ui-thing.behonbaker.com');
+  const railsLink = footerP.locator('a', { hasText: 'Rails' });
+  await expect(railsLink).toHaveAttribute('href', 'https://rubyonrails.org/');
+  const flyLink = footerP.locator('a', { hasText: 'Fly.io' });
+  await expect(flyLink).toHaveAttribute('href', 'https://fly.io');
+  const s3Link = footerP.locator('a', { hasText: 'S3' });
+  await expect(s3Link).toHaveAttribute('href', 'https://aws.amazon.com/s3/');
+}
+
+// TODO: Needs some more work
 export async function logIn(page) {
   const logInButton = await page.locator('header a[href="/login"]')
   expect(await logInButton.isVisible()).toBe(true)
