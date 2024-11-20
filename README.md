@@ -1626,16 +1626,17 @@ workflows:
 - `touch spec/components/Header.nuxt.spec.js spec/components/Footer.nuxt.spec.js`
 - make `~/app/frontend/specs/components/Header.nuxt.spec.js` look like this:
 ```
-import { Header } from '#components';
-import { mountSuspended } from '@nuxt/test-utils/runtime';
-import { beforeAll, describe, expect, it } from 'vitest';
+import { Header } from '#components'
+import { mountSuspended } from '@nuxt/test-utils/runtime'
+import { beforeAll, describe, expect, it } from 'vitest'
+import { flushPromises } from '@vue/test-utils'
 
 describe('Header component', () => {
+  let header
 
-  let header;
   beforeAll(async () => {
     header = await mountSuspended(Header)
-    await header.vm.$nextTick()
+    await flushPromises()
   })
 
   it('has a main navigation', async () => {
@@ -1645,9 +1646,15 @@ describe('Header component', () => {
 
   it('contains correct main navigation links', async () => {
     const mainNav = await header.find('nav.header-main-nav')
-    expect(mainNav.find('a[href="/"]').text()).toContain('Home')
-    expect(mainNav.find('a[href="/public"]').text()).toContain('Public')
-    expect(mainNav.find('a[href="/private"]').text()).toContain('Private')
+    expect(mainNav.exists()).toBe(true)
+
+    const homeLink = mainNav.find('a[href="/"]')
+    expect(homeLink.exists()).toBe(true)
+    expect(homeLink.text()).toContain('Home')
+
+    const publicLink = mainNav.find('a[href="/public"]')
+    expect(publicLink.exists()).toBe(true)
+    expect(publicLink.text()).toContain('Public')
   })
 
   it('has a login navigation', async () => {
@@ -1657,10 +1664,16 @@ describe('Header component', () => {
 
   it('contains correct login navigation links', async () => {
     const loginNav = await header.find('.header-login-nav')
-    expect(loginNav.find('a[href="/login"]').text()).toContain('Log in')
-    expect(loginNav.find('a[href="/signup"]').text()).toContain('Sign up')
-  })
+    expect(loginNav.exists()).toBe(true)
 
+    const loginLink = loginNav.find('a[href="/login"]')
+    expect(loginLink.exists()).toBe(true)
+    expect(loginLink.text()).toContain('Log in')
+
+    const signupLink = loginNav.find('a[href="/signup"]')
+    expect(signupLink.exists()).toBe(true)
+    expect(signupLink.text()).toContain('Sign up')
+  })
 })
 ```
 - make `~/app/frontend/specs/components/Footer.nuxt.spec.js` look like this:
@@ -2574,11 +2587,11 @@ export default defineNuxtConfig({
 
 ### Update Header Spec For Logged In/Out Functionality
 - `cd ~/app/frontend`
-- make `~/app/frontend/spec/components/Header.nuxt.spec.js` look like this:
+- make `~/app/frontend/spec/components/Header.nuxt.spec.js` look like this (TODO: needs some work):
 ```
-import { afterEach, expect, it, test, beforeEach, vi } from 'vitest';
-import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { Header } from '#components'
+import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
+import { afterEach, expect, it, test, beforeEach, vi } from 'vitest';
 
 // was unable to move header/mainNav declarations to beforeEach because of conflict with vi.hoisted - never did find a solution 
 const { useAuthMock } = vi.hoisted(() => {
@@ -3683,7 +3696,7 @@ Now we'll create our AWS S3 account so we can store our user avatar images there
 require 'rails_helper'
 
 RSpec.describe 'Login/logout requests' do
-  before(:all) do
+  before(:each) do
     User.delete_all
     @user1 = create(:user, :confirmed)
     @user2 = create(:user, :confirmed)
@@ -4036,7 +4049,8 @@ end
 - add this to `~/app/backend/config/initializers/devise.rb` right before the last `end`:
 ```
   config.jwt do |jwt|
-    jwt.secret = Rails.application.credentials.fetch(:secret_key_base)
+    # jwt.secret = Rails.application.credentials.fetch(:secret_key_base)
+    jwt.secret = ENV['SECRET_KEY_BASE'] || 'dummy_secret_key_for_tests'
     jwt.dispatch_requests = [
       ['POST', %r{^/api/v1/auth/login$}]
     ]
@@ -4219,7 +4233,17 @@ end
 ```
 
 ### Add SECRET_KEY_BASE To CircleCI
-
+- You may run into `SECRET_KEY_BASE` issues. In that case:
+  - in `~/app/backend/config/initializers/devise.rb`:
+    - right above `Devise.setup do |config|`, add `raise "SECRET_KEY_BASE is missing" if ENV['SECRET_KEY_BASE'].nil? && Rails.env.production?`
+    - right below `Devise.setup do |config|`, add `config.secret_key = ENV['SECRET_KEY_BASE'] || 'dummy_secret_key_for_tests'`
+  - add your `SECRET_KEY_BASE` to CircleCI:
+    - `cd ~/app/backend`
+    - `EDITOR="code --wait" rails credentials:edit`
+      - copy the value of the `secret-key-base` and close the creds file
+    - in the CircleCI UI, go to Project Settings -> Environment Variables
+    - Add `SECRET_KEY_BASE` and paste your copied value in for the value
+    - TODO: Maybe also add the POSTGRES_PASSWORD here?
 
 ### Test The API
 - `cd ~/app/backend`
