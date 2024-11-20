@@ -2522,7 +2522,7 @@ const development = process.env.NODE_ENV !== 'production'
 
 export default defineNuxtConfig({
   devtools: { enabled: true },
-  runtimeConfig: { public: { apiBase: process.env.API_BASE || 'https://app001-backend.fly.dev/api/v1' } },
+  runtimeConfig: { public: { apiBase: process.env.API_BASE || '<backend url>/api/v1' } },
   devServer: { port: 3001 },
   modules: [
     "@nuxt/test-utils/module",
@@ -2548,9 +2548,9 @@ export default defineNuxtConfig({
     ],
   },
   auth: {
-    computed: { pathname: development ? 'http://localhost:3000/api/v1/auth/' : 'https://app001-backend.fly.dev/api/v1/auth/' },
+    computed: { pathname: development ? 'http://localhost:3000/api/v1/auth/' : '<backend url>/api/v1/auth/' },
     isEnabled: true,
-    baseURL: development ? 'http://localhost:3000/api/v1/auth/' : 'https://app001-backend.fly.dev/api/v1/auth/',
+    baseURL: development ? 'http://localhost:3000/api/v1/auth/' : '<backend url>/api/v1/auth/',
     globalAppMiddleware: { isEnabled: true },
     provider: {
       type: 'local',
