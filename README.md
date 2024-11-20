@@ -1064,7 +1064,7 @@ export async function compareScreenshot(page, testName, { browserName = 'chromiu
 ```
 // home.spec.ts
 import { test, expect } from '@playwright/test';
-import { compareScreenshot, verifyHeaderDetails, verifyFooterDetails } from './shared';
+import { compareScreenshot } from './shared';
 
 test('Homepage body text', async ({ page }) => {
   await page.goto('/');
