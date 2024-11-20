@@ -315,10 +315,15 @@ CMD ["./bin/rails", "server", "-b", "0.0.0.0", "-p", "8080"]
 log/*
 tmp/*
 ```
+
 - `touch .env`
+- `cd backend`
+- `EDITOR="code --wait" rails credentials:edit`
+- copy the `secret_key_base` value and close the file
 - make `~/.env` look like this: (TODO: 1) I also have this set in the CI UI - remove here? 2) can you just make this any random string here and it will work?)
 ```
 POSTGRES_PASSWORD=048O7vwZ-r5
+SECRET_KEY_BASE=<paste secret_key_base value here>
 ```
 - TODO: I have POSTGRES_PASSWORD & SECRET_KEY_BASE in the CI UI - add a step to add them here?
 - `cd ~/app/backend`
