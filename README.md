@@ -3715,6 +3715,7 @@ Now we'll create our AWS S3 account so we can store our user avatar images there
 
 ### Auth Spec
 - `cd ~/app/backend`
+- `mkdir spec/requests/api/v1/auth`
 - `touch spec/requests/api/v1/auth/auth_spec.rb`
 - make `spec/requests/api/v1/auth/auth_spec.rb` look like this:
 ```
