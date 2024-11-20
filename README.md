@@ -856,7 +856,7 @@ done
 echo "Ok, rails server is up and running - let's start testing!"
 ```
 - `chmod +x wait-for-rails.sh`
-- to `~/app/frontend/package.json` in the `scripts` section add: (TODO: these scripts will need some tweaking for the new playwright setup)
+- to `~/app/frontend/package.json` in the `scripts` section add:
 ```
     "wait-then-playwright": "./wait-for-rails.sh && npx playwright test",
     "rails-server": "cd ../backend && rails server",
