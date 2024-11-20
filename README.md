@@ -598,16 +598,20 @@ services:
       RAILS_ENV: test
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       DATABASE_URL: "postgres://postgres:${POSTGRES_PASSWORD}@db:5432/backend_test"
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE}
     volumes:
       - bundle_data:/usr/local/bundle
       - ./backend:/app/backend
     working_dir: /app/backend
+    env_file:
+      - ./backend/.env
     depends_on:
       db:
         condition: service_healthy
     user: "${DOCKER_USER:-circleci}"
     command: >
       bash -c '
+        echo "SECRET_KEY_BASE is: $SECRET_KEY_BASE" && # Debug line to confirm visibility
         ./wait-for-it.sh db:5432 -- bundle exec rails db:drop db:create db:migrate &&
         bundle exec rspec
       '
@@ -1276,16 +1280,20 @@ services:
       RAILS_ENV: test
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       DATABASE_URL: "postgres://postgres:${POSTGRES_PASSWORD}@db:5432/backend_test"
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE}
     volumes:
       - bundle_data:/usr/local/bundle
       - ./backend:/app/backend
     working_dir: /app/backend
+    env_file:
+      - ./backend/.env
     depends_on:
       db:
         condition: service_healthy
     user: "${DOCKER_USER:-circleci}"
     command: >
       bash -c '
+        echo "SECRET_KEY_BASE is: $SECRET_KEY_BASE" && # Debug line to confirm visibility
         ./wait-for-it.sh db:5432 -- bundle exec rails db:drop db:create db:migrate &&
         bundle exec rspec
       '
@@ -1324,11 +1332,11 @@ services:
         condition: service_healthy
     environment:
       BASE_URL: http://frontend:3000
-      DOCKER_ENV: true  # Ensure this is explicitly set to trigger Docker path in shared.js
       RAILS_ENV: test
       DATABASE_URL: "postgres://postgres:${POSTGRES_PASSWORD}@db:5432/backend_test"
       API_URL: http://backend:3000
-      CI: false
+      DOCKER_ENV: "${DOCKER_ENV:-false}"  # Default to false if not explicitly set
+      CI: "${CI:-false}"  # Explicitly set to false by default in Docker
     command: bash -c "ls -d node_modules/* | grep -E 'vitest|jest' || npx playwright test"
     volumes:
       - ./frontend/spec/e2e/screenshots/baseline:/app/frontend/spec/e2e/screenshots/baseline
@@ -2016,16 +2024,20 @@ services:
       RAILS_ENV: test
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       DATABASE_URL: "postgres://postgres:${POSTGRES_PASSWORD}@db:5432/backend_test"
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE}
     volumes:
       - bundle_data:/usr/local/bundle
       - ./backend:/app/backend
     working_dir: /app/backend
+    env_file:
+      - ./backend/.env
     depends_on:
       db:
         condition: service_healthy
     user: "${DOCKER_USER:-circleci}"
     command: >
       bash -c '
+        echo "SECRET_KEY_BASE is: $SECRET_KEY_BASE" && # Debug line to confirm visibility
         ./wait-for-it.sh db:5432 -- bundle exec rails db:drop db:create db:migrate &&
         bundle exec rspec
       '
@@ -2064,11 +2076,11 @@ services:
         condition: service_healthy
     environment:
       BASE_URL: http://frontend:3000
-      DOCKER_ENV: true  # Ensure this is explicitly set to trigger Docker path in shared.js
       RAILS_ENV: test
       DATABASE_URL: "postgres://postgres:${POSTGRES_PASSWORD}@db:5432/backend_test"
       API_URL: http://backend:3000
-      CI: false
+      DOCKER_ENV: "${DOCKER_ENV:-false}"  # Default to false if not explicitly set
+      CI: "${CI:-false}"  # Explicitly set to false by default in Docker
     command: bash -c "ls -d node_modules/* | grep -E 'vitest|jest' || npx playwright test"
     volumes:
       - ./frontend/spec/e2e/screenshots/baseline:/app/frontend/spec/e2e/screenshots/baseline
