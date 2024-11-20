@@ -779,9 +779,14 @@ export default defineNuxtConfig({
 - `touch vitest.config.ts`
 - make `~/app/frontend/vitest.config.ts` look like this:
 ```
-import { defineVitestConfig } from '@nuxt/test-utils/config'
+import { defineVitestConfig } from '@nuxt/test-utils/config';
 
-export default defineVitestConfig({ })
+export default defineVitestConfig({
+  test: {
+    globals: true,
+    environment: 'happy-dom',
+  },
+})
 ```
 - add `plugins: ['vitest'],` to `~/app/frontend/eslint.config.js` so it looks like this:
 ```
