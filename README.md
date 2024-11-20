@@ -1954,6 +1954,7 @@ test('current screenshot matches baseline', async ({ page, browserName }) => {
 - make `~/app/frontend/Dockerfile.component-tests` look like this:
 ```
 FROM mcr.microsoft.com/playwright:v1.47.2-focal
+FROM mcr.microsoft.com/playwright:v1.47.2-focal
 
 WORKDIR /app/frontend
 
@@ -1961,6 +1962,7 @@ WORKDIR /app/frontend
 COPY package.json package-lock.json ./
 
 # Install all dependencies including dev
+RUN rm -rf node_modules
 RUN npm ci --include=dev
 
 # Copy application code
