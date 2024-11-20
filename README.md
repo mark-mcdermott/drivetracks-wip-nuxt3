@@ -3714,6 +3714,7 @@ Now we'll create our AWS S3 account so we can store our user avatar images there
 - we're now done with our S3 setup and our AWS dashboard, at least for now. So let's go back to our terminal where we're building out our rails backend
 
 ### Auth Spec
+- `cd ~/app/backend`
 - `touch spec/requests/api/v1/auth/auth_spec.rb`
 - make `spec/requests/api/v1/auth/auth_spec.rb` look like this:
 ```
