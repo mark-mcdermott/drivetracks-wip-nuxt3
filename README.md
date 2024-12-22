@@ -327,6 +327,20 @@ POSTGRES_PASSWORD=048O7vwZ-r5
 SECRET_KEY_BASE=<paste secret_key_base value here>
 ```
 - TODO: I have POSTGRES_PASSWORD & SECRET_KEY_BASE in the CI UI - add a step to add them here?
+- in CircleCI add the environment variables:
+  - go to your CircleCI project
+  - click Project Settings
+  - click Environment Variables
+    - add the postgres password:
+      - click Add Environment Variable
+      - Name: `POSTGRES_PASSWORD`
+      - Value: <copy/paste the fly.io cluster postgres password from `~/.secrets` here>
+      - click Add Environment Variable
+    - add the rails secret key base:
+      - click Add Environment Variable
+      - Name: `SECRET_KEY_BASE`
+      - Value: <paste the rails secret_key_base you used above. run `EDITOR="code --wait" rails credentials:edit` again if you need to copy it.>
+      - click Add Environment Variable
 - `cd ~/app/backend`
 - `touch .env`
 - `touch wait-for-it.sh`
