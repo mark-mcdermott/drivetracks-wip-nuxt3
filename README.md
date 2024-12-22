@@ -233,7 +233,7 @@ end
 - `cd ~/app/backend`
 - `mkdir -p spec/requests/api/v1`
 - `touch spec/requests/api/v1/health_controller_spec.rb`
-- make `~/app/backend/app/spec/requests/api/v1/health_controller_spec.rb` look like this:
+- make `~/app/backend/spec/requests/api/v1/health_controller_spec.rb` look like this:
 ```
 require 'rails_helper'
 
