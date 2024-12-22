@@ -252,7 +252,7 @@ end
 
 ### Deploy Backend To Fly.io
 - `cd ~/app/backend`
-- make `~/app/backend/fly.toml` look like this (replacing `<backend url>` with your backend url from `.secretes` and `<backend app name>` with the backend app name, which is the the backend url with out `https://` at the beginning and without `.fly.dev` at the end):
+- make `~/app/backend/fly.toml` look like this (replacing `<backend url>` with your backend url from `.secrets` and `<backend app name>` with the backend app name, which is the the backend url with out `https://` at the beginning and without `.fly.dev` at the end):
 ```
 app = '<backend app name>'
 primary_region = 'dfw'
