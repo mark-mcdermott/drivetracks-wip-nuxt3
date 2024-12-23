@@ -1094,8 +1094,8 @@ test('current screenshot matches baseline', async ({ page, browserName }) => {
 })
 ```
 
-run the failing test with npm run e2e-tests -> tests should fail
-^ + c to kill the test server
+run the failing test with `npm run e2e-tests` -> tests should fail
+`^ + c` to kill the test server
 
 ### Non-Hello-World Homepage Content
 - Here we'll replace our "Hello World" placeholder homepage with some lorem-type content in a h1, some body copy and some buttons. Our `p` tag body content will actually be the response from our backend health check api, to test that the backend and frontend are wired together correctly. The We'll use our UI Thing kit, which uses tailwind, to make it look pretty nice.
