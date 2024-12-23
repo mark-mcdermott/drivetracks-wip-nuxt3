@@ -1128,7 +1128,7 @@ const healthStatus = await $fetch(`${useRuntimeConfig().public.apiBase}/up`)
 ```
 - `npm run front-and-back-dev`-> Should be some ok looking homepage content now with a h1, some body copy and two buttons. Note that the `{"status":"OK"}` subtitle is pulling from the backend API so we know that our frontend calls to the backend are written correctly and that the backend is responding properly.
 - run `^ + c` to kill the servers
-- now that we've changed the way our homepage looks, we'll have to delete our pixelmatch baseline homepage image, which is at `~/app/frontend/spec/e2e/screenshots/baseline/page-home.png`
+- now that we've changed the way our homepage looks, we'll have to delete our pixelmatch baseline homepage image, which is at `~/app/frontend/spec/e2e/screenshots/baseline/local/page-home.png`
 - `npm run e2e-tests` -> test should pass now
 
 ### UI Thing Button Wrapper
