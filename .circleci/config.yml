@@ -1,17 +1,88 @@
 version: 2.1
 
-jobs:
-  say-hello:
-    docker:
-      - image: cimg/base:current
+executors:
+  ubuntu_machine_executor:
+    machine:
+      image: ubuntu-2004:current
 
+commands:
+  install_docker_compose:
+    steps:
+      - run:
+          name: Install Docker Compose
+          command: |
+            DOCKER_COMPOSE_VERSION=2.20.2
+            sudo curl -L "https://github.com/docker/compose/releases/download/v${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+            sudo chmod +x /usr/local/bin/docker-compose
+            docker-compose version
+
+  create_env_file:
+    steps:
+      - run:
+          name: Create .env File
+          command: |
+            echo "POSTGRES_PASSWORD=${POSTGRES_PASSWORD}" > backend/.env
+            echo "RAILS_ENV=test" >> backend/.env
+      - run:
+          name: Display .env for Verification
+          command: cat backend/.env
+
+  ensure_permissions:
+    steps:
+      - run:
+          name: Ensure Permissions for Backend Files
+          command: |
+            chmod -R 777 backend/log
+            chmod -R 777 backend/tmp
+            chmod +x backend/wait-for-it.sh
+            touch backend/log/test.log
+            touch backend/tmp/local_secret.txt
+            chmod 666 backend/log/test.log
+            chmod 666 backend/tmp/local_secret.txt
+
+  build_backend_image:
+    steps:
+      - run:
+          name: Build Backend Image
+          command: docker build --no-cache -t backend_image -f backend/Dockerfile.backend backend
+
+jobs:
+  rspec:
+    executor: ubuntu_machine_executor
     steps:
       - checkout
+      - install_docker_compose
+      - create_env_file
+      - ensure_permissions
+      - build_backend_image
       - run:
-          name: "Say hello"
-          command: "echo Hello, World!"
+          name: Confirm .env File Exists in Docker
+          command: docker-compose run --rm rspec ls -l /app/backend/.env
+      - run:
+          name: Check First Few Characters of SECRET_KEY_BASE
+          command: echo "SECRET_KEY_BASE=${SECRET_KEY_BASE:0:6}"
+      - run:
+          name: Adjust Backend Folder Permissions on Host
+          command: sudo chmod -R 777 /home/circleci/project/backend
+      - run:
+          name: Remove Existing Containers (if any)
+          command: docker-compose down -v
+      - run:
+          name: Run RSpec Tests
+          command: |
+            cd backend
+            docker-compose up --no-build --abort-on-container-exit rspec
+      - run:
+          name: Verify Permissions Inside Backend Container
+          command: |
+            docker-compose run --rm rspec bash -c 'ls -la /app/backend/log /app/backend/tmp'
+      - store_test_results:
+          path: backend/tmp/rspec_results
+      - store_artifacts:
+          path: backend/log
 
 workflows:
-  say-hello-workflow:
+  version: 2
+  test:
     jobs:
-      - say-hello
+      - rspec
