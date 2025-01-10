@@ -953,7 +953,7 @@ export default defineNuxtConfig({
   modules: ['@nuxt/test-utils/module', '@nuxtjs/tailwindcss'],
 })
 ```
-npm run dev -> "Hello World" in sans serif font Inter
+`npm run dev` -> "Hello World" in sans serif font Inter
 ^ + c
 
 ### UI Thing
