@@ -98,6 +98,7 @@ workflows:
 - We'll host our app on [Fly.io](https://fly.io). It's not free, but relatively cheap and is more headache-free than AWS for a toy app like this. We'll actually have two apps one fly.io, one for the backend and one for the frontend. And since we use postgres for the database, fly.io automatically will create a third fly.io app for that, but we don't have to mess with the fly.io database app much or think about it too much for now.
 - make sure you have a [fly.io](https://fly.io) account and have the [fly.io CLI program](https://fly.io/docs/flyctl/install) installed. Follow their docs if you run into trouble, I haven't done those parts in awhile.
 - `cd ~/app/backend`
+  - we have to make a small addition to the default `backend/Dockerfile` that rails made us. At the end of the `apt-get install` line on line 22, add one more package to install, `libjemalloc2`
   - let's init our backend fly.io app. The name part has to be unique in their system I think, so if you run the below line as is, it will probably tell you your app name is already chosen and you'll have to keep trying with more obscure app names until you find a unique one that works.
   - `fly launch --name app-backend`
     - (if this ever hangs at `Waiting for depot`, kill the launch with `control + c`, delete the partially-installed app in the fly.io dashboard and then relaunch with `fly launch --name app-backend --depot=false`)
