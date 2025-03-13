@@ -24,6 +24,7 @@
 - `cd app`
 - `wget https://raw.githubusercontent.com/mark-mcdermott/drivetracks-wip-nuxt3/main/README.md`
 - `npx nuxi@latest init frontend`
+  - modules: eslint, fonts, icon, image, test-utils
   - package manager: `npm`
   - init git repo: `no`
 - `rails new backend --api --database=postgresql`
