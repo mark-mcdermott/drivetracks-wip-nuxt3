@@ -1,4 +1,5 @@
 version: 2.1
+
 jobs:
   say-hello:
     docker:
@@ -7,8 +8,8 @@ jobs:
     steps:
       - checkout
       - run:
-        name: "Say Hello"
-        command: "echo Hello, world!"
+          name: "Say hello"
+          command: "echo Hello, World!"
 
 workflows:
   say-hello-workflow:
