@@ -1319,7 +1319,7 @@ runtimeConfig: { public: { apiBase: process.env.API_BASE || '<backend url>/api/v
 }
 ```
 - `touch Dockerfile.playwright`
-- make `~/app/frontend/Dockerfile.playwright look like this:`
+- make `~/app/frontend/Dockerfile.playwright` look like this:
 ```
 # Dockerfile.playwright
 FROM mcr.microsoft.com/playwright:v1.47.2-focal
