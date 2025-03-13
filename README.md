@@ -617,7 +617,7 @@ services:
     user: "${DOCKER_USER:-circleci}"
     command: >
       bash -c '
-        echo "SECRET_KEY_BASE is: $SECRET_KEY_BASE" && # Debug line to confirm visibility
+        # echo "SECRET_KEY_BASE is: $SECRET_KEY_BASE" && # Debug line to confirm visibility
         ./wait-for-it.sh db:5432 -- bundle exec rails db:drop db:create db:migrate &&
         bundle exec rspec
       '
