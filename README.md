@@ -874,7 +874,14 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   runtimeConfig: { public: { apiBase: 'http://localhost:3000/api/v1' }},
   devServer: { port: 3001 },
-  modules: ['@nuxt/test-utils/module'],
+  modules: [
+    '@nuxt/eslint',
+    '@nuxt/fonts',
+    '@nuxt/icon',
+    '@nuxt/image',
+    '@nuxt/test-utils',
+    '@nuxt/ui'
+  ]
 })
 ```
 - `npm run dev` -> should see Nuxt starter app at http://localhost:3001
