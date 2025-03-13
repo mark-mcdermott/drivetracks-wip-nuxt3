@@ -320,7 +320,7 @@ tmp/*
 - `cd backend`
 - `EDITOR="code --wait" rails credentials:edit` <-- copy the secret_key_base
 - `touch .env`
-- make `~/.env` look like this:
+- make `backend/.env` look like this:
 ```
 POSTGRES_PASSWORD=<paste postgres password from ~/app/.secrets here>
 SECRET_KEY_BASE=<paste secret_key_base value here>
