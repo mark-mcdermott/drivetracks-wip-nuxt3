@@ -753,36 +753,21 @@ workflows:
 ## Frontend
 
 ### ESLint AutoSave
-- We'll use [ESLint](https://eslint.org) to keep our JavaScript clean looking. Specifically, we'll use [antfu's eslint-config](https://github.com/antfu/eslint-config) which are nice presets including auto-fix on save and a nice one line CLI install tool.
-- install VSCode extension `ESLint`
-- `cd ~/app`
-- `npm init` (hit enter for all prompts)
-- `pnpm dlx @antfu/eslint-config@latest`
-  - uncommitted changes, continue? `yes`
-  - framework: `Vue`
-  - extra utils: `none`
-  - update `.vscode/settings.json`: `yes`
-- `npm install`
-- open `~/app/package.json`
-  - you should see some red underlines for ESLint violations
-  - hit `command + s` to save and you should see ESLint automatically fix the issues
-
-### ESLint Commands
+- We'll use [ESLint](https://eslint.org) to keep our JavaScript clean looking. We want to set it up so it runs ESLint auto-fix every time we save our file.
 - `cd ~/app/frontend`
-- `pnpm dlx @antfu/eslint-config@latest`
-  - uncommitted changes, continue? `yes`
-  - framework: `Vue`
-  - extra utils: `none`
-  - update `.vscode/settings.json`: `no`
-- `npm install`
-- in `~/app/frontend/package.json` in the `scripts` section add:
+- `npm install -D @nuxt/eslint-config eslint`
+- make `~/app/frontend/eslint.config.mjs` look like this:
 ```
-"lint": "npx eslint .",
-"lint:fix": "npx eslint . --fix"
+// @ts-check
+import withNuxt from './.nuxt/eslint.config.mjs'
+
+export default withNuxt({
+  rules: {
+    "no-unused-vars": "warn",
+    "vue/multi-word-component-names": "off", // Example Vue rule
+  }
+});
 ```
-- `npm run lint` -> it will flag a trailing comma issue on `nuxt.config.ts`
-- open `~/app/frontend/nuxt.config.ts`
-- `npm run lint:fix` -> you will see it add a trailing comma to fix the ESLint violation
 
 ### Vitest (Component Tests)
 - We'll use Nuxt testing as [described in the Nuxt docs](https://nuxt.com/docs/getting-started/testing), which uses `@nuxt/test-utils` and [Vitest](https://vitest.dev). The only departure we're taking for the Nuxt testing documentation is that we won't be running Playwright as a vitest test runner. We'll just run Playwright directly as a standalone testing package (I like its functionality better this way).
