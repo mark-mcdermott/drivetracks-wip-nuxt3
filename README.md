@@ -981,25 +981,86 @@ export default defineNuxtConfig({
 - `npm i -D @iconify-json/lucide`
 - For the record, the UI Thing install added a handful of packages and modules and added some extra configurations to our `~/app/frontend/nuxt.config.ts`, which now looks something like this:
 ```
+import tailwindcss from "@tailwindcss/vite";
+
 export default defineNuxtConfig({
   devtools: { enabled: true },
   runtimeConfig: { public: { apiBase: "http://localhost:3000/api/v1" } },
   devServer: { port: 3001 },
 
   modules: [
-    "@nuxt/test-utils/module",
+    "@nuxt/eslint",
+    "@nuxt/fonts",
+    "@nuxt/icon",
+    "@nuxt/image",
+    "@nuxt/test-utils",
+    "@nuxt/ui",
     "@nuxtjs/tailwindcss",
     "@nuxtjs/color-mode",
     "@vueuse/nuxt",
-    "@nuxt/icon",
   ],
+
+  vite: {
+    plugins: [tailwindcss()],
+  },
+
+  css: ["~/assets/css/main.css"],
+  compatibilityDate: "2025-03-12",
 
   tailwindcss: {
     exposeConfig: true,
+    editorSupport: true,
   },
 
   colorMode: {
     classSuffix: "",
+  },
+
+  imports: {
+    imports: [
+      {
+        from: "tailwind-variants",
+        name: "tv",
+      },
+      {
+        from: "tailwind-variants",
+        name: "VariantProps",
+        type: true,
+      },
+    ],
+  },
+});
+```
+- We need to remove the tailwind module stuff and just use the tailwind plugin stuff:
+```
+import tailwindcss from "@tailwindcss/vite";
+
+export default defineNuxtConfig({
+  devtools: { enabled: true },
+  runtimeConfig: { public: { apiBase: "http://localhost:3000/api/v1" } },
+  devServer: { port: 3001 },
+
+  modules: [
+    "@nuxt/eslint",
+    "@nuxt/fonts",
+    "@nuxt/icon",
+    "@nuxt/image",
+    "@nuxt/test-utils",
+    "@nuxt/ui",
+    "@nuxtjs/color-mode",
+    "@vueuse/nuxt",
+  ],
+
+  css: ["~/assets/css/main.css"],
+
+  colorMode: {
+    classSuffix: "",
+  },
+
+  vite: {
+    plugins: [
+      tailwindcss(),
+    ],
   },
 
   imports: {
