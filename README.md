@@ -318,7 +318,7 @@ log/*
 tmp/*
 ```
 - `cd backend`
-- `EDITOR="code --wait" rails credentials:edit`
+- `EDITOR="code --wait" rails credentials:edit` <-- copy the secret_key_base
 - `touch .env`
 - make `~/.env` look like this:
 ```
