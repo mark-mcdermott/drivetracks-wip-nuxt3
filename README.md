@@ -239,7 +239,7 @@ end
 ```
 require 'rails_helper'
 
-RSpec.describe "Api::V1::HealthControllers", type: :request do
+RSpec.describe "Api::V1::HealthController", type: :request do
   describe "GET /api/v1/up" do
     it "returns http success" do
       get "/api/v1/up"
@@ -1363,6 +1363,8 @@ services:
       interval: 20s
       timeout: 10s
       retries: 10
+    env_file:
+      - ./backend/.env
 
   backend:
     user: "${DOCKER_USER:-circleci}"
@@ -1393,6 +1395,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    env_file:
+      - ./backend/.env
 
   rspec:
     image: backend_image
