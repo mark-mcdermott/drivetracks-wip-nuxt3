@@ -975,6 +975,7 @@ export default defineNuxtConfig({
 - We'll use [UI Thing](https://ui-thing.behonbaker.com), for our UI kit. A UI kit is a collection of re-usable [shadcn-ui](https://ui.shadcn.com/) components and component blocks. Specifically, UI Thing is a port of [shadc-vue](https://www.shadcn-vue.com/) for Nuxt. We'll setup UI Thing now because our non-placeholder homepage we build in the next section uses it.
 - `cd ~/app/frontend`
 - `npx ui-thing@latest init`
+  - nuxt 3
   - pick a theme color when prompted
   - you can hit enter for all the other questions including for npm
 - `npm i -D @iconify-json/lucide`
