@@ -936,14 +936,37 @@ test('Homepage body text', async ({ page }) => {
 - We'll use [Nuxt Tailwind](https://tailwindcss.nuxtjs.org) for modern, scaleable css. We'll setup tailwind now because UI Thing we set up in the next step needs it.
 - install the VSCode extension `vscode-tailwind-magic`
 - `cd ~/app/frontend`
-- `npx nuxi@latest module add tailwindcss`
-- For the record, installing the tailwind module added itself to our module list in  `~/app/frontend/nuxt.config.ts`, which now looks something like this now:
+- `npm install tailwindcss @tailwindcss/vite`
+- `mkdir -p assets/css`
+- `touch assets/css/main.css`
+- make `~/app/frontend/assets/css/main.css` look like this:
 ```
+@import "tailwindcss";
+```
+- make `~/app/frontend/nuxt.config.ts` look like this:
+```
+import tailwindcss from "@tailwindcss/vite";
 export default defineNuxtConfig({
   devtools: { enabled: true },
   runtimeConfig: { public: { apiBase: 'http://localhost:3000/api/v1' }},
   devServer: { port: 3001 },
-  modules: ['@nuxt/test-utils/module', '@nuxtjs/tailwindcss'],
+
+  modules: [
+    '@nuxt/eslint',
+    '@nuxt/fonts',
+    '@nuxt/icon',
+    '@nuxt/image',
+    '@nuxt/test-utils',
+    '@nuxt/ui',
+  ],
+
+  vite: {
+    plugins: [
+      tailwindcss(),
+    ],
+  },
+
+  css: ['~/assets/css/main.css']
 })
 ```
 `npm run dev` -> "Hello World" in sans serif font Inter
