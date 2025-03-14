@@ -635,6 +635,13 @@ volumes:
 ### Run Docker RSpec
 - `cd ~/app`
 - `docker compose down -v --remove-orphans`
+  - if that command fails, saying it can't find the POSTGRES_PASSWORD, in an empty file paste
+```
+export POSTGRES_PASSWORD=<postgres password>
+export SECRET_KEY_BASE=<secret key base>
+```
+  - now fill in the correct postgres password and secret key base 
+  - now copy/paste those two lines into terminal and run them
 - `docker volume ls`
 - `docker compose build`
 - `docker compose up -d db backend`
