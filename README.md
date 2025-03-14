@@ -582,6 +582,8 @@ services:
     volumes:
       - ./backend:/app/backend
     working_dir: /app/backend  # Align with WORKDIR in Dockerfile
+    env_file:
+      - ./backend/.env
     ports:
       - '3000:3000'
     depends_on:
