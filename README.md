@@ -1036,7 +1036,6 @@ export default defineNuxtConfig({
     "@nuxt/icon",
     "@nuxt/image",
     "@nuxt/test-utils",
-    "@nuxt/ui",
     "@nuxtjs/tailwindcss",
     "@nuxtjs/color-mode",
     "@vueuse/nuxt",
@@ -1073,7 +1072,7 @@ export default defineNuxtConfig({
   },
 });
 ```
-- We need to remove the tailwind module stuff and just use the tailwind plugin stuff:
+- We need to remove the tailwind module stuff (`"@nuxtjs/tailwindcss"`) and just use the tailwind plugin stuff:
 ```
 import tailwindcss from "@tailwindcss/vite";
 
@@ -1088,7 +1087,6 @@ export default defineNuxtConfig({
     "@nuxt/icon",
     "@nuxt/image",
     "@nuxt/test-utils",
-    "@nuxt/ui",
     "@nuxtjs/color-mode",
     "@vueuse/nuxt",
   ],
