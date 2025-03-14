@@ -2708,7 +2708,6 @@ export default defineNuxtConfig({
   devServer: { port: 3001 },
   modules: [
     "@nuxt/test-utils/module",
-    "@nuxtjs/tailwindcss",
     "@nuxtjs/color-mode",
     "@vueuse/nuxt",
     "@nuxt/icon",
