@@ -765,18 +765,44 @@ workflows:
 ### ESLint AutoSave
 - We'll use [ESLint](https://eslint.org) to keep our JavaScript clean looking. We want to set it up so it runs ESLint auto-fix every time we save our file.
 - `cd ~/app/frontend`
-- `npm install -D @nuxt/eslint-config eslint`
+- `npm install -D eslint eslint-plugin-nuxt`
+- `npx eslint --init`
 - make `~/app/frontend/eslint.config.mjs` look like this:
 ```
-// @ts-check
-import withNuxt from './.nuxt/eslint.config.mjs'
+import nuxt from 'eslint-plugin-nuxt'
+import js from '@eslint/js'
 
-export default withNuxt({
-  rules: {
-    "no-unused-vars": "warn",
-    "vue/multi-word-component-names": "off", // Example Vue rule
-  }
-});
+export default [
+  js.configs.recommended,
+  nuxt.configs.recommended,
+  {
+    rules: {
+      'vue/multi-word-component-names': 'off', // Disable if you use single-word components
+      'no-console': 'warn', // Warn instead of error for console.logs
+      'no-unused-vars': 'warn', // Warn for unused variables
+    },
+  },
+]
+```
+- in `~/app/frontend/package.json`, add these two script lines:
+```
+"lint": "eslint . --ext .js,.ts,.vue",
+"lint:fix": "eslint . --ext .js,.ts,.vue --fix"
+```
+- `cd ..`
+- `mkdir .vscode`
+- `touch .vscode/settings.json`
+```
+{
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  },
+  "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact", "vue"],
+  "editor.formatOnSave": false,
+  "files.eol": "\n",
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true
+}
 ```
 
 ### Vitest (Component Tests)
