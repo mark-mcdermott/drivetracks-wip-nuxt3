@@ -83,7 +83,7 @@ export async function verifyHeaderDetails(page, expect) {
 export async function verifyFooterDetails(page, expect) {
   const footerP = page.getByTestId('footer-p');
   await expect(footerP).toBeVisible({ timeout: 30000 });
-  await expect(footerP).toHaveText('© 2024. Made with Nuxt, Tailwind, UI Thing, Rails, Fly.io and S3.');
+  await expect(footerP).toHaveText('© 2025. Made with Nuxt, Tailwind, UI Thing, Rails, Fly.io and S3.');
 
   const nuxtLink = footerP.locator('a', { hasText: 'Nuxt' });
   await expect(nuxtLink).toHaveAttribute('href', 'https://nuxt.com');
