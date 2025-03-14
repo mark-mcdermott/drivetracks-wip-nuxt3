@@ -1,0 +1,14 @@
+{
+  "name": "playwright-tests",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "test": "playwright test"
+  },
+  "dependencies": {
+    "@playwright/test": "^1.48.1",
+    "pixelmatch": "^6.0.0",
+    "playwright-expect": "^0.1.2",
+    "@nuxt/test-utils": "^3.14.4"
+  }
+}

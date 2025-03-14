@@ -81,8 +81,100 @@ jobs:
       - store_artifacts:
           path: backend/log
 
+  playwright:
+    machine:
+      image: ubuntu-2004:current
+    environment:
+      CI: true
+      DOCKER_ENV: false # Explicitly set to false in CI environment
+    steps:
+      - checkout
+
+      - run:
+          name: Set Absolute Path for Backend Directory
+          command: |
+            export BACKEND_PATH=$(pwd)/backend
+            echo "export BACKEND_PATH=${BACKEND_PATH}" >> $BASH_ENV
+
+      - install_docker_compose
+
+      - run:
+          name: Verify POSTGRES_PASSWORD
+          command: |
+            if [ -z "${POSTGRES_PASSWORD}" ]; then
+              echo "Error: POSTGRES_PASSWORD is not set."
+              exit 1
+            else
+              echo "POSTGRES_PASSWORD is set."
+            fi
+
+      - create_env_file
+      - build_backend_image
+
+      - run:
+          name: Ensure Executable Permissions on wait-for-it.sh
+          command: |
+            chmod +x backend/wait-for-it.sh
+
+      - ensure_permissions
+
+      - run:
+          name: Adjust Backend Folder Permissions on Host
+          command: sudo chmod -R 777 /home/circleci/project/backend
+
+      - run:
+          name: Set DOCKER_ENV to False in CI
+          command: |
+            echo "DOCKER_ENV=false" >> $BASH_ENV
+            source $BASH_ENV
+
+      - run:
+          name: Check CI and DOCKER_ENV Values
+          command: |
+            echo "CI=$CI, DOCKER_ENV=$DOCKER_ENV"
+
+      - run:
+          name: Run Backend and Frontend Services
+          command: |
+            docker-compose up -d db backend frontend
+
+      - run:
+          name: Wait for Backend to be Ready
+          command: |
+            ./backend/wait-for-it.sh localhost:3000 -t 60 -- echo "Backend is ready"
+
+      - run:
+          name: Run Playwright Tests
+          command: |
+            docker-compose up --abort-on-container-exit playwright
+
+      - store_artifacts:
+          path: frontend/spec/e2e/screenshots/baseline/ci
+          destination: images_baseline_ci
+
+      - store_artifacts:
+          path: frontend/spec/e2e/screenshots/baseline/docker
+          destination: images_baseline_docker
+
+      - store_artifacts:
+          path: frontend/spec/e2e/screenshots/baseline/local
+          destination: images_baseline_local
+
+      - store_artifacts:
+          path: frontend/spec/e2e/screenshots/current
+          destination: images_current
+
+      - store_artifacts:
+          path: frontend/spec/e2e/screenshots/diff
+          destination: images_diffs
+
+      - store_artifacts:
+          path: frontend/spec/e2e/videos
+          destination: videos
+
 workflows:
   version: 2
   test:
     jobs:
       - rspec
+      - playwright

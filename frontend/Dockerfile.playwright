@@ -1,0 +1,23 @@
+# Dockerfile.playwright
+FROM mcr.microsoft.com/playwright:v1.47.2-focal
+
+WORKDIR /app/frontend
+
+# Copy and install only Playwright-related dependencies
+COPY playwright-package.json ./package.json
+COPY package-lock.json ./
+RUN npm install
+
+# Ensure unwanted test dependencies are removed
+RUN rm -rf node_modules/@vitest node_modules/vitest node_modules/jest node_modules/@jest \
+    && find node_modules -name "*vitest*" -type d -exec rm -rf {} + \
+    && find node_modules -name "*jest*" -type d -exec rm -rf {} +
+
+# Copy application code without overwriting node_modules
+COPY . .
+
+# Install Playwright dependencies and browsers
+RUN npx playwright install
+
+# Set the default command to run Playwright tests
+CMD ["npx", "playwright", "test"]

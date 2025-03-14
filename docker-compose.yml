@@ -71,6 +71,49 @@ services:
         bundle exec rspec
       '
 
+  frontend:
+    build:
+      context: ./frontend 
+      dockerfile: Dockerfile
+    working_dir: /app
+    ports:
+      - '3001:3000'
+    depends_on:
+      backend:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      API_URL: http://backend:3000
+      BASE_URL: http://frontend:3000
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3000/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  playwright:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.playwright
+    working_dir: /app/frontend
+    depends_on:
+      backend:
+        condition: service_started
+      frontend:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+    environment:
+      BASE_URL: http://frontend:3000
+      RAILS_ENV: test
+      DATABASE_URL: "postgres://postgres:${POSTGRES_PASSWORD}@db:5432/backend_test"
+      API_URL: http://backend:3000
+      DOCKER_ENV: "${DOCKER_ENV:-false}"  # Default to false if not explicitly set
+      CI: "${CI:-false}"  # Explicitly set to false by default in Docker
+    command: bash -c "ls -d node_modules/* | grep -E 'vitest|jest' || npx playwright test"
+    volumes:
+      - ./frontend/spec/e2e/screenshots/baseline:/app/frontend/spec/e2e/screenshots/baseline
+
 volumes:
   postgres_data:
   bundle_data:
