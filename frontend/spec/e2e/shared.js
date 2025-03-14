@@ -61,3 +61,40 @@ export async function compareScreenshot(page, testName, { browserName = 'chromiu
 
   return 0;
 }
+
+// Header details verification
+export async function verifyHeaderDetails(page, expect) {
+  const homeLink = page.getByTestId('header-link-home');
+  const publicLink = page.getByTestId('header-link-public');
+  const privateLink = page.getByTestId('header-link-private');
+
+  await expect(homeLink).toBeVisible({ timeout: 30000 });
+  await expect(homeLink).toHaveText('Home');
+  await expect(homeLink).toHaveAttribute('href', '/');
+  await expect(publicLink).toBeVisible();
+  await expect(publicLink).toHaveText('Public');
+  await expect(publicLink).toHaveAttribute('href', '/public');
+  await expect(privateLink).toBeVisible();
+  await expect(privateLink).toHaveText('Private');
+  await expect(privateLink).toHaveAttribute('href', '/private');
+}
+
+// Footer details verification
+export async function verifyFooterDetails(page, expect) {
+  const footerP = page.getByTestId('footer-p');
+  await expect(footerP).toBeVisible({ timeout: 30000 });
+  await expect(footerP).toHaveText('© 2024. Made with Nuxt, Tailwind, UI Thing, Rails, Fly.io and S3.');
+
+  const nuxtLink = footerP.locator('a', { hasText: 'Nuxt' });
+  await expect(nuxtLink).toHaveAttribute('href', 'https://nuxt.com');
+  const tailwindLink = footerP.locator('a', { hasText: 'Tailwind' });
+  await expect(tailwindLink).toHaveAttribute('href', 'https://tailwindcss.com/');
+  const uiThingLink = footerP.locator('a', { hasText: 'UI Thing' });
+  await expect(uiThingLink).toHaveAttribute('href', 'https://ui-thing.behonbaker.com');
+  const railsLink = footerP.locator('a', { hasText: 'Rails' });
+  await expect(railsLink).toHaveAttribute('href', 'https://rubyonrails.org/');
+  const flyLink = footerP.locator('a', { hasText: 'Fly.io' });
+  await expect(flyLink).toHaveAttribute('href', 'https://fly.io');
+  const s3Link = footerP.locator('a', { hasText: 'S3' });
+  await expect(s3Link).toHaveAttribute('href', 'https://aws.amazon.com/s3/');
+}

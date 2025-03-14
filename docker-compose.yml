@@ -114,6 +114,15 @@ services:
     volumes:
       - ./frontend/spec/e2e/screenshots/baseline:/app/frontend/spec/e2e/screenshots/baseline
 
+  component-tests:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.component-tests
+    working_dir: /app/frontend
+    environment:
+      BASE_URL: http://frontend:3000
+    command: ["npm", "run", "component-tests"]
+
 volumes:
   postgres_data:
   bundle_data:

@@ -172,6 +172,32 @@ jobs:
           path: frontend/spec/e2e/videos
           destination: videos
 
+  component-tests:
+    machine:
+      image: ubuntu-2004:current
+    steps:
+      - checkout
+      - create_env_file
+
+      - run:
+          name: Install Docker Compose
+          command: |
+            DOCKER_COMPOSE_VERSION=2.20.2
+            sudo curl -L "https://github.com/docker/compose/releases/download/v${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+            sudo chmod +x /usr/local/bin/docker-compose
+            docker-compose version
+
+      - run:
+          name: Run Component Tests
+          command: |
+            docker-compose up --abort-on-container-exit component-tests
+
+      - store_test_results:
+          path: frontend/test-results
+
+      - store_artifacts:
+          path: frontend/log
+
 workflows:
   version: 2
   test:

@@ -1,0 +1,17 @@
+FROM mcr.microsoft.com/playwright:v1.47.2-focal
+FROM mcr.microsoft.com/playwright:v1.47.2-focal
+
+WORKDIR /app/frontend
+
+# Copy package.json and lock file
+COPY package.json package-lock.json ./
+
+# Install all dependencies including dev
+RUN rm -rf node_modules
+RUN npm ci --include=dev
+
+# Copy application code
+COPY . .
+
+# Set the command for component tests
+CMD ["npm", "run", "component-tests"]
