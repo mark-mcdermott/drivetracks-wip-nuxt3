@@ -1363,7 +1363,7 @@ runtimeConfig: { public: { apiBase: process.env.API_BASE || '<backend url>/api/v
   }
 }
 ```
-- `touch Dockerfile.playwright`
+- `touch Dockerfile.playwright` 
 - make `~/app/frontend/Dockerfile.playwright` look like this:
 ```
 # Dockerfile.playwright
@@ -1849,7 +1849,7 @@ import { expect, it } from "vitest";
 it('can mount some component', async () => {
     const component = await mountSuspended(Footer)
     expect(component.text()).toMatchInlineSnapshot(
-        '"© 2024. Made with Nuxt, Tailwind, UI Thing, Rails, Fly.io and S3."'
+        '"© 2025. Made with Nuxt, Tailwind, UI Thing, Rails, Fly.io and S3."'
     )
 })
 ```
@@ -1945,7 +1945,7 @@ export async function verifyHeaderDetails(page, expect) {
 export async function verifyFooterDetails(page, expect) {
   const footerP = page.getByTestId('footer-p');
   await expect(footerP).toBeVisible({ timeout: 30000 });
-  await expect(footerP).toHaveText('© 2024. Made with Nuxt, Tailwind, UI Thing, Rails, Fly.io and S3.');
+  await expect(footerP).toHaveText('© 2025. Made with Nuxt, Tailwind, UI Thing, Rails, Fly.io and S3.');
 
   const nuxtLink = footerP.locator('a', { hasText: 'Nuxt' });
   await expect(nuxtLink).toHaveAttribute('href', 'https://nuxt.com');
@@ -2893,7 +2893,7 @@ export async function verifyHeaderDetails(page, expect) {
 export async function verifyFooterDetails(page, expect) {
   const footerP = page.getByTestId('footer-p');
   await expect(footerP).toBeVisible({ timeout: 30000 });
-  await expect(footerP).toHaveText('© 2024. Made with Nuxt, Tailwind, UI Thing, Rails, Fly.io and S3.');
+  await expect(footerP).toHaveText('© 2025. Made with Nuxt, Tailwind, UI Thing, Rails, Fly.io and S3.');
 
   const nuxtLink = footerP.locator('a', { hasText: 'Nuxt' });
   await expect(nuxtLink).toHaveAttribute('href', 'https://nuxt.com');
