@@ -1,0 +1,35 @@
+app = 'app001-backend'
+primary_region = 'dfw'
+console_command = '/rails/bin/rails console'
+
+[build]
+
+[deploy]
+  release_command = './bin/rails db:prepare'
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = 'stop'
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ['app']
+
+  [[http_service.health_checks]]
+    path = "/api/v1/up"
+    interval = 10000
+    timeout = 2000
+
+[[vm]]
+  memory = '1gb'
+  cpu_kind = 'shared'
+  cpus = 1
+
+[[statics]]
+  guest_path = '/rails/public'
+  url_prefix = '/'
+
+[[env]]
+  PORT = "8080"
+  DEFAULT_URL_HOST = "https://app001-backend.fly.dev"
+  DEFAULT_URL_PORT = "443"

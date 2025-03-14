@@ -1,0 +1,25 @@
+FROM ruby:3.3.0
+
+# Create a non-root user named circleci
+RUN useradd -m circleci
+
+# Switch to root user to perform setup tasks
+USER root
+
+# Set the working directory
+WORKDIR /app/backend
+
+# Copy Gemfile and Gemfile.lock first to leverage Docker layer caching
+COPY Gemfile Gemfile.lock ./
+
+# Install dependencies
+RUN bundle install
+
+# Change ownership of the application directory to the circleci user
+RUN chown -R circleci:circleci /app/backend
+
+# Switch to non-root circleci user
+USER circleci
+
+# Default command
+CMD ["bash"]
