@@ -783,14 +783,7 @@ export default withNuxt({
 - We'll use Nuxt testing as [described in the Nuxt docs](https://nuxt.com/docs/getting-started/testing), which uses `@nuxt/test-utils` and [Vitest](https://vitest.dev). The only departure we're taking for the Nuxt testing documentation is that we won't be running Playwright as a vitest test runner. We'll just run Playwright directly as a standalone testing package (I like its functionality better this way).
 - install VSCode `Vitest` extension
 - `cd ~/app/frontend`
-- `npm i --save-dev @nuxt/test-utils vitest @vue/test-utils happy-dom`
-- add `modules: ["@nuxt/test-utils/module"],` to `~/app/frontend/nuxt.config.ts` so it looks like this:
-```
-export default defineNuxtConfig({
-  devtools: { enabled: true },
-  modules: ['@nuxt/test-utils/module'],
-})
-```
+- `npm i --save-dev vitest @vue/test-utils happy-dom`
 - `touch vitest.config.ts`
 - make `~/app/frontend/vitest.config.ts` look like this:
 ```
