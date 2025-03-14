@@ -2697,6 +2697,7 @@ test.describe('Private Page', () => {
 - `cd ~/app/frontend`
 - make `~/app/frontend/nuxt.config.js` look like this (making sure to replace all three `<backend url>` instances with your backend url from your `.secrets` file):
 ```
+import tailwindcss from "@tailwindcss/vite";
 import dotenv from 'dotenv'
 dotenv.config()
 
@@ -2713,7 +2714,16 @@ export default defineNuxtConfig({
     "@nuxt/icon",
     "@sidebase/nuxt-auth",
   ],
-  tailwindcss: { exposeConfig: true },
+  vite: {
+    plugins: [tailwindcss()],
+  },
+
+  css: ["~/assets/css/main.css"],
+
+  tailwindcss: {
+    exposeConfig: true,
+    editorSupport: true,
+  },
   colorMode: { classSuffix: "" },
   imports: {
     imports: [
@@ -2729,9 +2739,9 @@ export default defineNuxtConfig({
     ],
   },
   auth: {
-    computed: { pathname: development ? 'http://localhost:3000/api/v1/auth/' : '<backend url>/api/v1/auth/' },
+    computed: { pathname: development ? 'http://localhost:3000/api/v1/auth/' : 'https://<backend url>/api/v1/auth/' },
     isEnabled: true,
-    baseURL: development ? 'http://localhost:3000/api/v1/auth/' : '<backend url>/api/v1/auth/',
+    baseURL: development ? 'http://localhost:3000/api/v1/auth/' : 'https://<backend url>/api/v1/auth/',
     globalAppMiddleware: { isEnabled: true },
     provider: {
       type: 'local',
