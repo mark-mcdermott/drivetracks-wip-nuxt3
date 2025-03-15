@@ -1,3 +1,19 @@
+<script setup>
+const { data, signOut, status } = useAuth()
+
+const uuid = computed(() => {
+  if (data && data.value) {
+    return data.value.uuid
+  }
+  return ''
+})
+
+async function logout() {
+  await signOut({ callbackUrl: '/' })
+  useSonner('Logged out successfully!', { description: 'You have successfully logged out.' })
+}
+</script>
+
 <template>
   <header class="z-20 border-b bg-background/90 backdrop-blur">
     <UiContainer class="flex h-16 items-center justify-between md:h-20">
@@ -12,6 +28,13 @@
                 </UiThingDataButtonWrapper>
               </UiNavigationMenuLink>
             </UiNavigationMenuItem>
+            <UiNavigationMenuItem v-if="status === 'authenticated'">
+              <UiNavigationMenuLink as-child>
+                <UiThingDataButtonWrapper data-testid="header-link-private" to="/users" variant="ghost" size="sm">
+                  Users
+                </UiThingDataButtonWrapper>
+              </UiNavigationMenuLink>
+            </UiNavigationMenuItem>
             <UiNavigationMenuItem>
               <UiNavigationMenuLink as-child>
                 <UiThingDataButtonWrapper data-testid="header-link-public" to="/public" variant="ghost" size="sm">
@@ -19,7 +42,7 @@
                 </UiThingDataButtonWrapper>
               </UiNavigationMenuLink>
             </UiNavigationMenuItem>
-            <UiNavigationMenuItem>
+            <UiNavigationMenuItem v-if="status === 'authenticated'">
               <UiNavigationMenuLink as-child>
                 <UiThingDataButtonWrapper data-testid="header-link-private" to="/private" variant="ghost" size="sm">
                   Private
@@ -45,10 +68,13 @@
                   <UiButton variant="ghost" class="justify-start text-base" to="/">
                     Home
                   </UiButton>
+                  <UiButton v-if="status === 'authenticated'" variant="ghost" class="justify-start text-base" to="/users">
+                    Users
+                  </UiButton>
                   <UiButton variant="ghost" class="justify-start text-base" to="/public">
                     Public
                   </UiButton>
-                  <UiButton variant="ghost" class="justify-start text-base" to="/private">
+                  <UiButton v-if="status === 'authenticated'" variant="ghost" class="justify-start text-base" to="/private">
                     Private
                   </UiButton>
                   <UiGradientDivider class="my-5" />
@@ -65,11 +91,37 @@
         </UiSheet>
       </div>
       <div class="header-login-nav hidden items-center gap-3 md:flex">
-        <UiThingDataButtonWrapper data-testid="header-link-login" to="/login" variant="ghost" size="sm">
+        <UiThingDataButtonWrapper v-if="status === 'unauthenticated'" data-testid="header-link-login" to="/login" variant="ghost" size="sm">
           Log in
         </UiThingDataButtonWrapper>
-        <UiThingDataButtonWrapper data-testid="header-link-signup" to="/signup" variant="ghost" size="sm">
+        <UiThingDataButtonWrapper v-if="status === 'unauthenticated'" data-testid="header-link-signup" to="/signup" variant="ghost" size="sm">
           Sign up
+        </UiThingDataButtonWrapper>
+
+        <div v-if="status === 'authenticated'" class="flex items-center justify-center">
+          <UiDropdownMenu>
+            <UiDropdownMenuTrigger as-child>
+              <UiButton id="dropdown-menu-trigger" class="focus:ring-0 focus:outline-none hover:bg-transparent" variant="ghost">
+                <UiAvatar
+                  src="https://images.unsplash.com/photo-1492633423870-43d1cd2775eb?&w=128&h=128&dpr=2&q=80"
+                  alt="Colm Tuite"
+                  fallback="CT"
+                  :delay-ms="600"
+                />
+              </UiButton>
+            </UiDropdownMenuTrigger>
+            <UiDropdownMenuContent class="w-56">
+              <NuxtLink :to="`/users/${uuid}`">
+                <UiDropdownMenuItem title="Profile" icon="ph:user" />
+              </NuxtLink>
+              <UiDropdownMenuSeparator />
+              <UiDropdownMenuItem title="Log out" icon="ph:user" @click.prevent="logout" />
+            </UiDropdownMenuContent>
+          </UiDropdownMenu>
+        </div>
+
+        <UiThingDataButtonWrapper v-if="status === 'authenticated'" data-testid="header-link-logout" variant="ghost" size="sm" @click.prevent="logout">
+          Log out
         </UiThingDataButtonWrapper>
       </div>
     </UiContainer>

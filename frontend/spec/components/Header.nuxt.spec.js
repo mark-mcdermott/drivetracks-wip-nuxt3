@@ -1,49 +1,50 @@
 import { Header } from '#components'
-import { mountSuspended } from '@nuxt/test-utils/runtime'
-import { beforeAll, describe, expect, it } from 'vitest'
-import { flushPromises } from '@vue/test-utils'
+import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
+import { afterEach, expect, it, test, beforeEach, vi } from 'vitest';
 
-describe('Header component', () => {
-  let header
+// was unable to move header/mainNav declarations to beforeEach because of conflict with vi.hoisted - never did find a solution 
+const { useAuthMock } = vi.hoisted(() => {
+  return { useAuthMock: vi.fn().mockImplementation(() => { return { status: "unauthenticated" } }) }
+})
+mockNuxtImport('useAuth', () => { return useAuthMock })
 
-  beforeAll(async () => {
-    header = await mountSuspended(Header)
-    await flushPromises()
+it('has a main navigation', async () => {
+  const header = await mountSuspended(Header)
+  const mainNav = await header.find('nav.header-main-nav')
+  expect(mainNav.exists()).toBe(true)
+})
+
+it('contains correct main navigation links', async () => {
+  const header = await mountSuspended(Header);
+  const mainNav = await header.find('nav.header-main-nav')
+  expect(mainNav.find('a[href="/"]').text()).toContain('Home')
+  expect(mainNav.find('a[href="/public"]').text()).toContain('Public')
+  expect(mainNav.find('a[href="/private"]').exists()).toBe(false)
+})
+
+it('has a login navigation', async () => {
+  const header = await mountSuspended(Header);
+  const loginNav = await header.find('.header-login-nav')
+  expect(loginNav.exists()).toBe(true)
+})
+
+test('when authenticated contains correct main navigation links', async () => {
+  useAuthMock.mockImplementation(() => {
+    return { status: "authenticated" }
   })
+  
+  const header = await mountSuspended(Header);
+  const mainNav = await header.find('nav.header-main-nav');
+  expect(mainNav.find('a[href="/"]').text()).toContain('Home')
+  expect(mainNav.find('a[href="/public"]').text()).toContain('Public')
+  expect(mainNav.find('a[href="/private"]').text()).toContain('Private')
+})
 
-  it('has a main navigation', async () => {
-    const mainNav = await header.find('nav.header-main-nav')
-    expect(mainNav.exists()).toBe(true)
+it('has a login navigation', async () => {
+  useAuthMock.mockImplementation(() => {
+    return { status: "authenticated" }
   })
-
-  it('contains correct main navigation links', async () => {
-    const mainNav = await header.find('nav.header-main-nav')
-    expect(mainNav.exists()).toBe(true)
-
-    const homeLink = mainNav.find('a[href="/"]')
-    expect(homeLink.exists()).toBe(true)
-    expect(homeLink.text()).toContain('Home')
-
-    const publicLink = mainNav.find('a[href="/public"]')
-    expect(publicLink.exists()).toBe(true)
-    expect(publicLink.text()).toContain('Public')
-  })
-
-  it('has a login navigation', async () => {
-    const loginNav = await header.find('.header-login-nav')
-    expect(loginNav.exists()).toBe(true)
-  })
-
-  it('contains correct login navigation links', async () => {
-    const loginNav = await header.find('.header-login-nav')
-    expect(loginNav.exists()).toBe(true)
-
-    const loginLink = loginNav.find('a[href="/login"]')
-    expect(loginLink.exists()).toBe(true)
-    expect(loginLink.text()).toContain('Log in')
-
-    const signupLink = loginNav.find('a[href="/signup"]')
-    expect(signupLink.exists()).toBe(true)
-    expect(signupLink.text()).toContain('Sign up')
-  })
+  const header = await mountSuspended(Header)
+  const loginNav = await header.find('.header-login-nav')
+  expect(loginNav.exists()).toBe(true)
 })

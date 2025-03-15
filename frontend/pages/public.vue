@@ -1,3 +1,7 @@
+<script>
+definePageMeta({ auth: false })
+</script>
+
 <template>
   <UiContainer class="page relative flex flex-col py-10 lg:py-20">
     <div

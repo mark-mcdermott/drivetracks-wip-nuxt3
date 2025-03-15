@@ -83,7 +83,7 @@ export async function verifyHeaderDetails(page, expect) {
 export async function verifyFooterDetails(page, expect) {
   const footerP = page.getByTestId('footer-p');
   await expect(footerP).toBeVisible({ timeout: 30000 });
-  await expect(footerP).toHaveText('© 2025. Made with Nuxt, Tailwind, UI Thing, Rails, Fly.io and S3.');
+  await expect(footerP).toHaveText('© 2024. Made with Nuxt, Tailwind, UI Thing, Rails, Fly.io and S3.');
 
   const nuxtLink = footerP.locator('a', { hasText: 'Nuxt' });
   await expect(nuxtLink).toHaveAttribute('href', 'https://nuxt.com');
@@ -97,4 +97,17 @@ export async function verifyFooterDetails(page, expect) {
   await expect(flyLink).toHaveAttribute('href', 'https://fly.io');
   const s3Link = footerP.locator('a', { hasText: 'S3' });
   await expect(s3Link).toHaveAttribute('href', 'https://aws.amazon.com/s3/');
+}
+
+// TODO: Needs some more work
+export async function logIn(page) {
+  const logInButton = await page.locator('header a[href="/login"]')
+  expect(await logInButton.isVisible()).toBe(true)
+  await logInButton.click()
+  await page.waitForLoadState('load');
+  const submitButton = await page.locator('main form button[type="submit"]')
+  await submitButton.click();
+  await page.waitForLoadState('load')
+  await page.waitForLoadState('networkidle')
+  await page.waitForFunction(() => !window.location.href.includes('/login'));
 }

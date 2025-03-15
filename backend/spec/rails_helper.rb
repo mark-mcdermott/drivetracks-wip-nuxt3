@@ -14,9 +14,16 @@ rescue ActiveRecord::PendingMigrationError => e
 end
 
 RSpec.configure do |config|
+  config.before(:suite) do
+    puts "Loading FactoryBot factories..."
+    FactoryBot.factories.clear
+    FactoryBot.reload
+    puts "Factories loaded: #{FactoryBot.factories.map(&:name)}"
+  end
+
   config.include FactoryBot::Syntax::Methods
   
-  config.use_transactional_fixtures = false
+  config.use_transactional_fixtures = true
 
   config.before(:each) do
     Rails.application.routes.default_url_options[:host] = 'http://localhost:3000'
