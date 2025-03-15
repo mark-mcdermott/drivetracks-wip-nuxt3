@@ -4444,7 +4444,6 @@ curl -H 'Content-Type: application/json' -X POST -d '{"user": { "email": "test@m
 ```
 - you should see a `status: 200` in the response somewhere a long `token` string and now our user is logged in
 - kill the server with `^ + c`
-- `rm spec/requests/api/v1/current_user_spec.rb` (TODO: I'm not 100% the correct path here)
 
 ### Test The UI Locally
 - `cd ~/app/frontend`
