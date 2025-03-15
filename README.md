@@ -4088,7 +4088,9 @@ end
 ```
 
 ### User Model Spec
-- I think at this point `~/app/backend/spec/models/user_spec.rb` is created, but mostly empty.
+- `cd backend`
+- `mkdir spec/models`
+- `touch spec/models/user_spec.rb`
 - make `~/app/backend/spec/models/user_spec.rb` look like this:
 ```
 # frozen_string_literal: true
@@ -4424,7 +4426,10 @@ end
 ### Test The API
 - `cd ~/app/backend`
 - `rails server`
-- split your terminal and in the second pane, run `curl -H 'Content-Type: application/json' -X POST -d '{"user": { "email": "test@mail.com", "password" : "password" }}' http://localhost:3000/api/v1/auth/signup`
+- split your terminal and in the second pane, run:
+```
+curl -H 'Content-Type: application/json' -X POST -d '{"user": { "email": "test@mail.com", "password" : "password" }}' http://localhost:3000/api/v1/auth/signup
+```
 - You should see a `status: 200` in the response somewhere and now a user is created. We will test the login API next, but first we must set the user's email to confirmed in the database. In your first terminal (the rails server one):
   - `^ + c` -> to kill the server
   - `rails console`
