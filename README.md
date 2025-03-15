@@ -4438,7 +4438,10 @@ curl -H 'Content-Type: application/json' -X POST -d '{"user": { "email": "test@m
   - `user.save!`
   - `exit`  
   - `rails server` -> to restart the server
-- in the second terminal now run `curl -H 'Content-Type: application/json' -X POST -d '{"user": { "email": "test@mail.com", "password" : "password" }}' http://localhost:3000/api/v1/auth/login`
+- in the second terminal now run:
+```
+curl -H 'Content-Type: application/json' -X POST -d '{"user": { "email": "test@mail.com", "password" : "password" }}' http://localhost:3000/api/v1/auth/login
+```
 - you should see a `status: 200` in the response somewhere a long `token` string and now our user is logged in
 - kill the server with `^ + c`
 - `rm spec/requests/api/v1/current_user_spec.rb` (TODO: I'm not 100% the correct path here)
